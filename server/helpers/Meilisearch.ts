@@ -24,12 +24,27 @@ export class Meilisearch {
         return this.client;
     }
 
+    async existsIndex(indexName: string): Promise<boolean> {
+        try {
+            await this.client.index(indexName).getStats();
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
     async createIndex(indexName: string): Promise<void> {
         await this.client.createIndex(indexName);
     }
 
     async deleteIndex(indexName: string): Promise<void> {
         await this.client.deleteIndex(indexName);
+    }
+
+    async replaceIndex(indexName: string, indexNameNew: string): Promise<void> {
+        await this.client.swapIndexes([
+            { 'indexes': [indexName, indexNameNew] }
+        ]);
     }
 
     async search(indexName: string, query: string): Promise<any> {
@@ -50,5 +65,9 @@ export class Meilisearch {
 
     async getDocument(indexName: string, documentId: string): Promise<any> {
         return await this.client.index(indexName).getDocument(documentId);
+    }
+
+    async updateRankingRules(indexName: string, rankingRules: string[]): Promise<void> {
+        await this.client.index(indexName).updateRankingRules(rankingRules);
     }
 }

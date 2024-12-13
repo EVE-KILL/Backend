@@ -23,6 +23,14 @@ export default defineNitroConfig({
         swr: true,
       },
     },
+    "/api/search/**": {
+      cors: true,
+      cache: {
+        maxAge: 300,
+        staleMaxAge: -1,
+        swr: true,
+      },
+    },
   },
 
   imports: {
@@ -33,7 +41,10 @@ export default defineNitroConfig({
 
   scheduledTasks: {
     '0 0 * * *': ['updatePrices'],
-    '* * * * *': ['tqStatus'],
+    '* * * * *': [
+      'tqStatus',
+      'updateMeilisearch'
+    ],
   },
 
   experimental: {
