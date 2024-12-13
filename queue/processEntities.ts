@@ -15,9 +15,9 @@ export default {
         }, {
             concurrency: 5
         }).on('failed', (job: Job | undefined, err: Error) => {
-            console.log(`Character Update: ${job?.id} (CharacterID: ${job?.data.characterId}) | ${err.message} | https://esi.evetech.net/latest/characters/${job?.data.characterId}/`);
+            console.log('Character Update:', job?.id, '( CharacterID:', job?.data.characterId, ') | ${err.message} | https://esi.evetech.net/latest/characters/${job?.data.characterId}/');
         }).on('completed', (job: Job) => {
-            console.log(`Character Update: ${job.id} (CharacterID: ${job.data.characterId}) | Completed`);
+            console.log('Character Update:', job.id, '( CharacterID:', job.data.characterId, ') | Completed');
         });
 
         createWorker('corporation', async (job: Job) => {
@@ -25,9 +25,9 @@ export default {
         }, {
             concurrency: 5
         }).on('failed', (job: Job | undefined, err: Error) => {
-            console.log(`Corporation Update: ${job?.id} (CorporationID: ${job?.data.corporationId}) | ${err.message} | https://esi.evetech.net/latest/corporations/${job?.data.corporationId}/`);
+            console.log('Corporation Update:', job?.id, '( CorporationID:', job?.data.corporationId, ') | ${err.message} | https://esi.evetech.net/latest/corporations/${job?.data.corporationId}/');
         }).on('completed', (job: Job) => {
-            console.log(`Corporation Update: ${job.id} (CorporationID: ${job.data.corporationId}) | Completed`);
+            console.log('Corporation Update:', job.id, '( CorporationID:', job.data.corporationId, ') | Completed');
         });
 
         createWorker('alliance', async (job: Job) => {
@@ -35,9 +35,9 @@ export default {
         }, {
             concurrency: 5
         }).on('failed', (job: Job | undefined, err: Error) => {
-            console.log(`Alliance Update: ${job?.id} (AllianceID: ${job?.data.allianceId}) | ${err.message} | https://esi.evetech.net/latest/alliances/${job?.data.allianceId}/`);
+            console.log('Alliance Update:', job?.id, '( AllianceID:', job?.data.allianceId, ') | ${err.message} | https://esi.evetech.net/latest/alliances/${job?.data.allianceId}/');
         }).on('completed', (job: Job) => {
-            console.log(`Alliance Update: ${job.id} (AllianceID: ${job.data.allianceId}) | Completed`);
+            console.log('Alliance Update:', job.id, '( AllianceID:', job.data.allianceId, ') | Completed');
         });
     }
 };

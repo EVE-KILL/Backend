@@ -13,9 +13,9 @@ export default {
         }, {
             concurrency: 5
         }).on('failed', (job: Job | undefined, err: Error) => {
-            console.log(`Killmail Parser: ${job?.id} (KillID: ${job?.data.killmailId}) | ${err.message} | https://esi.evetech.net/latest/killmails/${job?.data.killmailId}/${job?.data.killmailHash}/`);
+            console.log('Killmail Parser:', job?.id, '( KillID:', job?.data.killmailId, ') | ${err.message} | https://esi.evetech.net/latest/killmails/${job?.data.killmailId}/${job?.data.killmailHash}/');
         }).on('completed', (job: Job) => {
-            console.log(`Killmail Parser: ${job.id} (KillID: ${job.data.killmailId}) | Completed`);
+            console.log('Killmail Parser:', job.id, '( KillID:', job.data.killmailId, ') | Completed');
         });
     }
 };
