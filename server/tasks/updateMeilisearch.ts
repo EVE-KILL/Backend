@@ -7,6 +7,8 @@ import { IInvType } from "~/interfaces/IInvType";
 import { IRegion } from "~/interfaces/IRegion";
 import { ISolarSystem } from "~/interfaces/ISolarSystem";
 
+const BATCH_SIZE = 10000;
+
 export default defineTask({
   meta: {
     name: "update:meilisearch",
@@ -17,7 +19,6 @@ export default defineTask({
     // Create a placeholder index
     await meilisearch.createIndex('nitro-update');
 
-    // Get all characters, corporations, alliances, factions, systems, constellations, regionx and items
     let entityTypes = [
         "characters",
         "corporations",
@@ -36,112 +37,129 @@ export default defineTask({
         systems: 0,
         regions: 0,
         items: 0,
-    }
+    };
 
     for (let entityType of entityTypes) {
-        let entities = await getEntities(entityType);
-        resultCount[entityType] = entities.length;
-        await meilisearch.addDocuments('nitro-update', entities);
+        resultCount[entityType] = await processEntities(entityType, meilisearch);
     }
 
     // Replace the nitro index with nitro-update
     await meilisearch.replaceIndex('nitro', 'nitro-update');
     await meilisearch.deleteIndex('nitro-update');
 
-    return { result: {
-        characters: { count: resultCount.characters },
-        corporations: { count: resultCount.corporations },
-        alliances: { count: resultCount.alliances },
-        factions: { count: resultCount.factions },
-        systems: { count: resultCount.systems },
-        regions: { count: resultCount.regions },
-        items: { count: resultCount.items },
-    } };
+    return { result: resultCount };
   },
 });
 
-async function getEntities(entityType: string) {
+async function processEntities(entityType: string, meilisearch: Meilisearch): Promise<number> {
+    let count = 0;
+    let skip = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+        const entities = await getEntities(entityType, skip, BATCH_SIZE);
+        if (entities.length > 0) {
+            await meilisearch.addDocuments('nitro-update', entities);
+            count += entities.length;
+            skip += BATCH_SIZE;
+        }
+        hasMore = entities.length === BATCH_SIZE;
+    }
+
+    return count;
+}
+
+async function getEntities(entityType: string, skip: number, limit: number) {
     switch (entityType) {
         case "characters":
-            let characters = await Characters.find({
-                deleted: false
-            });
-            return characters.map((character: ICharacter) => {
-                return {
-                    id: character.character_id,
-                    name: character.name,
-                    type: 'character',
-                    rank: 7
-                };
-            });
+            let characters = await Characters.find({ deleted: false }, {
+                character_id: 1,
+                name: 1,
+            }).skip(skip).limit(limit);
+            return characters.map((character: ICharacter) => ({
+                id: character.character_id,
+                name: character.name,
+                type: 'character',
+                rank: 7,
+            }));
+
         case "corporations":
-            let corporations = await Corporations.find({});
-            return corporations.map((corporation: ICorporation) => {
-                return {
-                    id: corporation.corporation_id,
-                    name: corporation.name,
-                    ticker: corporation.ticker,
-                    type: 'corporation',
-                    rank: 6
-                };
-            });
+            let corporations = await Corporations.find({}, {
+                corporation_id: 1,
+                name: 1,
+                ticker: 1,
+            }).skip(skip).limit(limit);
+            return corporations.map((corporation: ICorporation) => ({
+                id: corporation.corporation_id,
+                name: corporation.name,
+                ticker: corporation.ticker,
+                type: 'corporation',
+                rank: 6,
+            }));
 
         case "alliances":
-            let alliances = await Alliances.find({});
-            return alliances.map((alliance: IAlliance) => {
-                return {
-                    id: alliance.alliance_id,
-                    name: alliance.name,
-                    ticker: alliance.ticker,
-                    type: 'alliance',
-                    rank: 5
-                };
-            });
+            let alliances = await Alliances.find({}, {
+                alliance_id: 1,
+                name: 1,
+                ticker: 1,
+            }).skip(skip).limit(limit);
+            return alliances.map((alliance: IAlliance) => ({
+                id: alliance.alliance_id,
+                name: alliance.name,
+                ticker: alliance.ticker,
+                type: 'alliance',
+                rank: 5,
+            }));
 
         case "factions":
-            let factions = await Factions.find({});
-            return factions.map((faction: IFaction) => {
-                return {
-                    id: faction.faction_id,
-                    name: faction.name,
-                    type: 'faction',
-                    rank: 4
-                };
-            });
+            let factions = await Factions.find({}, {
+                faction_id: 1,
+                name: 1,
+            }).skip(skip).limit(limit);
+            return factions.map((faction: IFaction) => ({
+                id: faction.faction_id,
+                name: faction.name,
+                type: 'faction',
+                rank: 4,
+            }));
 
         case "systems":
-            let systems = await SolarSystems.find({});
-            return systems.map((system: ISolarSystem) => {
-                return {
-                    id: system.system_id,
-                    name: system.system_name,
-                    type: 'system',
-                    rank: 3
-                };
-            });
+            let systems = await SolarSystems.find({}, {
+                system_id: 1,
+                system_name: 1,
+            }).skip(skip).limit(limit);
+            return systems.map((system: ISolarSystem) => ({
+                id: system.system_id,
+                name: system.system_name,
+                type: 'system',
+                rank: 3,
+            }));
 
         case "regions":
-            let regions = await Regions.find({});
-            return regions.map((region: IRegion) => {
-                return {
-                    id: region.region_id,
-                    name: region.region_name,
-                    type: 'region',
-                    rank: 2
-                };
-            });
+            let regions = await Regions.find({}, {
+                region_id: 1,
+                region_name: 1,
+            }).skip(skip).limit(limit);
+            return regions.map((region: IRegion) => ({
+                id: region.region_id,
+                name: region.region_name,
+                type: 'region',
+                rank: 2,
+            }));
 
         case "items":
-            let items = await InvTypes.find({
-                published: true
-            });
-            return items.map((item: IInvType) => {
-                return {
-                    id: item.type_id,
-                    name: item.type_name,
-                    type: 'item',
-                    rank: 1
-                };
-            });
+            let items = await InvTypes.find({ published: true }, {
+                type_id: 1,
+                type_name: 1,
+            }).skip(skip).limit(limit);
+            return items.map((item: IInvType) => ({
+                id: item.type_id,
+                name: item.type_name,
+                type: 'item',
+                rank: 1,
+            }));
+
+        default:
+            return [];
     }
 }
