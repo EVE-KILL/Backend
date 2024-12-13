@@ -1,0 +1,32 @@
+#!/usr/bin/env bun
+
+import { Command } from 'commander';
+import path from 'path';
+import fs from 'fs/promises';
+import { initMongooseConnection } from '../server/helpers/Mongoose';
+
+const program = new Command();
+await initMongooseConnection();
+
+async function main() {
+    const cliPath = path.join(__dirname, '../queue');
+    const files = await fs.readdir(cliPath);
+
+    for (const file of files) {
+        const { default: commandModule } = await import(path.join(cliPath, file));
+        program
+            .command(commandModule.name)
+            .description(commandModule.description)
+            .action((...args) => commandModule.run(args));
+    }
+
+    program.parse(process.argv);
+    program.exitOverride((error) => {
+        console.log(error);
+    });
+}
+
+main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+});

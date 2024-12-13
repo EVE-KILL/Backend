@@ -1,0 +1,28 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "nitro build",
+    "dev": "nitro dev",
+    "prepare": "nitro prepare",
+    "preview": "node .output/server/index.mjs"
+  },
+  "devDependencies": {
+    "nitropack": "npm:nitropack-nightly@latest",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.5",
+    "bullmq": "^5.31.2",
+    "commander": "^12.1.0",
+    "csv-parser": "^3.0.0",
+    "ioredis": "^5.4.1",
+    "mongoose": "^8.8.4",
+    "node-gyp": "^10.3.1",
+    "server-health": "^5.3.0",
+    "sharp": "^0.33.5",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
+    "tar-stream": "^3.1.7",
+    "unbzip2-stream": "^1.4.3"
+  }
+}
