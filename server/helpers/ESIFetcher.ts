@@ -5,40 +5,11 @@ function sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Configure your rate limit here
-const MAX_REQUESTS_PER_SECOND = 100;
-
 // Initialize the singleton RedisStorage instance
 const storage = RedisStorage.getInstance();
 
-async function enforceRateLimit() {
-    const nowInSeconds = Math.floor(Date.now() / 1000);
-    const key = `rate_limit:${nowInSeconds}`;
-
-    // Try to increment the request count for the current second
-    let currentCountStr = await storage.get(key);
-    let currentCount = currentCountStr ? Number(currentCountStr) : 0;
-    currentCount += 1;
-    await storage.set(key, currentCount.toString());
-
-    // If we just created the key, set expiry so it won't linger
-    if (currentCount === 1) {
-        await storage.getClient().expire(key, 2); // expire after 2 seconds to cover a second rollover
-    }
-
-    // If we've exceeded the max requests for this second, sleep until the next second starts
-    if (currentCount > MAX_REQUESTS_PER_SECOND) {
-        const msUntilNextSecond = 1000 - (Date.now() % 1000);
-        console.warn(`Rate limit exceeded (${currentCount}/${MAX_REQUESTS_PER_SECOND}). Sleeping for ${msUntilNextSecond}ms...`);
-        await sleep(msUntilNextSecond);
-    }
-}
-
 async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
     try {
-        // Enforce the global rate limit before performing the fetch
-        await enforceRateLimit();
-
         // Check if TQ is offline
         const tqOffline = (await storage.get('tqStatus')) === 'offline';
         if (tqOffline) {
@@ -70,18 +41,35 @@ async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
         const esiErrorLimitRemain = Number(response.headers.get('X-Esi-Error-Limit-Remain') ?? 100);
         const esiErrorLimitReset = Number(response.headers.get('X-Esi-Error-Limit-Reset') ?? 0);
 
-        // Store these values in Redis for reference
-        await storage.set('esi_error_limit_remaining', esiErrorLimitRemain);
-        await storage.set('esi_error_limit_reset', esiErrorLimitReset);
-
         // Handle progressive backoff based on error limits
-        if (esiErrorLimitRemain < 100) {
-            const maxSleepTimeInMs = esiErrorLimitReset * 1000; // Convert reset time from seconds to milliseconds
-            const inverseFactor = (100 - esiErrorLimitRemain) / 100;
-            const sleepTimeInMs = Math.max(0, inverseFactor * inverseFactor * maxSleepTimeInMs);
+        let inverseFactor = 0;
 
-            //console.warn(`ESI backoff: Remaining=${esiErrorLimitRemain}, Reset=${esiErrorLimitReset}s. Sleeping for ${sleepTimeInMs}ms`);
-            await sleep(sleepTimeInMs);
+        switch (true) {
+            case (esiErrorLimitRemain < 10):
+                inverseFactor = (100 - esiErrorLimitRemain) / 50;
+                break;
+            case (esiErrorLimitRemain < 20):
+                inverseFactor = (100 - esiErrorLimitRemain) / 120;
+                break;
+            case (esiErrorLimitRemain < 50):
+                inverseFactor = (100 - esiErrorLimitRemain) / 200;
+                break;
+            default:
+                inverseFactor = (100 - esiErrorLimitRemain) / 300;
+                break;
+        }
+
+        if (esiErrorLimitRemain < 100) {
+            let maxSleepTimeInMicroseconds = esiErrorLimitReset * 1000000; // Convert reset time from seconds to microseconds
+            let sleepTimeInMicroseconds = Math.max(1000, (inverseFactor * inverseFactor) * maxSleepTimeInMicroseconds);
+            let sleepTimeInMiliseconds = Math.round(sleepTimeInMicroseconds / 1000);
+
+            // Sleeptime in miliseconds should not exceed the reset time (This way we don't sleep for 30s when there is 3s left to reset)
+            sleepTimeInMiliseconds = Math.min(sleepTimeInMiliseconds, esiErrorLimitReset * 1000);
+
+            // Log backoff
+            //console.warn(`ESI backoff: Remaining=${esiErrorLimitRemain}, Reset=${esiErrorLimitReset}s. Sleeping for ${sleepTimeInMiliseconds}ms`);
+            await sleep(sleepTimeInMiliseconds);
         }
 
         // Handle 420 responses by pausing fetches

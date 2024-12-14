@@ -14,7 +14,7 @@ async function addKillmail(killmailId: number, killmailHash: string, warId: numb
             attempts: 10,
             backoff: {
                 type: 'fixed',
-                delay: 5000 // 5 minutes
+                delay: 5000 // 5 seconds
             },
             removeOnComplete: true,
         }
