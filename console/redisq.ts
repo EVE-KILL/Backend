@@ -5,7 +5,7 @@ export default {
     description: 'Listen to zKillboards redisQ and import killmails from it',
     longRunning: true,
     run: async ({ args }) => {
-        const queueUrl = 'https://redisq.zkillboard.com/listen.php?queueID=evekill_nitro';
+        const queueUrl = `https://redisq.zkillboard.com/listen.php?queueID=${process.env.REDISQ_ID}`;
         const pollRedisQ = async () => {
             try {
                 const response = await fetch(queueUrl, {
@@ -17,7 +17,7 @@ export default {
                     const killmailHash = data.package.zkb.hash;
 
                     console.log('ℹ️  New killmail:', killmailId, '-', killmailHash);
-                    await addKillmail(killmailId, killmailHash);
+                    await addKillmail(killmailId, killmailHash, 0, 10);
                 }
             } catch (error) {
                 console.error('Error fetching killmails:', error);

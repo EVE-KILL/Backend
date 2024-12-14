@@ -7,8 +7,8 @@ import { Regions } from "../models/Regions";
 import { Celestials } from "../models/Celestials";
 import { InvGroups } from "../models/InvGroups";
 
-async function parseKillmail(killmail: IESIKillmail): Promise<IKillmail> {
-    const top = await generateTop(killmail);
+async function parseKillmail(killmail: IESIKillmail, warId: number = 0): Promise<IKillmail> {
+    const top = await generateTop(killmail, warId);
     const victim = await processVictim(killmail.victim);
     const attackers = await processAttackers(killmail.attackers);
     const items = await processItems(killmail.victim.items, new Date(killmail.killmail_time));

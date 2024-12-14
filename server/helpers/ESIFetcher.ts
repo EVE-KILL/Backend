@@ -37,7 +37,7 @@ async function enforceRateLimit() {
 async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
     try {
         // Enforce the global rate limit before performing the fetch
-        //await enforceRateLimit();
+        await enforceRateLimit();
 
         // Check if TQ is offline
         const tqOffline = (await storage.get('tqStatus')) === 'offline';

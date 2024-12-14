@@ -5,10 +5,10 @@ import { Killmails } from '../models/Killmails';
 
 const killmailQueue = createQueue('killmail');
 
-async function addKillmail(killmailId: number, killmailHash: string, priority: number = 1) {
+async function addKillmail(killmailId: number, killmailHash: string, warId: number = 0, priority: number = 1) {
     await killmailQueue.add(
         'killmail',
-        { killmailId: killmailId, killmailHash: killmailHash },
+        { killmailId: killmailId, killmailHash: killmailHash, warId: warId },
         {
             priority: priority,
             attempts: 10,
@@ -21,14 +21,14 @@ async function addKillmail(killmailId: number, killmailHash: string, priority: n
     );
 }
 
-async function processKillmail(killmailId: number, killmailHash: string) {
+async function processKillmail(killmailId: number, killmailHash: string, warId: number = 0) {
     let killmail = await fetchESIKillmail(killmailId, killmailHash);
 
     if (killmail.error || !killmail.victim) {
         throw new Error(`Error fetching killmail: ${killmail.error}`);
     }
 
-    let processedKillmail = await parseKillmail(killmail);
+    let processedKillmail = await parseKillmail(killmail, warId);
     let model = new Killmails(processedKillmail);
     try {
         await model.save();

@@ -4,12 +4,14 @@ import { Alliances } from "../models/Alliances";
 import { Factions } from "../models/Factions";
 import { KillmailsESI } from "../models/KillmailsESI";
 import { InvTypes } from "../models/InvTypes";
+import { Wars } from "../models/Wars";
 import { ICharacter } from "../interfaces/ICharacter";
 import { ICorporation } from "../interfaces/ICorporation";
 import { IAlliance } from "../interfaces/IAlliance";
 import { IFaction } from "../interfaces/IFaction";
 import { IESIKillmail } from "../interfaces/IESIKillmail";
 import { IItem } from "../interfaces/IKillmail";
+import { IWar } from "..//interfaces/IWar";
 import { esiFetcher } from "./ESIFetcher";
 
 async function fetchESIKillmail(killmailId: number, killmailHash: string): Promise<IESIKillmail> {
@@ -262,6 +264,35 @@ async function getItem(item_id: Number): Promise<IItem> {
   return data;
 }
 
+async function getWar(war_id: Number): Promise<IWar> {
+  let data = await esiFetcher(
+    `https://esi.evetech.net/latest/wars/${war_id}/?datasource=tranquility`
+  );
+
+  // id is already set, delete it and add it again as war_id
+  delete data.id;
+  data.war_id = war_id;
+
+  // Save war to database
+  let warModel = new Wars(data);
+  try {
+    await warModel.save();
+  } catch (error) {
+    await Wars.updateOne({ war_id: war_id }, data);
+  }
+
+  // Return war
+  return data;
+}
+
+async function getWarKillmails(war_id: Number): Promise<{ killmail_id: number; killmail_hash: string }[]> {
+  let data = await esiFetcher(
+    `https://esi.evetech.net/latest/wars/${war_id}/killmails/?datasource=tranquility`
+  );
+
+  return data;
+}
+
 export {
   getCharacter,
   getCharacterHistory,
@@ -270,5 +301,7 @@ export {
   getAlliance,
   getFaction,
   getItem,
+  getWar,
   fetchESIKillmail,
+  getWarKillmails,
 };
