@@ -71,7 +71,7 @@ async function getItemValue(item: IESIVictimItem, killTime: Date, isCargo: boole
     return price * (dropped + destroyed);
 }
 
-async function generateTop(killmail: IESIKillmail, warId: number = 0): Promise<IKillmail> {
+async function generateTop(killmail: IESIKillmail, warId: number = 0): Promise<Partial<IKillmail>> {
     const solarSystem = await SolarSystems.findOne({ system_id: killmail.solar_system_id });
     const region = solarSystem ? await Regions.findOne({ region_id: solarSystem.region_id }) : null;
     const killValue = await calculateKillValue(killmail);

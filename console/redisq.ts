@@ -17,7 +17,7 @@ export default {
                     const killmailHash = data.package.zkb.hash;
 
                     console.log('ℹ️  New killmail:', killmailId, '-', killmailHash);
-                    await addKillmail(killmailId, killmailHash, 0, 10);
+                    await addKillmail(killmailId, killmailHash, 0);
                 }
             } catch (error) {
                 console.error('Error fetching killmails:', error);

@@ -19,7 +19,7 @@ export default {
                 // Queue up the killmails for processing
                 let killmails = await getWarKillmails(job.data.warId);
                 for (let killmail of killmails) {
-                    await addKillmail(killmail.killmail_id, killmail.killmail_hash, job.data.warId);
+                    await addKillmail(killmail.killmail_id, killmail.killmail_hash, job.data.warId, 100);
                 }
             }
         }, {

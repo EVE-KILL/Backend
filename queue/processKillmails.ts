@@ -9,11 +9,16 @@ export default {
         console.log('✔ Starting killmail processor');
 
         createWorker('killmail', async (job: Job) => {
-            await processKillmail(job.data.killmailId, job.data.killmailHash);
+            try {
+                await processKillmail(job.data.killmailId, job.data.killmailHash);
+            }
+            catch (error) {
+                console.log("ERROR: ", error);
+            }
         }, {
             concurrency: 5
         }).on('failed', (job: Job | undefined, err: Error) => {
-            console.log('Killmail Parser:', job?.id, '( KillID:', job?.data.killmailId, ') | ${err.message} | https://esi.evetech.net/latest/killmails/${job?.data.killmailId}/${job?.data.killmailHash}/');
+            console.log('Killmail Parser:', job?.id, '( KillID:', job?.data.killmailId, `) | ${err.message} | https://esi.evetech.net/latest/killmails/${job?.data.killmailId}/${job?.data.killmailHash}/`);
         }).on('completed', (job: Job) => {
             console.log('Killmail Parser:', job.id, '( KillID:', job.data.killmailId, ') | Completed');
         });

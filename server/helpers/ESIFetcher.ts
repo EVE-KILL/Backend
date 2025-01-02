@@ -7,13 +7,31 @@ function sleep(ms: number): Promise<void> {
 
 // Initialize the singleton RedisStorage instance
 const storage = RedisStorage.getInstance();
+const redisClient = storage.getClient();
+
+const ESI_RATE_LIMIT = 25; // requests per second
+
+async function rateLimit(): Promise<void> {
+    const key = 'global_rate_limit_counter';
+    const count = await redisClient.incr(key);
+
+    // Set the key to expire after 1 second if it's the first increment
+    if (count === 1) {
+        await redisClient.expire(key, 1);
+    }
+
+    // If we've exceeded the limit, wait for the key to expire
+    if (count > ESI_RATE_LIMIT) {
+        await sleep(1000);
+    }
+}
 
 async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
     try {
         // Check if TQ is offline
         const tqOffline = (await storage.get('tqStatus')) === 'offline';
         if (tqOffline) {
-            console.warn('TQ is offline. Sleeping for 5 seconds before throwing...');
+            console.warn('TQ is offline. Sleeping for 5 seconds...');
             await sleep(5000);
             throw new Error('TQ is offline, fetcher cannot proceed.');
         }
@@ -24,10 +42,12 @@ async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
         if (fetcherPaused) {
             const pauseUntil = new Date(Number(fetcherPausedUntil)).toISOString();
             const sleepTime = Number(fetcherPausedUntil) - Date.now();
-            console.warn(`Fetcher is paused until ${pauseUntil}. Sleeping for ${sleepTime}ms before throwing...`);
+            console.warn(`Fetcher is paused until ${pauseUntil}. Sleeping for ${sleepTime}ms...`);
             await sleep(sleepTime);
-            throw new Error(`Fetcher is paused until ${pauseUntil}.`);
         }
+
+        // Rate limit ESI requests
+        await rateLimit();
 
         let response: Response;
         try {
@@ -41,35 +61,24 @@ async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
         const esiErrorLimitRemain = Number(response.headers.get('X-Esi-Error-Limit-Remain') ?? 100);
         const esiErrorLimitReset = Number(response.headers.get('X-Esi-Error-Limit-Reset') ?? 0);
 
-        // Handle progressive backoff based on error limits
-        let inverseFactor = 0;
-
-        switch (true) {
-            case (esiErrorLimitRemain < 10):
-                inverseFactor = (100 - esiErrorLimitRemain) / 50;
-                break;
-            case (esiErrorLimitRemain < 20):
-                inverseFactor = (100 - esiErrorLimitRemain) / 120;
-                break;
-            case (esiErrorLimitRemain < 50):
-                inverseFactor = (100 - esiErrorLimitRemain) / 200;
-                break;
-            default:
-                inverseFactor = (100 - esiErrorLimitRemain) / 300;
-                break;
-        }
-
         if (esiErrorLimitRemain < 100) {
-            let maxSleepTimeInMicroseconds = esiErrorLimitReset * 1000000; // Convert reset time from seconds to microseconds
-            let sleepTimeInMicroseconds = Math.max(1000, (inverseFactor * inverseFactor) * maxSleepTimeInMicroseconds);
-            let sleepTimeInMiliseconds = Math.round(sleepTimeInMicroseconds / 1000);
+            // Calculate exponential backoff based on remaining errors
+            // As errors approach 0, sleep time increases exponentially
+            const remainingErrorPercentage = esiErrorLimitRemain / 100;
+            const baseTime = 100; // 100ms base
+            const maxBackoffFactor = 120; // Maximum power factor
 
-            // Sleeptime in miliseconds should not exceed the reset time (This way we don't sleep for 30s when there is 3s left to reset)
-            sleepTimeInMiliseconds = Math.min(sleepTimeInMiliseconds, esiErrorLimitReset * 1000);
+            const backoffFactor = Math.pow(maxBackoffFactor, 1 - remainingErrorPercentage);
+            let sleepTimeInMilliseconds = Math.min(
+                baseTime * backoffFactor,
+                esiErrorLimitReset * 1000
+            );
 
-            // Log backoff
-            //console.warn(`ESI backoff: Remaining=${esiErrorLimitRemain}, Reset=${esiErrorLimitReset}s. Sleeping for ${sleepTimeInMiliseconds}ms`);
-            await sleep(sleepTimeInMiliseconds);
+            // Ensure minimum sleep time of 100ms
+            sleepTimeInMilliseconds = Math.max(100, sleepTimeInMilliseconds);
+
+            //console.warn(`ESI backoff: Remaining=${esiErrorLimitRemain}, Reset=${esiErrorLimitReset}s. Sleeping for ${sleepTimeInMilliseconds}ms`);
+            await sleep(sleepTimeInMilliseconds);
         }
 
         // Handle 420 responses by pausing fetches
@@ -95,8 +104,10 @@ async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
             await storage.set('fetcher_paused', pauseUntilTimestamp.toString());
 
             await sleep(sleepTime * 1000);
+            console.warn(`Status 420: Rate limited. Paused fetcher for ${sleepTime}s.`);
 
-            throw new Error(`Status 420: Rate limited. Paused fetcher for ${sleepTime}s.`);
+            // Go back to the top and retry the fetch now that we've slept for a bit
+            return await esiFetcher(url, options);
         }
 
         return await response.json();
