@@ -7,7 +7,7 @@ import { Regions } from "../models/Regions";
 import { Celestials } from "../models/Celestials";
 import { InvGroups } from "../models/InvGroups";
 
-async function parseKillmail(killmail: IESIKillmail, warId: number = 0): Promise<IKillmail> {
+async function parseKillmail(killmail: IESIKillmail, warId: number = 0): Promise<Partial<IKillmail>> {
     const top = await generateTop(killmail, warId);
     const victim = await processVictim(killmail.victim);
     const attackers = await processAttackers(killmail.attackers);

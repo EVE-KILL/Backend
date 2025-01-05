@@ -1,4 +1,4 @@
-import { Schema, type SchemaDefinition, type SchemaOptions, model } from "mongoose";
+import { Schema, type SchemaDefinition, type SchemaOptions, model, type Model } from "mongoose";
 
 interface DefineModel<T> {
     name: string;
@@ -7,10 +7,12 @@ interface DefineModel<T> {
     hooks?: (schema: Schema<T>) => void;
 }
 
-export const defineModel<T>({ name, schema, options, hooks }: DefineModel<T>) {
-    const newSchema = options ? new Schema<T>(schema, options as any) : new Schema<T>(schema);
+interface DefinedModel<T> extends Model<T> {}
+
+export const defineModel = <T>({ name, schema, options, hooks }: DefineModel<T>): DefinedModel<T> => {
+    const newSchema: Schema<T> = options ? new Schema<T>(schema, options as any) : new Schema<T>(schema);
 
     if (hooks) hooks(newSchema);
 
-    return model<T>(name, newSchema);
-}
+    return model<T, DefinedModel<T>>(name, newSchema);
+};

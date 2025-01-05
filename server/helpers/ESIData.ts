@@ -55,17 +55,10 @@ async function getCharacter(character_id: number, force_update: boolean = false)
     }
   }
 
-  let data: ICharacter | null  = null;
-  // Temporary stuff, fetch the character from eve-kill if it exists
-  let ekCharacter = await fetch(`https://eve-kill.com/api/characters/${character_id}`);
-  data = await ekCharacter.json();
-  if (!data) {
-    console.log("getting from esi");
-    // Fetch character from external API if not found or outdated
-    data = await esiFetcher(
-      `https://esi.evetech.net/latest/characters/${character_id}/?datasource=tranquility`
-    );
-  }
+  // Fetch character from external API if not found or outdated
+  let data: ICharacter | null = await esiFetcher(
+    `https://esi.evetech.net/latest/characters/${character_id}/?datasource=tranquility`
+  );
 
   // Handle errors
   if (data.error) {
@@ -83,8 +76,8 @@ async function getCharacter(character_id: number, force_update: boolean = false)
   // Add character_id to data
   data.character_id = character_id;
 
-  // Get character history
-  if (!data.history) {
+  // Get character history (If it doesn't exist, or if character isn't deleted)
+  if (!data.history && !data.deleted) {
     let history = await getCharacterHistory(character_id);
     data.history = history;
   }

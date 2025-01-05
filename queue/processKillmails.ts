@@ -10,7 +10,7 @@ export default {
 
         createWorker('killmail', async (job: Job) => {
             try {
-                await processKillmail(job.data.killmailId, job.data.killmailHash);
+                await processKillmail(job.data.killmailId, job.data.killmailHash, job.data.warId || 0);
             }
             catch (error) {
                 console.log("ERROR: ", error);

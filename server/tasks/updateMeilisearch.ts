@@ -7,7 +7,7 @@ import { IInvType } from "~/interfaces/IInvType";
 import { IRegion } from "~/interfaces/IRegion";
 import { ISolarSystem } from "~/interfaces/ISolarSystem";
 
-const BATCH_SIZE = 10000;
+const BATCH_SIZE = 100000;
 
 export default defineTask({
   meta: {
@@ -18,6 +18,9 @@ export default defineTask({
     let meilisearch = new Meilisearch();
     // Create a placeholder index
     await meilisearch.createIndex('nitro-update');
+
+    // Ensure the nitro index exists
+    await meilisearch.createIndex('nitro');
 
     let entityTypes = [
         "characters",

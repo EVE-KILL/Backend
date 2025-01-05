@@ -40,10 +40,15 @@ export default defineNitroConfig({
   },
 
   scheduledTasks: {
-    '0 0 * * *': ['updatePrices'],
+    '0 0 * * *': [
+      'updatePrices',
+      'updateMeilisearch',
+      'fetchWars',
+      'updateWars',
+    ],
     '* * * * *': [
       'tqStatus',
-      'updateMeilisearch'
+      'affiliationUpdate',
     ],
   },
 
@@ -59,6 +64,7 @@ export default defineNitroConfig({
       title: "EVE-KILL API",
       description: "API for EVE-KILL",
       version: "1.0.0",
+
     },
     ui: {
       scalar: {

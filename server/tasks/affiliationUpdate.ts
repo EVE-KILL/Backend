@@ -29,18 +29,23 @@ export default defineTask({
 
     // We can only fetch upwards of 1000 characters at a time, so we have to spluit the characters into chunks
     let characterChunks = _.chunk(characters, 1000);
+    let queuedCount = 0;
 
     // For each character chunk we fetch the character data
     for (let chunk of characterChunks) {
-      processChunk(chunk);
+      let count = await processChunk(chunk);
+      queuedCount += count;
     }
 
-    return { result: "success" }
+    return { result: {
+      queued: queuedCount
+    } }
   },
 });
 
-async function processChunk(characters: ICharacters[]) {
-  let affiliations: ICharacters[] = await fetchAffiliations(characters);
+async function processChunk(characters: ICharacters[], attempt: number = 0): Promise<number> {
+  let queuedCount = 0;
+  let affiliations: ICharacters[] = await fetchAffiliations(characters, attempt);
 
   let originalDataLookup = {};
   for (let character of characters) {
@@ -52,7 +57,7 @@ async function processChunk(characters: ICharacters[]) {
     affiliationLookup[affiliation.character_id] = affiliation;
   }
 
-  let updates: ICharacters[] = [];
+  let updates: Partial<ICharacters>[] = [];
   for (let affiliation of affiliations) {
     let characterId = affiliation.character_id;
 
@@ -95,11 +100,22 @@ async function processChunk(characters: ICharacters[]) {
     if (update.alliance_id) {
       await queueUpdateAlliance(update.alliance_id);
     }
+    queuedCount++;
   }
 
-  // All the characters that aren't in the affiliation update, we need update their updateAt timestamp to prevent them from being updated again
-  let characterIdsDiff = characters.filter(character => !affiliationLookup[character.character_id]);
-  Characters.updateMany({ character_id: { $in: characterIdsDiff.map(character => character.character_id) } }, { updatedAt: new Date() });
+  // All the characters that did not need an update, needs to be updated separately with a new updatedAt time, to ensure they aren't processed again for another 24h
+  // Use the updates array to filter out the characters that were updated - and remove them from the original data, and then update the rest
+  let updatedCharacterIds = updates.map(update => update.character_id);
+  let charactersToUpdate = characters.filter(character => !updatedCharacterIds.includes(character.character_id));
+  for (let character of charactersToUpdate) {
+    await Characters.updateOne({
+      character_id: character.character_id,
+    }, {
+      updatedAt: new Date(),
+    });
+  }
+
+  return queuedCount;
 }
 
 async function fetchAffiliations(characters: ICharacters[], attempts: number = 0) {
