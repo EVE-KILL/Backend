@@ -59,8 +59,8 @@ export default defineNitroConfig({
     "/api/killlist": {
       cors: true,
       cache: {
-        maxAge: 10,
-        staleMaxAge: -1,
+        maxAge: 2,
+        staleMaxAge: 5,
         swr: true,
       },
     },
@@ -131,8 +131,8 @@ export default defineNitroConfig({
   storage: {
     redis: {
       driver: "redis",
-      url: 'redis://' + process.env.NODE_ENV === 'production' ? process.env.REDIS_URI_PROD : process.env.REDIS_URI_DEV + ':30001',
-      database: 1,
+      url: 'redis://' + process.env.REDIS_URI ? process.env.REDIS_URI : '192.168.10.10' + ':' + process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
+      database: process.env.REDIS_DB,
     },
   },
 

@@ -11,9 +11,9 @@ export class RedisStorage {
     // Private constructor to prevent direct instantiation
     public constructor() {
         this.client = new Redis({
-            host: process.env.NODE_ENV === 'production' ? process.env.REDIS_URI_PROD : process.env.REDIS_URI_DEV,
-            port: 30001,
-            db: 1,
+            host: process.env.REDIS_URI ? process.env.REDIS_URI : '192.168.10.10',
+            port: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
+            db: process.env.REDIS_DB ? parseInt(process.env.REDIS_DB) : 0,
         });
     }
 

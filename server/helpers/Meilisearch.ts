@@ -6,10 +6,7 @@ export class Meilisearch {
 
     public constructor() {
         this.client = new MeiliSearch({
-            host:
-                process.env.NODE_ENV === "production"
-                    ? process.env.MEILISEARCH_URI_PROD
-                    : process.env.MEILISEARCH_URI_DEV,
+            host: process.env.MEILISEARCH_URI,
         });
     }
 
