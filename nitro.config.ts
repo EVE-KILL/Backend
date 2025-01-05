@@ -1,3 +1,4 @@
+
 //https://nitro.unjs.io/config
 export default defineNitroConfig({
   preset: "bun",
@@ -110,6 +111,7 @@ export default defineNitroConfig({
   },
 
   openAPI: {
+    production: "runtime",
     meta: {
       title: "EVE-KILL API",
       description: "API for EVE-KILL",
@@ -118,8 +120,13 @@ export default defineNitroConfig({
     },
     ui: {
       scalar: {
+        route: "/scalar",
         theme: "dark",
       },
+      swagger: {
+        route: "/swagger",
+        theme: "dark",
+      }
     },
   },
 
