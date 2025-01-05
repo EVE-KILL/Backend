@@ -1,3 +1,4 @@
+import { IKillmail } from '../interfaces/IKillmail';
 import { fetchESIKillmail } from '../helpers/ESIData';
 import { parseKillmail } from '../helpers/KillmailParser';
 import { createQueue } from '../helpers/Queue';
@@ -21,7 +22,7 @@ async function addKillmail(killmailId: number, killmailHash: string, warId: numb
     );
 }
 
-async function processKillmail(killmailId: number, killmailHash: string, warId: number = 0) {
+async function processKillmail(killmailId: number, killmailHash: string, warId: number = 0): Promise<IKillmail> {
     let killmail = await fetchESIKillmail(killmailId, killmailHash);
 
     if (killmail.error || !killmail.victim) {
@@ -39,20 +40,11 @@ async function processKillmail(killmailId: number, killmailHash: string, warId: 
             throw new Error('No internal auth key configured in ENV');
         }
 
-        // @TODO fix this url so it matches eve-kill's proper url in the future..
-        await fetch('http://localhost:3000/api/ws/submit-killmail', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${internalAuthKey}`
-            },
-            body: JSON.stringify({
-                killmail: processedKillmail
-            })
-        });
     } catch (error) {
         await Killmails.updateOne({ killmail_id: killmailId }, processedKillmail);
     }
+
+    return processedKillmail;
 }
 
 export { addKillmail, processKillmail, fetchESIKillmail };
