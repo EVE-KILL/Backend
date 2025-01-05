@@ -37,22 +37,21 @@ async function fetchESIKillmail(killmailId: number, killmailHash: string): Promi
 
 async function getCharacter(character_id: number, force_update: boolean = false): Promise<ICharacter> {
   let character: ICharacter | null = null;
-  if (force_update === false) {
-    const now = new Date();
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const now = new Date();
+  // When force_update is true, check if the character was updated in the last 24h, if it was return that - otherwise check the last 30 days (This prevents spamming the ESI API, seeing as characters can't change corporations more than every 24h anyway)
+  const daysAgo = force_update ? new Date(now.getTime() - 24 * 60 * 60 * 1000) : new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    character = await Characters.findOne(
-      {
-        character_id: character_id,
-        updatedAt: { $gte: thirtyDaysAgo },
-        deleted: false
-      },
-      { _id: 0, __v: 0, createdAt: 0, updatedAt: 0 }
-    );
+  character = await Characters.findOne(
+    {
+      character_id: character_id,
+      updatedAt: { $gte: daysAgo },
+      deleted: false
+    },
+    { _id: 0, __v: 0, createdAt: 0, updatedAt: 0 }
+  );
 
-    if (character) {
-      return character;
-    }
+  if (character) {
+    return character;
   }
 
   // Fetch character from external API if not found or outdated
@@ -126,21 +125,19 @@ async function getCharacterHistory(character_id: Number): Promise<Object[]> {
 }
 
 async function getCorporation(corporation_id: Number, force_update: boolean = false): Promise<ICorporation> {
-  if (force_update === false) {
-    const now = new Date();
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const now = new Date();
+  const daysAgo = force_update ? new Date(now.getTime() - 24 * 60 * 60 * 1000) : new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    let corporation: ICorporation | null = await Corporations.findOne(
-      {
-        corporation_id: corporation_id,
-        updatedAt: { $gte: thirtyDaysAgo },
-      },
-      { _id: 0, __v: 0, createdAt: 0, updatedAt: 0 }
-    );
+  let corporation: ICorporation | null = await Corporations.findOne(
+    {
+      corporation_id: corporation_id,
+      updatedAt: { $gte: daysAgo },
+    },
+    { _id: 0, __v: 0, createdAt: 0, updatedAt: 0 }
+  );
 
-    if (corporation) {
-      return corporation;
-    }
+  if (corporation) {
+    return corporation;
   }
 
   // Fetch corporation from external API if not found or outdated
@@ -178,21 +175,19 @@ async function getCorporationHistory(
 }
 
 async function getAlliance(alliance_id: Number, force_update: boolean = false): Promise<IAlliance> {
-  if (force_update === false) {
-    const now = new Date();
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const now = new Date();
+  const daysAgo = force_update ? new Date(now.getTime() - 24 * 60 * 60 * 1000) : new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    let alliance: IAlliance | null = await Alliances.findOne(
-      {
-        alliance_id: alliance_id,
-        updatedAt: { $gte: thirtyDaysAgo },
-      },
-      { _id: 0, __v: 0, createdAt: 0, updatedAt: 0 }
-    );
+  let alliance: IAlliance | null = await Alliances.findOne(
+    {
+      alliance_id: alliance_id,
+      updatedAt: { $gte: daysAgo },
+    },
+    { _id: 0, __v: 0, createdAt: 0, updatedAt: 0 }
+  );
 
-    if (alliance) {
-      return alliance;
-    }
+  if (alliance) {
+    return alliance;
   }
 
   // Fetch alliance from external API if not found or outdated
