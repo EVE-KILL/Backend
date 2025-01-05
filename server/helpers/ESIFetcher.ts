@@ -65,7 +65,7 @@ async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
             // Calculate exponential backoff based on remaining errors
             // As errors approach 0, sleep time increases exponentially
             const remainingErrorPercentage = esiErrorLimitRemain / 100;
-            const baseTime = 100; // 100ms base
+            const baseTime = 200; // 100ms base
             const maxBackoffFactor = 120; // Maximum power factor
 
             const backoffFactor = Math.pow(maxBackoffFactor, 1 - remainingErrorPercentage);
@@ -77,7 +77,7 @@ async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
             // Ensure minimum sleep time of 100ms
             sleepTimeInMilliseconds = Math.max(100, sleepTimeInMilliseconds);
 
-            //console.warn(`ESI backoff: Remaining=${esiErrorLimitRemain}, Reset=${esiErrorLimitReset}s. Sleeping for ${sleepTimeInMilliseconds}ms`);
+            console.warn(`ESI backoff: Remaining=${esiErrorLimitRemain}, Reset=${esiErrorLimitReset}s. Sleeping for ${sleepTimeInMilliseconds}ms`);
             await sleep(sleepTimeInMilliseconds);
         }
 
