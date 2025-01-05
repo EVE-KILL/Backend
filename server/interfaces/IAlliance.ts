@@ -5,6 +5,7 @@ export interface IAlliance {
   creator_id: number;
   creator_corporation_id: number;
   executor_corporation_id: number;
+  date_founded: Date;
   updatedAt?: Date;
   createdAt?: Date;
 }

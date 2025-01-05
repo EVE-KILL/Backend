@@ -43,8 +43,10 @@ export default defineNitroConfig({
     '0 0 * * *': [
       'updatePrices',
       'updateMeilisearch',
-      'fetchWars',
       'updateWars',
+    ],
+    '0 * * * *': [
+      'fetchWars',
     ],
     '* * * * *': [
       'tqStatus',

@@ -1,5 +1,7 @@
-import { esiFetcher } from "~/helpers/ESIFetcher";
-import { queueUpdateWar } from "~/queue/War";
+import { esiFetcher } from "../server/helpers/ESIFetcher";
+import { queueUpdateWar } from "../server/queue/War";
+import { Wars } from "../server/models/Wars";
+import { IWar } from "../server/interfaces/IWar";
 
 export default {
     name: 'backfill:wars',
@@ -23,6 +25,12 @@ export default {
 
             // Queue up the war IDs for processing
             for (let warId of wars) {
+                // Check if the war already exists in the database, if not, queue it up
+                let existingWar: IWar | null = await Wars.findOne({ war_id: warId });
+                if (existingWar) {
+                    continue;
+                }
+
                 queueUpdateWar(warId);
             }
         }

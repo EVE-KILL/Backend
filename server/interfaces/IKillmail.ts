@@ -60,7 +60,6 @@ export interface IKillmail {
   kill_time: Date;
   kill_time_str: string;
   near: string;
-  point_value: number;
   region_id: number;
   region_name: string;
   ship_value: number;

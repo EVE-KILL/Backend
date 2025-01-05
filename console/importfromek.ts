@@ -1,61 +1,77 @@
 import { queueUpdateCorporation } from "../server/queue/Corporation";
 import { queueUpdateAlliance } from "../server/queue/Alliance";
 import mongoose from 'mongoose';
-import { Characters } from '../server/models/Characters';
+//import { Characters } from '../server/models/Characters';
+import { Corporations } from '../server/models/Corporations';
+import { Alliances } from '../server/models/Alliances';
 
 export default {
     name: 'importfromek',
     description: 'Import stuff from eve-kill',
     longRunning: false,
     run: async ({ args }) => {
-        async function fetchAndProcess(url: string, type: string, queueFunction: Function) {
-            const response = await fetch(url);
-            const data: number[] = await response.json();
-
-            for (const id of data) {
-                console.log(`Queueing (${type}) ID: ${id}`);
-                await queueFunction(id, 10);
-            }
-        }
-
-        // Process alliances
-        await fetchAndProcess(
-            'https://eve-kill.com/api/alliances',
-            'alliance',
-            queueUpdateAlliance
-        );
-
-        // Process corporations
-        await fetchAndProcess(
-            'https://eve-kill.com/api/corporations',
-            'corporation',
-            queueUpdateCorporation
-        );
-
-        // Create a connection to the old database
+         // Create a connection to the old database
         let conn = mongoose.createConnection('mongodb://192.168.10.10:30017/app');
         // Create a placeholder model for the old database
         let oldCharacterModel = conn.model('characters', new mongoose.Schema({}, { strict: false }));
+        let oldCorporationModel = conn.model('corporations', new mongoose.Schema({}, { strict: false }));
+        let oldAllianceModel = conn.model('alliances', new mongoose.Schema({}, { strict: false }));
 
         // For each character in the old database, insert it into the new database
         let oldCharacters = oldCharacterModel.find().lean().cursor();
 
-        for await (let character of oldCharacters) {
-            // First we need to check if the character we are trying to import already exists in the new database
-            let existingCharacter = await Characters.findOne({ character_id: character.character_id });
+        // for await (let character of oldCharacters) {
+        //     // First we need to check if the character we are trying to import already exists in the new database
+        //     let existingCharacter = await Characters.findOne({ character_id: character.character_id });
 
-            // If the character already exists, we skip it
-            if (existingCharacter) {
+        //     // If the character already exists, we skip it
+        //     if (existingCharacter) {
+        //         continue;
+        //     }
+
+        //     if (character.name === 'Deleted' || character.name === 'Unknown' || character.name === "") {
+        //         continue;
+        //     }
+
+        //     let mappedToCharacter = new Characters(character);
+        //     console.log(`Importing character ${mappedToCharacter.name}`);
+        //     await mappedToCharacter.save();
+        // }
+
+        // For each corporation in the old database, insert it into the new database
+        let oldCorporations = oldCorporationModel.find().lean().cursor();
+
+        for await (let corporation of oldCorporations) {
+            let existingCorporation = await Corporations.findOne({ corporation_id: corporation.corporation_id });
+
+            if (existingCorporation) {
                 continue;
             }
 
-            if (character.name === 'Deleted' || character.name === 'Unknown' || character.name === "") {
+            let mappedToCorporation = new Corporations(corporation);
+            console.log(`Importing corporation ${mappedToCorporation.name}`);
+            await mappedToCorporation.save();
+
+            // Queue the corporation for updating
+            queueUpdateCorporation(corporation.corporation_id);
+        }
+
+        // For each alliance in the old database, insert it into the new database
+        let oldAlliances = oldAllianceModel.find().lean().cursor();
+
+        for await (let alliance of oldAlliances) {
+            let existingAlliance = await Alliances.findOne({ alliance_id: alliance.alliance_id });
+
+            if (existingAlliance) {
                 continue;
             }
 
-            let mappedToCharacter = new Characters(character);
-            console.log(`Importing character ${mappedToCharacter.name}`);
-            await mappedToCharacter.save();
+            let mappedToAlliance = new Alliances(alliance);
+            console.log(`Importing alliance ${mappedToAlliance.name}`);
+            await mappedToAlliance.save();
+
+            // Queue the alliance for updating
+            queueUpdateAlliance(alliance.alliance_id);
         }
     }
 };

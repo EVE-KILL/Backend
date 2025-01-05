@@ -79,7 +79,6 @@ const killmailsSchema = new Schema<IKillmailDocument>(
     kill_time: { type: Date },
     kill_time_str: { type: String },
     near: { type: String },
-    point_value: { type: Number },
     region_id: { type: Number },
     region_name: { type: String },
     ship_value: { type: Number },
@@ -110,6 +109,37 @@ killmailsSchema.index({ killmail_id: 1, hash: 1 }, { unique: true });
 killmailsSchema.index({ kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ createdAt: 1 }, { sparse: true });
 killmailsSchema.index({ updatedAt: 1 }, { sparse: true });
+
+// Victim fields
+killmailsSchema.index({ "victim.character_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "victim.corporation_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "victim.alliance_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "victim.faction_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "victim.ship_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "victim.ship_group_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "attackers.weapon_type_id": 1, kill_time: 1 }, { sparse: true });
+
+// Attacker fields
+killmailsSchema.index({ "attackers.character_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "attackers.corporation_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "attackers.alliance_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "attackers.faction_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "attackers.ship_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "attackers.ship_group_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "attackers.weapon_type_id": 1, kill_time: 1 }, { sparse: true });
+
+// Item fields
+killmailsSchema.index({ "items.type_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "items.group_id": 1, kill_time: 1 }, { sparse: true });
+
+// General fields (war_id, system_id, region_id, is_npc, is_solo, total_value, x_y_z+systemid)
+killmailsSchema.index({ war_id: 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ system_id: 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ region_id: 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ is_npc: 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ is_solo: 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ total_value: 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ x: 1, y: 1, z: 1, system_id: 1, kill_time: 1 }, { sparse: true });
 
 export const Killmails: Model<IKillmailDocument> = model<IKillmailDocument>(
   "killmails",

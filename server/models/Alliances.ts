@@ -15,6 +15,7 @@ const alliancesSchema = new Schema<IAllianceDocument>(
     creator_id: { type: Number }, // ID of the alliance creator
     creator_corporation_id: { type: Number }, // ID of the creator's corporation
     executor_corporation_id: { type: Number }, // ID of the executor's corporation
+    date_founded: { type: Date }, // Date the alliance was founded
     // Timestamps are automatically added by Mongoose
   },
   {
