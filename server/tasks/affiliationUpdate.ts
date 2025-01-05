@@ -63,7 +63,6 @@ async function processChunk(characters: ICharacters[], attempt: number = 0): Pro
 
     let originalData = originalDataLookup[characterId];
     if (!originalData) {
-      console.log("No original data found for character", characterId);
       continue;
     }
 

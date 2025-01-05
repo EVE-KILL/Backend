@@ -6,7 +6,7 @@ export class Meilisearch {
 
     public constructor() {
         this.client = new MeiliSearch({
-            host: process.env.MEILISEARCH_URI,
+            host: process.env.MEILISEARCH_URI || "http://192.168.10.10:30006",
         });
     }
 

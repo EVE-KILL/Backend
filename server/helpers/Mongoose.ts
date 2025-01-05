@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const mongoUri = process.env.MONGO_URI;
+const mongoUri = process.env.MONGO_URI || 'mongodb://192.168.10.10:30017/thessia';
 
 if (!mongoUri) {
     throw new Error('No MongoDB URI provided');
