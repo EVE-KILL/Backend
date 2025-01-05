@@ -116,7 +116,6 @@ export default defineNitroConfig({
       title: "EVE-KILL API",
       description: "API for EVE-KILL",
       version: "1.0.0",
-
     },
     ui: {
       scalar: {
@@ -124,8 +123,7 @@ export default defineNitroConfig({
         theme: "dark",
       },
       swagger: {
-        route: "/swagger",
-        theme: "dark",
+        route: "/swagger"
       }
     },
   },
