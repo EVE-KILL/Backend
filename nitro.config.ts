@@ -22,7 +22,7 @@ export default defineNitroConfig({
         staleMaxAge: -1,
         swr: true,
       },
-    }
+    },
     "/api/killlist": {
       cors: true,
       cache: {
