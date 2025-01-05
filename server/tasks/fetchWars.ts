@@ -1,4 +1,5 @@
 import { esiFetcher } from "~/helpers/ESIFetcher";
+import { queueUpdateWar } from "~/queue/War";
 import { IWar } from "~/interfaces/IWar";
 
 export default defineTask({
@@ -15,8 +16,7 @@ export default defineTask({
         continue;
       }
 
-      console.log(existingWar, warId);
-      //queueUpdateWar(warId);
+      queueUpdateWar(warId);
       newWars++;
     }
 
