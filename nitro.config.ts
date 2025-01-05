@@ -39,6 +39,22 @@ export default defineNitroConfig({
         swr: true,
       },
     },
+    "/api/alliances": {
+      cors: true,
+      cache: {
+        maxAge: 3600,
+        staleMaxAge: -1,
+        swr: true,
+      },
+    },
+    "/api/alliances/**": {
+      cors: true,
+      cache: {
+        maxAge: 300,
+        staleMaxAge: -1,
+        swr: true,
+      },
+    },
     "/api/killlist": {
       cors: true,
       cache: {
