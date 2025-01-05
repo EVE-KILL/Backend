@@ -83,20 +83,7 @@ async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
 
         // Handle 420 responses by pausing fetches
         if (response.status === 420) {
-            const now = new Date();
-            const expiresHeader = response.headers.get('Expires') ?? now.toUTCString();
-            const dateHeader = response.headers.get('Date') ?? now.toUTCString();
-
-            const expiresTime = new Date(expiresHeader).getTime();
-            const serverTime = new Date(dateHeader).getTime();
-            let expiresInSeconds = (expiresTime - serverTime) / 1000;
-            if (isNaN(expiresInSeconds)) {
-                expiresInSeconds = 60;
-            } else {
-                expiresInSeconds = Math.abs(expiresInSeconds);
-            }
-
-            const sleepTime = expiresInSeconds === 0 ? 60 : expiresInSeconds;
+            const sleepTime = 60;
             console.warn(`Status 420 received. Sleeping for ${sleepTime}s and pausing fetcher.`);
 
             // Set fetcher_paused so other fetches will pause
