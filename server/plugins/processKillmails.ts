@@ -5,6 +5,12 @@ import { broadcastKillmail } from '~/helpers/WSClientManager';
 import { processKillmail } from '~/queue/Killmail';
 
 export default defineNitroPlugin(() => {
+    let enabled = process.env.QUEUES_ENABLED === 'true';
+    if (!enabled) {
+        console.log('ℹ️  Killmail processor is disabled');
+        return;
+    }
+
     console.log('✔ Starting killmail processor');
 
     createWorker('killmail', async (job: Job) => {
@@ -17,7 +23,7 @@ export default defineNitroPlugin(() => {
             console.log("ERROR: ", error);
         }
     }, {
-        concurrency: 5
+        concurrency: 2
     }).on('failed', (job: Job | undefined, err: Error) => {
         console.log('Killmail Parser:', job?.id, '( KillID:', job?.data.killmailId, `) | ${err.message} | https://esi.evetech.net/latest/killmails/${job?.data.killmailId}/${job?.data.killmailHash}/`);
     }).on('completed', (job: Job) => {
