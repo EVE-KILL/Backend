@@ -72,7 +72,6 @@ export interface IKillmail {
   x: number;
   y: number;
   z: number;
-  emitted: boolean;
   updatedAt?: Date;
   createdAt?: Date;
 }
