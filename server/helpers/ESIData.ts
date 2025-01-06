@@ -44,8 +44,7 @@ async function getCharacter(character_id: number, force_update: boolean = false)
   character = await Characters.findOne(
     {
       character_id: character_id,
-      updatedAt: { $gte: daysAgo },
-      deleted: false
+      updatedAt: { $gte: daysAgo }
     },
     { _id: 0, __v: 0, createdAt: 0, updatedAt: 0 }
   );
