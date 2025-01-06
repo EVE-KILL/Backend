@@ -77,7 +77,7 @@ async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
             // Ensure minimum sleep time of 100ms
             sleepTimeInMilliseconds = Math.max(100, sleepTimeInMilliseconds);
 
-            console.warn(`ESI backoff: Remaining=${esiErrorLimitRemain}, Reset=${esiErrorLimitReset}s. Sleeping for ${sleepTimeInMilliseconds}ms`);
+            //console.warn(`ESI backoff: Remaining=${esiErrorLimitRemain}, Reset=${esiErrorLimitReset}s. Sleeping for ${sleepTimeInMilliseconds}ms`);
             await sleep(sleepTimeInMilliseconds);
         }
 
