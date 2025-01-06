@@ -7,7 +7,7 @@ import { queueUpdateCorporation } from "~/queue/Corporation";
 export default defineTask({
     meta: {
         name: "update:affiliations",
-        description: "Updates the affiliations of cgaracters",
+        description: "Updates the affiliations of characters",
     },
     async run({ payload, context }) {
         let characterCount = await Characters.estimatedDocumentCount();
@@ -41,6 +41,7 @@ export default defineTask({
             queuedCount += count;
         }
 
+        console.log(`Queued: ${queuedCount} characters for update`);
         return {
             result: {
                 queued: queuedCount,
