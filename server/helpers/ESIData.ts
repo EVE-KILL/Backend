@@ -51,6 +51,9 @@ async function getCharacter(character_id: number, force_update: boolean = false)
   );
 
   if (character) {
+    if (force_update) {
+      Characters.updateOne({ character_id: character_id }, { $set: { updatedAt: new Date() } });
+    }
     return character;
   }
 
@@ -137,6 +140,9 @@ async function getCorporation(corporation_id: Number, force_update: boolean = fa
   );
 
   if (corporation) {
+    if (force_update) {
+      Corporations.updateOne({ corporation_id: corporation_id }, { $set: { updatedAt: new Date() } });
+    }
     return corporation;
   }
 
@@ -187,6 +193,9 @@ async function getAlliance(alliance_id: Number, force_update: boolean = false): 
   );
 
   if (alliance) {
+    if (force_update) {
+      Alliances.updateOne({ alliance_id: alliance_id }, { $set: { updatedAt: new Date() } });
+    }
     return alliance;
   }
 
