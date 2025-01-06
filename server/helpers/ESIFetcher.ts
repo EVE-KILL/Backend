@@ -47,7 +47,7 @@ async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
         }
 
         // Rate limit ESI requests
-        await rateLimit();
+        //await rateLimit();
 
         let response: Response;
         try {

@@ -42,6 +42,6 @@ export default {
 };
 
 async function getWars(latestWarId: number) {
-  const wars = await esiFetcher(`https://esi.evetech.net/latest/wars/?max_war_id=${latestWarId}&datasource=tranquility`);
+  const wars = await esiFetcher(`${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/wars/?max_war_id=${latestWarId}&datasource=tranquility`);
   return wars;
 }

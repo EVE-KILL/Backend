@@ -6,7 +6,7 @@ export default defineTask({
     description: "Update the status of tranquility",
   },
   async run({ payload, context }) {
-    let request = await fetch('https://esi.evetech.net/latest/status/?datasource=tranquility');
+    let request = await fetch(`${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/status/?datasource=tranquility`);
     let status = await request.json();
 
     const storage = new RedisStorage();

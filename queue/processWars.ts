@@ -23,10 +23,15 @@ export default {
                     await addKillmail(killmail.killmail_id, killmail.killmail_hash, job.data.warId, 100);
                 }
             }
+
+            // Sleep for a random amount of time, between 100ms and 1000ms
+            let sleepTime = Math.floor(Math.random() * 900) + 100;
+            //console.log('War Update:', job.id, '( WarID:', job.data.warId, ') | Sleeping for', sleepTime, 'ms');
+            await new Promise(resolve => setTimeout(resolve, sleepTime));
         }, {
             concurrency: 1
         }).on('failed', (job: Job | undefined, err: Error) => {
-            console.log('War Update:', job?.id, '( WarID:', job?.data.warId, ') | ${err.message} | https://esi.evetech.net/latest/wars/${job?.data.warId}/');
+            console.log('War Update:', job?.id, '( WarID:', job?.data.warId, `) | ${err.message} | https://${process.env.ESI_URL || 'https://esi.evetech.net/'}/'}/latest/wars/${job?.data.warId}/`);
         }).on('completed', (job: Job) => {
             console.log('War Update:', job.id, '( WarID:', job.data.warId, ') | Completed');
         });

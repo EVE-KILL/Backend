@@ -25,6 +25,6 @@ export default defineTask({
 });
 
 async function getLatestWars() {
-  const wars = await esiFetcher(`https://esi.evetech.net/latest/wars/`);
+  const wars = await esiFetcher(`${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/wars/`);
   return wars;
 }

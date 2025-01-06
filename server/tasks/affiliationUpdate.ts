@@ -148,7 +148,7 @@ async function fetchAffiliations(
 
     try {
         let response = await esiFetcher(
-            "https://esi.evetech.net/v1/characters/affiliation/",
+            `${process.env.ESI_URL || 'https://esi.evetech.net/'}/v1/characters/affiliation/`,
             {
                 method: "POST",
                 headers: {
