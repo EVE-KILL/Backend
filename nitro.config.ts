@@ -78,6 +78,22 @@ export default defineNitroConfig({
         swr: true,
       },
     },
+    "/api/wars": {
+      cors: true,
+      cache: {
+        maxAge: 3600,
+        staleMaxAge: -1,
+        swr: true,
+      },
+    },
+    "/api/wars/**": {
+      cors: true,
+      cache: {
+        maxAge: 300,
+        staleMaxAge: -1,
+        swr: true,
+      },
+    },
   },
 
   imports: {
