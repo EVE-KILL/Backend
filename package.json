@@ -23,5 +23,8 @@
     "tar-stream": "^3.1.7",
     "typescript": "^5.7.2",
     "unbzip2-stream": "^1.4.3"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.14"
   }
 }
