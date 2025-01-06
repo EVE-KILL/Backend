@@ -129,14 +129,27 @@ async function deletedCharacterInfo(character_id: number): Promise<ICharacter> {
 
 async function getCharacterHistory(character_id: number): Promise<Object[]> {
   let character = await Characters.findOne({ character_id: character_id });
-  let history = await esiFetcher(
-    `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/characters/${character_id}/corporationhistory/?datasource=tranquility`
-  );
+  if (!character) {
+    return [];
+  }
 
-  character.history = history;
-  await Characters.updateOne({ character_id: character_id }, { $set: { history: history } });
+  try {
+    let history = await esiFetcher(
+      `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/characters/${character_id}/corporationhistory/?datasource=tranquility`
+    );
 
-  return history;
+    // Update character with new history
+    await Characters.updateOne(
+      { character_id: character_id },
+      { $set: { history: history } },
+      { upsert: true }
+    );
+
+    return history;
+  } catch (error) {
+    // If there's an error fetching history, return empty array
+    return [];
+  }
 }
 
 async function getCorporation(corporation_id: number, force_update: boolean = false): Promise<ICorporation> {
