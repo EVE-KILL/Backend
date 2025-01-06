@@ -91,6 +91,7 @@ export default defineNitroConfig({
       'updatePrices',
       'updateMeilisearch',
       'updateWars',
+      'updateHistoricalCounts',
     ],
     '0 * * * *': [
       'fetchWars',
