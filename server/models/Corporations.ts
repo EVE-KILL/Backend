@@ -53,7 +53,6 @@ const corporationsSchema = new Schema<ICorporationDocument>(
 );
 
 // Define indexes for the schema
-corporationsSchema.index({ corporation_id: 1 }, { unique: true }); // Ensures corporation_id is unique
 corporationsSchema.index({ name: 1 }, { sparse: true }); // Sparse index on name
 corporationsSchema.index({ ticker: 1 }, { sparse: true }); // Sparse index on ticker
 corporationsSchema.index({ alliance_id: 1 }, { sparse: true }); // Sparse index on alliance_id

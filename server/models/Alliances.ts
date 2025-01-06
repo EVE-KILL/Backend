@@ -31,7 +31,6 @@ const alliancesSchema = new Schema<IAllianceDocument>(
 );
 
 // Define indexes for the schema
-alliancesSchema.index({ alliance_id: 1 }, { unique: true }); // Ensures alliance_id is unique
 alliancesSchema.index({ name: 1 }, { sparse: true }); // Sparse index on name
 alliancesSchema.index({ ticker: 1 }, { sparse: true }); // Sparse index on ticker
 alliancesSchema.index({ creator_id: 1 }, { sparse: true }); // Sparse index on creator_id

@@ -34,9 +34,6 @@ const regionsSchema = new Schema<IRegionDocument>(
   }
 );
 
-// Define indexes for the schema
-regionsSchema.index({ region_id: 1 }, { unique: true });
-
 export const Regions: Model<IRegionDocument> = model<IRegionDocument>(
   "regions",
   regionsSchema,

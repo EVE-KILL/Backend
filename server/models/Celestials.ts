@@ -37,7 +37,6 @@ const celestialsSchema = new Schema<ICelestialDocument>(
 );
 
 // Define indexes for the schema
-celestialsSchema.index({ item_id: 1 }, { unique: true }); // Ensures item_id is unique
 celestialsSchema.index({ solar_system_id: 1 }, { sparse: true }); // Sparse index on solar_system_id
 celestialsSchema.index({ region_id: 1 }, { sparse: true }); // Sparse index on region_id
 celestialsSchema.index({ x: 1, y: 1, z: 1 }, { name: "x_y_z" }); // Compound index on x, y, z

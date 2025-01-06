@@ -119,7 +119,6 @@ killmailsSchema.index({ "victim.alliance_id": 1, kill_time: 1 }, { sparse: true 
 killmailsSchema.index({ "victim.faction_id": 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ "victim.ship_id": 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ "victim.ship_group_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "attackers.weapon_type_id": 1, kill_time: 1 }, { sparse: true });
 
 // Attacker indexes
 killmailsSchema.index({ "attackers.character_id": 1, kill_time: 1 }, { sparse: true });

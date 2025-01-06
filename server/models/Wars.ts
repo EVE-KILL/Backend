@@ -44,16 +44,6 @@ const warsSchema = new Schema<IWarDocument>(
   }
 );
 
-warsSchema.index({ war_id: 1 }, { unique: true });
-warsSchema.index({ started: 1 }, { sparse: true });
-warsSchema.index({ finished: 1 }, { sparse: true });
-warsSchema.index({ "aggressor.alliance_id": 1 }, { sparse: true });
-warsSchema.index({ "aggressor.corporation_id": 1 }, { sparse: true });
-warsSchema.index({ "defender.alliance_id": 1 }, { sparse: true });
-warsSchema.index({ "defender.corporation_id": 1 }, { sparse: true });
-warsSchema.index({ "allies.corporation_id": 1 }, { sparse: true });
-warsSchema.index({ "allies.alliance_id": 1 }, { sparse: true });
-
 export const Wars: Model<IWarDocument> = model<IWarDocument>(
   "wars",
   warsSchema,

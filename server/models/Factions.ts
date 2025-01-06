@@ -39,7 +39,6 @@ const factionsSchema = new Schema<IFactionDocument>(
 );
 
 // Define indexes for the schema
-factionsSchema.index({ faction_id: 1 }, { unique: true });
 factionsSchema.index({ corporation_id: 1 }, { sparse: true });
 
 // Create and export the Factions model

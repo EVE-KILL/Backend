@@ -48,7 +48,6 @@ const charactersSchema = new Schema<ICharacterDocument>(
 );
 
 // Define indexes for the schema
-charactersSchema.index({ character_id: 1 }, { unique: true }); // Ensures character_id is unique
 charactersSchema.index({ name: 1 }, { sparse: true }); // Sparse index on name
 charactersSchema.index({ corporation_id: 1 }, { sparse: true }); // Sparse index on corporation_id
 charactersSchema.index({ alliance_id: 1 }, { sparse: true }); // Sparse index on alliance_id

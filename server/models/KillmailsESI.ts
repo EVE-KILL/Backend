@@ -72,7 +72,7 @@ const killmailsESISchema = new Schema<IESIKillmailDocument>(
         delete ret.__v; // Removes __v (version key) from the JSON output
       },
     },
-  }
+  },
 );
 
 // Define indexes for the schema

@@ -32,9 +32,6 @@ const invGroupsSchema = new Schema<IInvGroupDocument>(
   }
 );
 
-// Define indexes for the schema
-invGroupsSchema.index({ group_id: 1 }, { unique: true });
-
 // Create and export the InvGroups model
 export const InvGroups: Model<IInvGroupDocument> = model<IInvGroupDocument>(
   "invgroups",

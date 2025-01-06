@@ -35,7 +35,6 @@ const invTypesSchema = new Schema<IInvTypeDocument>(
   }
 );
 
-invTypesSchema.index({ type_id: 1 }, { unique: true });
 invTypesSchema.index({ group_id: 1 }, { sparse: true });
 
 export const InvTypes: Model<IInvTypeDocument> = model<IInvTypeDocument>(

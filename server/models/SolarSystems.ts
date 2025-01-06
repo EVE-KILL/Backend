@@ -47,7 +47,6 @@ const solarSystemsSchema = new Schema<ISolarSystemDocument>(
 );
 
 // Define indexes for the schema
-solarSystemsSchema.index({ system_id: 1 }, { unique: true });
 solarSystemsSchema.index({ constellation_id: 1 }, { sparse: true });
 solarSystemsSchema.index({ region_id: 1 }, { sparse: true });
 
