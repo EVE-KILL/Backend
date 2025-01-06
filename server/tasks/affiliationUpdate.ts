@@ -12,12 +12,12 @@ export default defineTask({
     async run({ payload, context }) {
         let characterCount = await Characters.estimatedDocumentCount();
         // We need to fetch all characters as a minimum every 72h
-        let limit = Math.max(1, Math.floor(characterCount / (60 * 128)));
+        let limit = Math.max(1, Math.floor(characterCount / (60 * 72)));
 
         let characters = await Characters.find(
             {
                 // Get all characters that have not been updated in the last 72h
-                updatedAt: { $lt: new Date(Date.now() - 1000 * 60 * 60 * 128) }, // @TODO reevaluate lowering this number from 128 to 48, or 24 once the first full update is done in a week or two
+                updatedAt: { $lt: new Date(Date.now() - 1000 * 60 * 60 * 72) }, // @TODO reevaluate lowering this number from 128 to 48, or 24 once the first full update is done in a week or two
                 deleted: { $ne: true },
             },
             {
