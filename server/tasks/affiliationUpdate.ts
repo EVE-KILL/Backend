@@ -148,7 +148,6 @@ async function fetchAffiliations(
     let character_ids = characters.map((character) => character.character_id);
 
     try {
-        console.log(`${process.env.ESI_URL || 'https://esi.evetech.net/'}v1/characters/affiliation/`);
         let response = await esiFetcher(
             `${process.env.ESI_URL || 'https://esi.evetech.net/'}v1/characters/affiliation/`,
             {
