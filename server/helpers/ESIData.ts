@@ -13,6 +13,8 @@ import { IESIKillmail } from "../interfaces/IESIKillmail";
 import { IItem } from "../interfaces/IKillmail";
 import { IWar } from "..//interfaces/IWar";
 import { esiFetcher } from "./ESIFetcher";
+import { queueUpdateCharacterHistory } from "../queue/Character";
+import { queueUpdateCorporationHistory } from "../queue/Corporation";
 
 async function fetchESIKillmail(killmailId: number, killmailHash: string): Promise<IESIKillmail> {
   // Check if the killmail is in the KillmailESI model first
@@ -74,13 +76,20 @@ async function getCharacter(character_id: number, force_update: boolean = false)
     }
   }
 
-  // Add character_id to data
+  // Add character_id and preserve existing history if it exists
   data.character_id = character_id;
+  const existingCharacter = await Characters.findOne({ character_id: character_id });
+  data.history = data.history || existingCharacter?.history || [];
 
-  // Get character history (If it doesn't exist, or if character isn't deleted)
-  if (!data.history && !data.deleted) {
-    let history = await getCharacterHistory(character_id);
-    data.history = history;
+  // Only queue history update if:
+  // 1. Character isn't deleted
+  // 2. Current corporation_id doesn't match latest history entry
+  // 3. We have no history entries
+  if (!data.deleted && (
+    data.history.length === 0 ||
+    data.corporation_id !== data.history[0]?.corporation_id
+  )) {
+    await queueUpdateCharacterHistory(character_id);
   }
 
   // Save character to database
@@ -118,15 +127,19 @@ async function deletedCharacterInfo(character_id: number): Promise<ICharacter> {
   };
 }
 
-async function getCharacterHistory(character_id: Number): Promise<Object[]> {
+async function getCharacterHistory(character_id: number): Promise<Object[]> {
+  let character = await Characters.findOne({ character_id: character_id });
   let history = await esiFetcher(
     `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/characters/${character_id}/corporationhistory/?datasource=tranquility`
   );
 
+  character.history = history;
+  await Characters.updateOne({ character_id: character_id }, { $set: { history: history } });
+
   return history;
 }
 
-async function getCorporation(corporation_id: Number, force_update: boolean = false): Promise<ICorporation> {
+async function getCorporation(corporation_id: number, force_update: boolean = false): Promise<ICorporation> {
   const now = new Date();
   const daysAgo = force_update ? new Date(now.getTime() - 24 * 60 * 60 * 1000) : new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
@@ -150,12 +163,19 @@ async function getCorporation(corporation_id: Number, force_update: boolean = fa
     `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/corporations/${corporation_id}/?datasource=tranquility`
   );
 
-  // Add corporation_id to data
+  // Add corporation_id and preserve existing history if it exists
   data.corporation_id = corporation_id;
+  const existingCorporation = await Corporations.findOne({ corporation_id: corporation_id });
+  data.history = data.history || existingCorporation?.history || [];
 
-  // Get corporation history
-  let history = await getCorporationHistory(corporation_id);
-  data.history = history;
+  // Only queue history update if:
+  // 1. Current alliance_id doesn't match latest history entry
+  // 2. We have no history entries
+  if (data.history.length === 0 ||
+      data.alliance_id !== data.history[0]?.alliance_id
+  ) {
+    await queueUpdateCorporationHistory(corporation_id);
+  }
 
   // Save corporation to database
   let corporationModel = new Corporations(data);
@@ -169,17 +189,19 @@ async function getCorporation(corporation_id: Number, force_update: boolean = fa
   return data;
 }
 
-async function getCorporationHistory(
-  corporation_id: Number
-): Promise<Object[]> {
+async function getCorporationHistory(corporation_id: number): Promise<Object[]> {
+  let corporation = await Corporations.findOne({ corporation_id: corporation_id });
   let history = await esiFetcher(
     `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/corporations/${corporation_id}/alliancehistory/?datasource=tranquility`
   );
 
+  corporation.history = history;
+  await Corporations.updateOne({ corporation_id: corporation_id }, { $set: { history: history } });
+
   return history;
 }
 
-async function getAlliance(alliance_id: Number, force_update: boolean = false): Promise<IAlliance> {
+async function getAlliance(alliance_id: number, force_update: boolean = false): Promise<IAlliance> {
   const now = new Date();
   const daysAgo = force_update ? new Date(now.getTime() - 24 * 60 * 60 * 1000) : new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
@@ -218,7 +240,7 @@ async function getAlliance(alliance_id: Number, force_update: boolean = false): 
   return data;
 }
 
-async function getFaction(faction_id: Number): Promise<IFaction | null> {
+async function getFaction(faction_id: number): Promise<IFaction | null> {
   let faction: IFaction | null = await Factions.findOne(
     { faction_id: faction_id },
     { _id: 0, __v: 0, createdAt: 0 }
@@ -228,7 +250,7 @@ async function getFaction(faction_id: Number): Promise<IFaction | null> {
   return faction;
 }
 
-async function getItem(item_id: Number): Promise<IItem> {
+async function getItem(item_id: number): Promise<IItem> {
   let item: IItem | null = await InvTypes.findOne(
     { type_id: item_id },
     { _id: 0, __v: 0, createdAt: 0, updatedAt: 0 }
@@ -260,7 +282,7 @@ async function getItem(item_id: Number): Promise<IItem> {
   return data;
 }
 
-async function getWar(war_id: Number): Promise<IWar> {
+async function getWar(war_id: number): Promise<IWar> {
   let data = await esiFetcher(
     `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/wars/${war_id}/?datasource=tranquility`
   );
@@ -281,7 +303,7 @@ async function getWar(war_id: Number): Promise<IWar> {
   return data;
 }
 
-async function getWarKillmails(war_id: Number): Promise<{ killmail_id: number; killmail_hash: string }[]> {
+async function getWarKillmails(war_id: number): Promise<{ killmail_id: number; killmail_hash: string }[]> {
   let data = await esiFetcher(
     `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/wars/${war_id}/killmails/?datasource=tranquility`
   );

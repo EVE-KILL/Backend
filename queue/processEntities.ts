@@ -1,7 +1,7 @@
 import type { Job } from 'bullmq';
 import { createWorker } from '../server/helpers/Queue';
-import { updateCharacter } from '../server/queue/Character';
-import { updateCorporation } from '../server/queue/Corporation';
+import { updateCharacter, updateCharacterHistory } from '../server/queue/Character';
+import { updateCorporation, updateCorporationHistory } from '../server/queue/Corporation';
 import { updateAlliance } from '../server/queue/Alliance';
 
 export default {
@@ -18,6 +18,8 @@ export default {
             console.log('Character Update:', job?.id, '( CharacterID:', job?.data.characterId, `) | ${err.message} | ${process.env.ESI_URL || 'https://esi.evetech.net/'}/'}/latest/characters/${job?.data.characterId}/`);
         }).on('completed', (job: Job) => {
             console.log('Character Update:', job.id, '( CharacterID:', job.data.characterId, ') | Completed');
+        }).on('ready', () => {
+            console.log('Character Worker Ready');
         });
 
         createWorker('corporation', async (job: Job) => {
@@ -28,6 +30,8 @@ export default {
             console.log('Corporation Update:', job?.id, '( CorporationID:', job?.data.corporationId, `) | ${err.message} | ${process.env.ESI_URL || 'https://esi.evetech.net/'}/'}/latest/corporations/${job?.data.corporationId}/`);
         }).on('completed', (job: Job) => {
             console.log('Corporation Update:', job.id, '( CorporationID:', job.data.corporationId, ') | Completed');
+        }).on('ready', () => {
+            console.log('Corporation Worker Ready');
         });
 
         createWorker('alliance', async (job: Job) => {
@@ -38,6 +42,38 @@ export default {
             console.log('Alliance Update:', job?.id, '( AllianceID:', job?.data.allianceId, `) | ${err.message} | ${process.env.ESI_URL || 'https://esi.evetech.net/'}/'}/latest/alliances/${job?.data.allianceId}/`);
         }).on('completed', (job: Job) => {
             console.log('Alliance Update:', job.id, '( AllianceID:', job.data.allianceId, ') | Completed');
+        }).on('ready', () => {
+            console.log('Alliance Worker Ready');
+        });
+
+        createWorker('characterhistory', async (job: Job) => {
+            await updateCharacterHistory(job.data.characterId);
+            // Sleep for a random amount of time, between 100ms and 1000ms
+            let sleepTime = Math.floor(Math.random() * 900) + 100;
+            await new Promise(resolve => setTimeout(resolve, sleepTime));
+        }, {
+            concurrency: 1
+        }).on('failed', (job: Job | undefined, err: Error) => {
+            console.log('Character History Update:', job?.id, '( CharacterID:', job?.data.characterId, `) | ${err.message} | ${process.env.ESI_URL || 'https://esi.evetech.net/'}/'}/latest/characters/${job?.data.characterId}/`);
+        }).on('completed', (job: Job) => {
+            console.log('Character History Update:', job.id, '( CharacterID:', job.data.characterId, ') | Completed');
+        }).on('ready', () => {
+            console.log('Character History Worker Ready');
+        });
+
+        createWorker('corporationhistory', async (job: Job) => {
+            await updateCorporationHistory(job.data.corporationId);
+            // Sleep for a random amount of time, between 100ms and 1000ms
+            let sleepTime = Math.floor(Math.random() * 900) + 100;
+            await new Promise(resolve => setTimeout(resolve, sleepTime));
+        }, {
+            concurrency: 1
+        }).on('failed', (job: Job | undefined, err: Error) => {
+            console.log('Corporation History Update:', job?.id, '( CorporationID:', job?.data.corporationId, `) | ${err.message} | ${process.env.ESI_URL || 'https://esi.evetech.net/'}/'}/latest/corporations/${job?.data.corporationId}/`);
+        }).on('completed', (job: Job) => {
+            console.log('Corporation History Update:', job.id, '( CorporationID:', job.data.corporationId, ') | Completed');
+        }).on('ready', () => {
+            console.log('Corporation History Worker Ready');
         });
     }
 };
