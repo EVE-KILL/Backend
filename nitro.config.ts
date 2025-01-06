@@ -95,6 +95,9 @@ export default defineNitroConfig({
     '0 * * * *': [
       'fetchWars',
     ],
+    '*/5 * * * *': [
+      'findNewCharacters',
+    ],
     '* * * * *': [
       'tqStatus',
       'affiliationUpdate',
