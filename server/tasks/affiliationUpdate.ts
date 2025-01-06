@@ -159,6 +159,8 @@ async function fetchAffiliations(
             }
         );
 
+        console.log(response);
+
         // Merge the response with the affiliations
         affiliations = affiliations.concat(response);
     } catch (error) {
