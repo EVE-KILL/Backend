@@ -31,7 +31,7 @@ export default {
         }, {
             concurrency: 1
         }).on('failed', (job: Job | undefined, err: Error) => {
-            console.log('War Update:', job?.id, '( WarID:', job?.data.warId, `) | ${err.message} | https://${process.env.ESI_URL || 'https://esi.evetech.net/'}/'}/latest/wars/${job?.data.warId}/`);
+            console.log('War Update:', job?.id, '( WarID:', job?.data.warId, `) | ${err.message} | ${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/wars/${job?.data.warId}/`);
         }).on('completed', (job: Job) => {
             console.log('War Update:', job.id, '( WarID:', job.data.warId, ') | Completed');
         });

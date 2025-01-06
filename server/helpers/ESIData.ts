@@ -24,7 +24,7 @@ async function fetchESIKillmail(killmailId: number, killmailHash: string): Promi
   }
 
   try {
-    let esiKillmail: IESIKillmail = await esiFetcher(`${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/killmails/${killmailId}/${killmailHash}/`);
+    let esiKillmail: IESIKillmail = await esiFetcher(`${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/killmails/${killmailId}/${killmailHash}/`);
     esiKillmail.killmail_hash = killmailHash;
 
     // Insert the killmail into the esi killmails table
@@ -60,7 +60,7 @@ async function getCharacter(character_id: number, force_update: boolean = false)
 
   // Fetch character from external API if not found or outdated
   let data: ICharacter | null = await esiFetcher(
-    `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/characters/${character_id}/?datasource=tranquility`
+    `${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/characters/${character_id}/?datasource=tranquility`
   );
 
   // Handle errors
@@ -72,7 +72,7 @@ async function getCharacter(character_id: number, force_update: boolean = false)
       case "Character not found":
         return { error: "Character not found" };
       default:
-        throw new Error(`ESI Error: ${data.error} | URL: ${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/characters/${character_id}/?datasource=tranquility`);
+        throw new Error(`ESI Error: ${data.error} | URL: ${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/characters/${character_id}/?datasource=tranquility`);
     }
   }
 
@@ -135,7 +135,7 @@ async function getCharacterHistory(character_id: number): Promise<Object[]> {
 
   try {
     let history = await esiFetcher(
-      `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/characters/${character_id}/corporationhistory/?datasource=tranquility`
+      `${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/characters/${character_id}/corporationhistory/?datasource=tranquility`
     );
 
     // Update character with new history
@@ -173,7 +173,7 @@ async function getCorporation(corporation_id: number, force_update: boolean = fa
 
   // Fetch corporation from external API if not found or outdated
   let data = await esiFetcher(
-    `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/corporations/${corporation_id}/?datasource=tranquility`
+    `${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/corporations/${corporation_id}/?datasource=tranquility`
   );
 
   // Add corporation_id and preserve existing history if it exists
@@ -205,7 +205,7 @@ async function getCorporation(corporation_id: number, force_update: boolean = fa
 async function getCorporationHistory(corporation_id: number): Promise<Object[]> {
   let corporation = await Corporations.findOne({ corporation_id: corporation_id });
   let history = await esiFetcher(
-    `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/corporations/${corporation_id}/alliancehistory/?datasource=tranquility`
+    `${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/corporations/${corporation_id}/alliancehistory/?datasource=tranquility`
   );
 
   corporation.history = history;
@@ -235,7 +235,7 @@ async function getAlliance(alliance_id: number, force_update: boolean = false): 
 
   // Fetch alliance from external API if not found or outdated
   let data = await esiFetcher(
-    `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/alliances/${alliance_id}/?datasource=tranquility`
+    `${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/alliances/${alliance_id}/?datasource=tranquility`
   );
 
   // Add alliance_id to data
@@ -275,7 +275,7 @@ async function getItem(item_id: number): Promise<IItem> {
 
   // Fetch item from external API if not found
   let data = await esiFetcher(
-    `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/universe/types/${item_id}/?datasource=tranquility`
+    `${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/universe/types/${item_id}/?datasource=tranquility`
   );
 
   data.type_id = item_id;
@@ -297,7 +297,7 @@ async function getItem(item_id: number): Promise<IItem> {
 
 async function getWar(war_id: number): Promise<IWar> {
   let data = await esiFetcher(
-    `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/wars/${war_id}/?datasource=tranquility`
+    `${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/wars/${war_id}/?datasource=tranquility`
   );
 
   // id is already set, delete it and add it again as war_id
@@ -318,7 +318,7 @@ async function getWar(war_id: number): Promise<IWar> {
 
 async function getWarKillmails(war_id: number): Promise<{ killmail_id: number; killmail_hash: string }[]> {
   let data = await esiFetcher(
-    `${process.env.ESI_URL || 'https://esi.evetech.net/'}/latest/wars/${war_id}/killmails/?datasource=tranquility`
+    `${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/wars/${war_id}/killmails/?datasource=tranquility`
   );
 
   return data;
