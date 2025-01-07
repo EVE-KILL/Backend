@@ -15,9 +15,7 @@ export default defineTask({
         let queue = createQueue("character");
         let queueCount = await queue.getJobCounts();
 
-        console.log("Queue count", queueCount);
         if (queueCount.waiting > 0 || queueCount.active > 0 || queueCount.prioritized > 0) {
-            console.log("Character queue is not empty, skipping affiliation update");
             return {
                 result: {
                     queued: 0,
