@@ -5,12 +5,6 @@ import { broadcastKillmail } from '~/helpers/WSClientManager';
 import { processKillmail } from '~/queue/Killmail';
 
 export default defineNitroPlugin(() => {
-    let enabled = process.env.QUEUES_ENABLED === 'true';
-    if (!enabled) {
-        console.log('ℹ️  Killmail processor is disabled');
-        return;
-    }
-
     console.log('✔ Starting killmail processor');
 
     createWorker('killmail', async (job: Job) => {
