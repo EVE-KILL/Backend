@@ -80,34 +80,35 @@ export default {
         // }
 
         // Killmails
-        let oldESIKillmails = oldESIKillmailModel.find({}, {}).lean().cursor();
-        const batchSize = 10000;
-        let batch = [];
+        let oldESIKillmails = oldESIKillmailModel.find().lean().cursor();
+        const batchSize = 100000;
+        let operations = [];
         let count = 0;
 
         for await (let killmail of oldESIKillmails) {
-            let oldDoc = killmail;
-            delete oldDoc._id;
+            delete killmail._id;
+            operations.push({
+                updateOne: {
+                    filter: { killmail_id: killmail.killmail_id },
+                    update: { $setOnInsert: killmail },
+                    upsert: true
+                }
+            });
 
-            let existingESIKillmail = await KillmailsESI.findOne({ killmail_id: oldDoc.killmail_id });
-            if (existingESIKillmail) {
-                continue;
-            }
-
-            batch.push(oldDoc);
-            count++;
-
-            if (batch.length >= batchSize) {
-                console.log(`Importing batch of ${batch.length} killmails (Total: ${count})`);
-                await KillmailsESI.insertMany(batch, { ordered: false });
-                batch = [];
+            if (operations.length >= batchSize) {
+                console.log(`Processing batch of ${operations.length} killmails (Total: ${count + operations.length})`);
+                await KillmailsESI.bulkWrite(operations, { ordered: false });
+                count += operations.length;
+                operations = [];
             }
         }
 
-        // Insert remaining documents
-        if (batch.length > 0) {
-            console.log(`Importing final batch of ${batch.length} killmails (Total: ${count})`);
-            await KillmailsESI.insertMany(batch, { ordered: false });
+        if (operations.length > 0) {
+            console.log(`Processing final batch of ${operations.length} killmails (Total: ${count + operations.length})`);
+            await KillmailsESI.bulkWrite(operations, { ordered: false });
+            count += operations.length;
         }
+
+        console.log(`Completed import for ${count} killmails.`);
     }
 };
