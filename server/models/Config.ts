@@ -24,9 +24,6 @@ const configSchema = new Schema<IConfigDocument>(
   }
 );
 
-// Define indexes for the schema
-configSchema.index({ key: 1 }, { unique: true }); // Ensures key is unique
-
 // Create and export the Config model
 export const Config: Model<IConfigDocument> = model<IConfigDocument>(
   "config",

@@ -27,9 +27,6 @@ const invFlagsSchema = new Schema<IInvFlagDocument>(
   }
 );
 
-// Define indexes for the schema
-invFlagsSchema.index({ flag_id: 1 }, { unique: true });
-
 // Create and export the InvFlags model
 export const InvFlags: Model<IInvFlagDocument> = model<IInvFlagDocument>(
   "invflags",

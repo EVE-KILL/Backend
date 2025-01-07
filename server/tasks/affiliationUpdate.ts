@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { esiFetcher } from "~/helpers/ESIFetcher";
+import { createQueue } from "~/helpers/Queue";
 import { queueUpdateAlliance } from "~/queue/Alliance";
 import { queueUpdateCharacter } from "~/queue/Character";
 import { queueUpdateCorporation } from "~/queue/Corporation";
@@ -10,14 +11,28 @@ export default defineTask({
         description: "Updates the affiliations of characters",
     },
     async run({ payload, context }) {
+        // If the queue isn't empty, we don't want to run this task
+        let queue = createQueue("character");
+        let queueCount = await queue.getJobCounts();
+
+        console.log("Queue count", queueCount);
+        if (queueCount.waiting > 0 || queueCount.active > 0 || queueCount.prioritized > 0) {
+            console.log("Character queue is not empty, skipping affiliation update");
+            return {
+                result: {
+                    queued: 0,
+                },
+            };
+        }
+
         let characterCount = await Characters.estimatedDocumentCount();
-        // We need to fetch all characters as a minimum every 72h
-        let limit = Math.max(1, Math.floor(characterCount / (60 * 72)));
+        // We need to fetch all characters as a minimum every 24h
+        let limit = Math.max(1, Math.floor(characterCount / (60 * 24)));
 
         let characters = await Characters.find(
             {
-                // Get all characters that have not been updated in the last 72h
-                updatedAt: { $lt: new Date(Date.now() - 1000 * 60 * 60 * 72) },
+                // Get all characters that have not been updated in the last 24h
+                updatedAt: { $lt: new Date(Date.now() - 1000 * 60 * 60 * 24) },
                 deleted: { $ne: true },
             },
             {

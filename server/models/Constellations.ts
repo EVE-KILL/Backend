@@ -38,7 +38,6 @@ const constellationsSchema = new Schema<IConstellationDocument>(
 );
 
 // Define indexes for the schema
-constellationsSchema.index({ constellation_id: 1 }, { unique: true });
 constellationsSchema.index({ region_id: 1 }, { sparse: true });
 
 // Create and export the Constellations model
