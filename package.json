@@ -15,7 +15,7 @@
     "meilisearch": "^0.46.0",
     "mongoose": "^8.9.3",
     "nitropack": "npm:nitropack-nightly@latest",
-    "node-gyp": "^10.3.1",
+    "node-gyp": "^11.0.0",
     "server-health": "^5.3.0",
     "sharp": "^0.33.5",
     "sqlite": "^5.1.1",
