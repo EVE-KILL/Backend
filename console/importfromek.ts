@@ -81,12 +81,18 @@ export default {
 
         // Killmails
         let oldESIKillmails = oldESIKillmailModel.find().lean().cursor();
-        const batchSize = 100000;
+        const batchSize = 10000;
         let operations = [];
         let count = 0;
 
         for await (let killmail of oldESIKillmails) {
             delete killmail._id;
+            // Is the killmail already in the new database?
+            let existingKillmail = await KillmailsESI.findOne({ killmail_id: killmail.killmail_id });
+            if (existingKillmail) {
+                continue;
+            }
+
             operations.push({
                 updateOne: {
                     filter: { killmail_id: killmail.killmail_id },
