@@ -19,6 +19,7 @@ export interface ICharacter {
   faction_id: number;
   history: ICharacterHistory[];
   deleted?: boolean;
+  last_active?: Date;
   updatedAt?: Date;
   createdAt?: Date;
   error?: string;

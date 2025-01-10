@@ -33,6 +33,7 @@ const charactersSchema = new Schema<ICharacterDocument>(
     history: { type: [characterHistorySchema] }, // History array
     deleted: { type: Boolean, default: false }, // Deleted flag
     error: { type: String }, // Error message (optional)
+    last_active: { type: Date }, // Last active timestamp
     // Timestamps are automatically added by Mongoose
   },
   {
@@ -52,6 +53,7 @@ charactersSchema.index({ name: 1 }, { sparse: true }); // Sparse index on name
 charactersSchema.index({ corporation_id: 1 }, { sparse: true }); // Sparse index on corporation_id
 charactersSchema.index({ alliance_id: 1 }, { sparse: true }); // Sparse index on alliance_id
 charactersSchema.index({ faction_id: 1 }, { sparse: true }); // Sparse index on faction_id
+charactersSchema.index({ last_active: 1 }, { sparse: true }); // Sparse index on last_active
 charactersSchema.index({ createdAt: 1 }, { sparse: true }); // Sparse index on createdAt
 charactersSchema.index({ updatedAt: 1 }, { sparse: true }); // Sparse index on updatedAt
 

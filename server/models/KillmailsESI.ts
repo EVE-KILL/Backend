@@ -81,6 +81,14 @@ killmailsESISchema.index({ killmail_time: 1 }, { sparse: true });
 killmailsESISchema.index({ createdAt: 1 }, { sparse: true });
 killmailsESISchema.index({ updatedAt: 1 }, { sparse: true });
 
+// Add indexes for attackers and victim (character_id, corporation_id and alliance_id)
+killmailsESISchema.index({ "attackers.character_id": 1 }, { sparse: true });
+killmailsESISchema.index({ "attackers.corporation_id": 1 }, { sparse: true });
+killmailsESISchema.index({ "attackers.alliance_id": 1 }, { sparse: true });
+killmailsESISchema.index({ "victim.character_id": 1 }, { sparse: true });
+killmailsESISchema.index({ "victim.corporation_id": 1 }, { sparse: true });
+killmailsESISchema.index({ "victim.alliance_id": 1 }, { sparse: true });
+
 // Create and export the KillmailsESI model
 export const KillmailsESI: Model<IESIKillmailDocument> = model<IESIKillmailDocument>(
   "killmails_esi",

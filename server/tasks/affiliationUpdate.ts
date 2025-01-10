@@ -1,9 +1,6 @@
 import _ from "lodash";
-import { esiFetcher } from "~/helpers/ESIFetcher";
+import { processChunk } from "~/helpers/Affiliation";
 import { createQueue } from "~/helpers/Queue";
-import { queueUpdateAlliance } from "~/queue/Alliance";
-import { queueUpdateCharacter } from "~/queue/Character";
-import { queueUpdateCorporation } from "~/queue/Corporation";
 
 export default defineTask({
     meta: {
@@ -24,25 +21,67 @@ export default defineTask({
         }
 
         let characterCount = await Characters.estimatedDocumentCount();
-        // We need to fetch all characters as a minimum every 24h
-        let limit = Math.max(1, Math.floor(characterCount / (60 * 24)));
+        let limit = 3000; // Get up to 10000 characters at a time, this means we send 10 requests to ESI
 
-        let characters = await Characters.find(
+        /**
+         * We need to limit the amount of characters we update at any one time.
+         * To do this we have the updatedAt and last_active fields on the character document.
+         * Using these we should follow these rules:
+         * 1. If the character has been active in the last 30 days - we update them daily
+         * 2. If the character has been active in the last 60 days - we update them every 3 days
+         * 3. If the character has been active in the last 90 days - we update them weekly
+         * 4. If the character has been active in the last 180 days - we update them every two weeks
+         * 5. Beyond that the character is updated monthly
+         */
+
+        let queries = [
+            // 30 days
             {
-                // Get all characters that have not been updated in the last 24h
+                last_active: { $gt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30) },
                 updatedAt: { $lt: new Date(Date.now() - 1000 * 60 * 60 * 24) },
-                deleted: { $ne: true },
             },
+            // 60 days
             {
-                _id: 0,
-                character_id: 1,
-                corporation_id: 1,
-                alliance_id: 1,
+                last_active: { $gt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60) },
+                updatedAt: { $lt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3) },
             },
+            // 90 days
             {
-                limit: limit,
-            }
-        );
+                last_active: { $gt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90) },
+                updatedAt: { $lt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7) },
+            },
+            // 180 days
+            {
+                last_active: { $gt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 180) },
+                updatedAt: { $lt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14) },
+            },
+            // 365 days
+            {
+                last_active: { $gt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 365) },
+                updatedAt: { $lt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30) },
+            },
+        ];
+
+        let characters = [];
+        for (let query of queries) {
+            let chunk = await Characters.find(
+                {
+                    deleted: { $ne: true },
+                    ...query,
+                },
+                {
+                    _id: 0,
+                    character_id: 1,
+                    corporation_id: 1,
+                    alliance_id: 1,
+                },
+                {
+                    limit: limit,
+                }
+            );
+
+            characters.push(chunk);
+        }
 
         // We can only fetch upwards of 1000 characters at a time, so we have to spluit the characters into chunks
         let characterChunks = _.chunk(characters, 1000);
@@ -62,153 +101,3 @@ export default defineTask({
         };
     },
 });
-
-async function processChunk(
-    characters: ICharacters[],
-    attempt: number = 0
-): Promise<number> {
-    let queuedCount = 0;
-    let affiliations: ICharacters[] = await fetchAffiliations(
-        characters,
-        attempt
-    );
-
-    let originalDataLookup = {};
-    for (let character of characters) {
-        originalDataLookup[character.character_id] = character;
-    }
-
-    let affiliationLookup = {};
-    for (let affiliation of affiliations) {
-        affiliationLookup[affiliation.character_id] = affiliation;
-    }
-
-    let updates: Partial<ICharacters>[] = [];
-    for (let affiliation of affiliations) {
-        let characterId = affiliation.character_id;
-
-        let originalData = originalDataLookup[characterId];
-        if (!originalData) {
-            continue;
-        }
-
-        if (
-            affiliation.corporation_id &&
-            originalData.corporation_id &&
-            affiliation.corporation_id !== originalData.corporation_id
-        ) {
-            updates.push({
-                character_id: characterId,
-                corporation_id: affiliation.corporation_id,
-            });
-        }
-
-        // Opdater alliance_id hvis der er ændring
-        if (
-            affiliation.alliance_id &&
-            originalData.alliance_id &&
-            affiliation.alliance_id !== originalData.alliance_id
-        ) {
-            updates.push({
-                character_id: characterId,
-                alliance_id: affiliation.alliance_id,
-            });
-        }
-    }
-
-    // For each update, update the corporation / alliance using the queue
-    for (let update of updates) {
-        await queueUpdateCharacter(update.character_id);
-        if (update.corporation_id) {
-            await queueUpdateCorporation(update.corporation_id);
-        }
-        if (update.alliance_id) {
-            await queueUpdateAlliance(update.alliance_id);
-        }
-        queuedCount++;
-    }
-
-    // All the characters that did not need an update, needs to be updated separately with a new updatedAt time, to ensure they aren't processed again for another 24h
-    // Use the updates array to filter out the characters that were updated - and remove them from the original data, and then update the rest
-    let updatedCharacterIds = updates.map((update) => update.character_id);
-    let charactersToUpdate = characters.filter(
-        (character) => !updatedCharacterIds.includes(character.character_id)
-    );
-    for (let character of charactersToUpdate) {
-        await Characters.updateOne(
-            {
-                character_id: character.character_id,
-            },
-            {
-                updatedAt: new Date(),
-            }
-        );
-    }
-
-    return queuedCount;
-}
-
-async function fetchAffiliations(
-    characters: ICharacters[],
-    attempts: number = 0
-) {
-    // We can fetch upto 1000 characters at the same time against the affiliation endpoint
-    // However, if one of the characters fails in the affiliation endpoint, we get an error back from ESI
-    // At that point, we have to split the amount of characters we are fetching by half, and try each half separately
-    // If a half works, it's processed, if it fails, we split it again
-    // This is done 3 times - at which point the failing half is processed one by one via the queue (For now just placeholder it for submission as character_id: character_id)
-    let affiliations = [];
-    let character_ids = characters.map((character) => character.character_id);
-
-    try {
-        let response = await esiFetcher(
-            `${process.env.ESI_URL || 'https://esi.evetech.net/'}v1/characters/affiliation/`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(character_ids),
-            }
-        );
-
-        // Merge the response with the affiliations
-        affiliations = affiliations.concat(response);
-    } catch (error) {
-        if (attempts > 3) {
-            console.log(
-                "Failed to fetch affiliations for characters",
-                character_ids
-            );
-            for (let character_id of character_ids) {
-                queueUpdateCharacter(character_id);
-            }
-        } else {
-            // Split character_ids into two halves
-            let half = Math.ceil(character_ids.length / 2);
-
-            // Process both halves
-            let firstHalfAttempts = attempts;
-            let secondHalfAttempts = attempts;
-            let firstHalf = processChunk(
-                characters.slice(0, half),
-                firstHalfAttempts + 1
-            );
-            let secondHalf = processChunk(
-                characters.slice(half),
-                secondHalfAttempts + 1
-            );
-
-            // Merge the results
-            affiliations = affiliations.concat(firstHalf, secondHalf);
-        }
-    }
-
-    return affiliations;
-}
-
-interface ICharacters {
-    character_id: number;
-    corporation_id: number;
-    alliance_id: number;
-}

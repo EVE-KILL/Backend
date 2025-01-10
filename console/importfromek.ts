@@ -80,41 +80,53 @@ export default {
         // }
 
         // Killmails
-        let oldESIKillmails = oldESIKillmailModel.find().lean().cursor();
-        const batchSize = 10000;
-        let operations = [];
-        let count = 0;
+        let totalImported = 0;
+        let count = 56;
+        const fetchSize = 1000000;
 
-        for await (let killmail of oldESIKillmails) {
-            delete killmail._id;
-            // Is the killmail already in the new database?
-            let existingKillmail = await KillmailsESI.findOne({ killmail_id: killmail.killmail_id });
-            if (existingKillmail) {
-                continue;
+        // Loop until there isn't 1 million results coming from oldIds
+        while (true) {
+            console.log(`Fetching chunk ${count + 1} with ${fetchSize} killmails.`);
+            const oldIds = (await oldESIKillmailModel.find(
+                {},
+                { killmail_id: 1 },
+                { limit: fetchSize, skip: fetchSize * count, sort: { killmail_id: 1 } }
+            )).map(km => km.killmail_id);
+
+            if (oldIds.length === 0) {
+                break;
             }
 
-            operations.push({
-                updateOne: {
-                    filter: { killmail_id: killmail.killmail_id },
-                    update: { $setOnInsert: killmail },
-                    upsert: true
-                }
-            });
+            // Fetch existing from KillmailsESI only for these oldIds
+            const existingInNewDB = await KillmailsESI.find(
+                { killmail_id: { $in: oldIds } },
+                { killmail_id: 1 }
+            );
+            const existingSet = new Set(existingInNewDB.map(k => k.killmail_id));
 
-            if (operations.length >= batchSize) {
-                console.log(`Processing batch of ${operations.length} killmails (Total: ${count + operations.length})`);
-                await KillmailsESI.bulkWrite(operations, { ordered: false });
-                count += operations.length;
-                operations = [];
+            const missingIds = oldIds.filter(id => !existingSet.has(id));
+
+            const chunkSize = 100000;
+            for (let i = 0; i < missingIds.length; i += chunkSize) {
+                const chunk = missingIds.slice(i, i + chunkSize);
+                const oldKillmails = await oldESIKillmailModel.find({ killmail_id: { $in: chunk } }).lean();
+
+                const ops = oldKillmails.map(km => ({
+                    updateOne: {
+                        filter: { killmail_id: km.killmail_id },
+                        update: { $setOnInsert: km },
+                        upsert: true
+                    }
+                }));
+
+                await KillmailsESI.bulkWrite(ops, { ordered: false });
+                totalImported += ops.length;
+                console.log(`Imported chunk ${(i / chunkSize) + 1} with ${ops.length} killmails.`);
             }
+
+            count++;
         }
 
-        if (operations.length > 0) {
-            console.log(`Processing final batch of ${operations.length} killmails (Total: ${count + operations.length})`);
-            await KillmailsESI.bulkWrite(operations, { ordered: false });
-            count += operations.length;
-        }
-
-        console.log(`Completed import for ${count} killmails.`);
+        console.log(`Completed import for ${totalImported} killmails.`);
     }
 };

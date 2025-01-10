@@ -13,12 +13,54 @@ async function parseKillmail(killmail: IESIKillmail, warId: number = 0): Promise
     const attackers = await processAttackers(killmail.attackers);
     const items = await processItems(killmail.victim.items, new Date(killmail.killmail_time));
 
+    // Update the last active field for the victim and all attackers
+    await updateLastActive(killmail);
+
     return {
         ...top,
         victim,
         attackers,
         items,
     };
+}
+
+async function updateLastActive(killmail: IESIKillmail): Promise<void> {
+    // Use the victim character_id, and all the attackers character_ids to update the last_active field in the Characters model
+    for (let attacker of killmail.attackers) {
+        if (attacker.character_id) {
+            // Get the existing last_active from the characters
+            let existingLastActive = await Characters.findOne({ character_id: attacker.character_id }, { last_active: 1 });
+
+            // If the last_active on the character is older than the killmail kill_time, update it - otherwise don't
+            if (existingLastActive && existingLastActive.last_active < new Date(killmail.killmail_time)) {
+                // Update the last_active field for the attacker
+                await Characters.updateOne(
+                    { character_id: attacker.character_id },
+                    { last_active: killmail.killmail_time }
+                );
+            // In case there is no existingLastActive we set it to what the killmail_time is
+            } else if (!existingLastActive) {
+                await Characters.updateOne(
+                    { character_id: attacker.character_id },
+                    { last_active: killmail.killmail_time }
+                );
+            }
+        }
+    }
+
+    let existingLastActive = await Characters.findOne({ character_id: killmail.victim.character_id }, { last_active: 1 });
+    if (existingLastActive && existingLastActive.last_active < new Date(killmail.killmail_time)) {
+        await Characters.updateOne(
+            { character_id: killmail.victim.character_id },
+            { last_active: killmail.killmail_time }
+        );
+    // In case there is no existingLastActive we set it to what the killmail_time is
+    } else if (!existingLastActive) {
+        await Characters.updateOne(
+            { character_id: killmail.victim.character_id },
+            { last_active: killmail.killmail_time }
+        );
+    }
 }
 
 async function calculateKillValue(killmail: IESIKillmail): Promise<{ item_value: number; ship_value: number; total_value: number }> {

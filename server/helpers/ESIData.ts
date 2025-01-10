@@ -29,7 +29,12 @@ async function fetchESIKillmail(killmailId: number, killmailHash: string): Promi
 
     // Insert the killmail into the esi killmails table
     let km = new KillmailsESI(esiKillmail);
-    await km.save();
+
+    try {
+      await km.save();
+    } catch (err) {
+      await km.updateOne({ killmail_id: killmailId }, esiKillmail);
+    }
 
     return esiKillmail;
   } catch (error) {
