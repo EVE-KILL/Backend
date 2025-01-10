@@ -89,7 +89,10 @@ export default defineTask({
 
         // For each character chunk we fetch the character data
         for (let chunk of characterChunks) {
-            let count = await processChunk(chunk);
+            let count = 0;
+            if (chunk.length === 0) {
+                count = await processChunk(chunk);
+            }
             queuedCount += count;
         }
 
