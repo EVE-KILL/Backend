@@ -115,11 +115,11 @@ export default defineNitroConfig({
     ],
     '*/5 * * * *': [
       'findNewCharacters',
-      'processUnprocessedKillmails',
     ],
     '* * * * *': [
       'tqStatus',
       'affiliationUpdate',
+      'processUnprocessedKillmails',
     ],
   },
 

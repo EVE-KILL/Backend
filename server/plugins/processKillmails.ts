@@ -9,11 +9,14 @@ export default defineNitroPlugin(() => {
 
     createWorker('killmail', async (job: Job) => {
         try {
-            let killmail = await processKillmail(job.data.killmailId, job.data.killmailHash, job.data.warId || 0);
-            let routingKeys = determineRoutingKeys(killmail);
-            broadcastKillmail(killmail, routingKeys);
+            if (job.data.killmailId && job.data.killmailHash) {
+                let killmail = await processKillmail(job.data.killmailId, job.data.killmailHash, job.data.warId || 0);
+                let routingKeys = determineRoutingKeys(killmail);
+                broadcastKillmail(killmail, routingKeys);
+            }
         }
         catch (error) {
+            console.log(job.data);
             console.log("ERROR: ", error);
         }
     }, {
