@@ -1,28 +1,31 @@
-import { Prices } from "../models/Prices";
+import { Prices } from "../server/models/Prices";
 import bz2 from "unbzip2-stream";
 import { Readable } from "stream";
 import csvParser from "csv-parser";
 
-export default defineTask({
-    meta: {
-        name: "update:prices",
-        description: "Update the Prices using EVERef",
-    },
-    async run({ payload, context }) {
-        const daysToFetch = 7;
-
-        console.log(`Fetching prices for the last ${daysToFetch} days...`);
-        await fetchPrices(daysToFetch);
+export default {
+    name: "backfill:prices",
+    description: "Backfill all prices from EVERef",
+    longRunning: false,
+    run: async ({ args }) => {
+        console.log("Fetching historic prices...");
+        await fetchHistoricPrices();
 
         return { result: "Prices updated" };
     },
-});
+};
 
-async function fetchPrices(daysToFetch: number) {
-    for (let i = 0; i < daysToFetch; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const dateString = date.toISOString().split("T")[0]; // 'YYYY-MM-DD'
+async function fetchHistoricPrices() {
+    let earliestDate = new Date("2016-11-07");
+    const currentDate = new Date();
+    const daysSinceOldestDate = Math.floor(
+        (currentDate.getTime() - earliestDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    for (let i = 0; i <= daysSinceOldestDate; i++) {
+        const date = new Date(earliestDate);
+        date.setDate(earliestDate.getDate() + i);
+        const dateString = date.toISOString().split("T")[0];
         await processDate(dateString);
     }
 }
@@ -46,7 +49,7 @@ async function processDate(date: string) {
 
         // Decompress bz2 stream and parse CSV
         await new Promise<void>((resolve, reject) => {
-            const batchSize = 5000;
+            const batchSize = 100000;
             let batch: any[] = [];
             let insertCount = 0;
 

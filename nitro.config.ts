@@ -104,13 +104,14 @@ export default defineNitroConfig({
 
   scheduledTasks: {
     '0 0 * * *': [
-      'updatePrices',
       'updateMeilisearch',
       'updateWars',
       'updateHistoricalCounts',
     ],
     '0 * * * *': [
       'fetchWars',
+      'fetchMissedKillmails',
+      'updatePrices',
     ],
     '*/5 * * * *': [
       'findNewCharacters',

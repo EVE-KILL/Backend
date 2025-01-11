@@ -4,7 +4,10 @@ import mongoose from 'mongoose';
 //import { Characters } from '../server/models/Characters';
 //import { Corporations } from '../server/models/Corporations';
 //import { Alliances } from '../server/models/Alliances';
-import { KillmailsESI } from '../server/models/KillmailsESI';
+//import { KillmailsESI } from '../server/models/KillmailsESI';
+import { getWarKillmails } from '../server/helpers/ESIData';
+import { addKillmail } from '../server/queue/Killmail';
+import { Wars } from '../server/models/Wars';
 
 export default {
     name: 'importfromek',
@@ -17,10 +20,49 @@ export default {
         //let oldCharacterModel = conn.model('characters', new mongoose.Schema({}, { strict: false }));
         //let oldCorporationModel = conn.model('corporations', new mongoose.Schema({}, { strict: false }));
         //let oldAllianceModel = conn.model('alliances', new mongoose.Schema({}, { strict: false }));
-        let oldESIKillmailModel = conn.model(
-            "KillmailsESI",
-            new mongoose.Schema({}, { strict: false, collection: "killmails_esi" })
-        );
+        // let oldESIKillmailModel = conn.model(
+        //     "KillmailsESI",
+        //     new mongoose.Schema({}, { strict: false, collection: "killmails_esi" })
+        // );
+        let oldWarsModel = conn.model('wars', new mongoose.Schema({}, { strict: false }));
+        let oldWars = oldWarsModel.find().lean().cursor();
+
+        for await (let war of oldWars) {
+            let existingWar = await Wars.findOne({ war_id: war.id });
+
+            if (existingWar) {
+                continue;
+            }
+
+            // Map war.id to war_id
+            war.war_id = war.id;
+            delete war.id;
+
+            let mappedToWar = new Wars(war);
+            console.log(`Importing war ${mappedToWar.war_id}`);
+            await mappedToWar.save();
+
+            // If the war has kills we need to queue up the killmails for processing
+            if (war.aggressor.ships_killed > 0 || war.defender.ships_killed > 0) {
+                // Queue up the killmails for processing
+                let killmails = null;
+                try {
+                    killmails = await getWarKillmails(war.war_id);
+                } catch (e) {
+                    try {
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        killmails = await getWarKillmails(war.war_id);
+                    } catch (ee) {
+                        throw ee;
+                    }
+                }
+
+                console.log(`Found ${killmails.length} killmails for war ${war.war_id}`);
+                for (let killmail of killmails) {
+                    await addKillmail(killmail.killmail_id, killmail.killmail_hash, war.war_id, 100);
+                }
+            }
+        }
 
         // For each character in the old database, insert it into the new database
         //let oldCharacters = oldCharacterModel.find().lean().cursor();
@@ -79,54 +121,54 @@ export default {
         //     queueUpdateAlliance(alliance.alliance_id);
         // }
 
-        // Killmails
-        let totalImported = 0;
-        let count = 56;
-        const fetchSize = 1000000;
+        // // Killmails
+        // let totalImported = 0;
+        // let count = 56;
+        // const fetchSize = 1000000;
 
-        // Loop until there isn't 1 million results coming from oldIds
-        while (true) {
-            console.log(`Fetching chunk ${count + 1} with ${fetchSize} killmails.`);
-            const oldIds = (await oldESIKillmailModel.find(
-                {},
-                { killmail_id: 1 },
-                { limit: fetchSize, skip: fetchSize * count, sort: { killmail_id: 1 } }
-            )).map(km => km.killmail_id);
+        // // Loop until there isn't 1 million results coming from oldIds
+        // while (true) {
+        //     console.log(`Fetching chunk ${count + 1} with ${fetchSize} killmails.`);
+        //     const oldIds = (await oldESIKillmailModel.find(
+        //         {},
+        //         { killmail_id: 1 },
+        //         { limit: fetchSize, skip: fetchSize * count, sort: { killmail_id: 1 } }
+        //     )).map(km => km.killmail_id);
 
-            if (oldIds.length === 0) {
-                break;
-            }
+        //     if (oldIds.length === 0) {
+        //         break;
+        //     }
 
-            // Fetch existing from KillmailsESI only for these oldIds
-            const existingInNewDB = await KillmailsESI.find(
-                { killmail_id: { $in: oldIds } },
-                { killmail_id: 1 }
-            );
-            const existingSet = new Set(existingInNewDB.map(k => k.killmail_id));
+        //     // Fetch existing from KillmailsESI only for these oldIds
+        //     const existingInNewDB = await KillmailsESI.find(
+        //         { killmail_id: { $in: oldIds } },
+        //         { killmail_id: 1 }
+        //     );
+        //     const existingSet = new Set(existingInNewDB.map(k => k.killmail_id));
 
-            const missingIds = oldIds.filter(id => !existingSet.has(id));
+        //     const missingIds = oldIds.filter(id => !existingSet.has(id));
 
-            const chunkSize = 100000;
-            for (let i = 0; i < missingIds.length; i += chunkSize) {
-                const chunk = missingIds.slice(i, i + chunkSize);
-                const oldKillmails = await oldESIKillmailModel.find({ killmail_id: { $in: chunk } }).lean();
+        //     const chunkSize = 100000;
+        //     for (let i = 0; i < missingIds.length; i += chunkSize) {
+        //         const chunk = missingIds.slice(i, i + chunkSize);
+        //         const oldKillmails = await oldESIKillmailModel.find({ killmail_id: { $in: chunk } }).lean();
 
-                const ops = oldKillmails.map(km => ({
-                    updateOne: {
-                        filter: { killmail_id: km.killmail_id },
-                        update: { $setOnInsert: km },
-                        upsert: true
-                    }
-                }));
+        //         const ops = oldKillmails.map(km => ({
+        //             updateOne: {
+        //                 filter: { killmail_id: km.killmail_id },
+        //                 update: { $setOnInsert: km },
+        //                 upsert: true
+        //             }
+        //         }));
 
-                await KillmailsESI.bulkWrite(ops, { ordered: false });
-                totalImported += ops.length;
-                console.log(`Imported chunk ${(i / chunkSize) + 1} with ${ops.length} killmails.`);
-            }
+        //         await KillmailsESI.bulkWrite(ops, { ordered: false });
+        //         totalImported += ops.length;
+        //         console.log(`Imported chunk ${(i / chunkSize) + 1} with ${ops.length} killmails.`);
+        //     }
 
-            count++;
-        }
+        //     count++;
+        // }
 
-        console.log(`Completed import for ${totalImported} killmails.`);
+        // console.log(`Completed import for ${totalImported} killmails.`);
     }
 };
