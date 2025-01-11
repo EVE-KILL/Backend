@@ -35,6 +35,18 @@ export default defineTask({
       }
     }
 
+    if (process.env.BACKEND_DISCORD_URL !== undefined && foundKillmailCount > 0) {
+        await fetch(process.env.BACKEND_DISCORD_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                content: `Found ${foundKillmailCount} missing killmails`,
+            }),
+        });
+    }
+
     return { result: {
       'foundKillmailCount': foundKillmailCount
     } }

@@ -20,8 +20,7 @@ export default defineTask({
             };
         }
 
-        let characterCount = await Characters.estimatedDocumentCount();
-        let limit = 3000; // Get up to 10000 characters at a time, this means we send 10 requests to ESI
+        let limit = 10000; // Get up to 10000 characters at a time, this means we send 10 requests to ESI
 
         /**
          * We need to limit the amount of characters we update at any one time.
@@ -96,7 +95,18 @@ export default defineTask({
             queuedCount += count;
         }
 
-        console.log(`Queued ${queuedCount} characters for affiliation update`);
+        if (process.env.BACKEND_DISCORD_URL !== undefined && queuedCount > 0) {
+            await fetch(process.env.BACKEND_DISCORD_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    content: `Queued ${queuedCount} characters for affiliation update`,
+                }),
+            });
+        }
+
         return {
             result: {
                 queued: queuedCount,
