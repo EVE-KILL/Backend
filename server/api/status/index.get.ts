@@ -11,13 +11,13 @@ export default defineEventHandler(async (event) => {
 
     return {
         queueCounts: {
-            alliance: await allianceQueue.getJobCounts(),
-            corporation: await corporationQueue.getJobCounts(),
-            character: await characterQueue.getJobCounts(),
-            characterhistory: await characterHistoryQueue.getJobCounts(),
-            corporationhistory: await corporationHistoryQueue.getJobCounts(),
-            killmail: await killmailQueue.getJobCounts(),
-            war: await warQueue.getJobCounts()
+            alliance: await allianceQueue.count(),
+            corporation: await corporationQueue.count(),
+            character: await characterQueue.count(),
+            characterhistory: await characterHistoryQueue.count(),
+            corporationhistory: await corporationHistoryQueue.count(),
+            killmail: await killmailQueue.count(),
+            war: await warQueue.count()
         },
         allianceCount: await Alliances.estimatedDocumentCount(),
         corporationCount: await Corporations.estimatedDocumentCount(),
