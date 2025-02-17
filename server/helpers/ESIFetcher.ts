@@ -9,7 +9,7 @@ function sleep(ms: number): Promise<void> {
 const storage = RedisStorage.getInstance();
 const redisClient = storage.getClient();
 
-const ESI_RATE_LIMIT = process.env.ESI_RATE_LIMIT || 25; // requests per second
+const ESI_RATE_LIMIT = Number(process.env.ESI_RATE_LIMIT) || 25; // requests per second
 
 async function rateLimit(): Promise<void> {
     const key = 'global_rate_limit_counter';
