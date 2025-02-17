@@ -57,7 +57,12 @@ export default defineNitroConfig({
       },
     },
     "/api/killlist": {
-      cors: true
+      cors: true,
+      cache: {
+        maxAge: 5,
+        staleMaxAge: 5,
+        swr: true,
+      }
     },
     "/api/stats": {
       cors: true,
