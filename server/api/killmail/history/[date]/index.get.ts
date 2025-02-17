@@ -8,8 +8,19 @@ export default defineEventHandler(async (event) => {
     kill_time: {
       $gte: startDate,
       $lt: endDate,
-    },
+    }
+  },
+  {
+    _id: 0,
+    killmail_id: 1,
+    killmail_hash: 1
   });
 
-  return killmails.map((killmail) => killmail.killmail_id);
+  // Return { killmail_id: killmail_hash, ... }
+  let kms: { [key: string]: string } = {};
+  killmails.forEach((killmail) => {
+    kms[killmail.killmail_id] = killmail.killmail_hash;
+  });
+
+  return kms;
 });

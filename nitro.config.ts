@@ -59,8 +59,10 @@ export default defineNitroConfig({
     "/api/killlist": {
       cors: true,
       cache: {
-        maxAge: 5
-      },
+        maxAge: 5,
+        staleMaxAge: 5,
+        swr: true,
+      }
     },
     "/api/stats": {
       cors: true,
@@ -104,13 +106,14 @@ export default defineNitroConfig({
 
   scheduledTasks: {
     '0 0 * * *': [
-      'updatePrices',
       'updateMeilisearch',
       'updateWars',
       'updateHistoricalCounts',
     ],
     '0 * * * *': [
       'fetchWars',
+      'fetchMissedKillmails',
+      'updatePrices',
     ],
     '*/5 * * * *': [
       'findNewCharacters',
@@ -118,6 +121,7 @@ export default defineNitroConfig({
     '* * * * *': [
       'tqStatus',
       'affiliationUpdate',
+      'processUnprocessedKillmails',
     ],
   },
 

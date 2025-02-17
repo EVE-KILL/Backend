@@ -1,20 +1,70 @@
+import fs from 'fs';
+import { chain } from 'stream-chain';
+import { parser } from 'stream-json';
+import { streamArray } from 'stream-json/streamers/StreamArray';
 import { Alliances } from "../server/models/Alliances";
-import { queueUpdateAlliance } from "../server/queue/Alliance";
 import { Corporations } from "../server/models/Corporations";
-import { queueUpdateCorporation } from "../server/queue/Corporation";
+import { Characters } from "../server/models/Characters";
 
 export default {
-    name: 'import:doomdata',
+    name: 'import:data',
     description: 'Import the data dump from doomlord',
     longRunning: false,
     run: async ({ args }) => {
         // Files
-        let alliancesFile = require('../data/alliances_202501042042.json');
-        let corporationsFile = require('../data/corporations_202501042042.json');
+        let alliancesFile = require('../data/alliances.json');
+        let corporationsFile = require('../data/corporations.json');
+
+        // Stream and parse the 8GB characters.json file using stream-json
+        const fileStream = fs.createReadStream('./data/characters.json');
+        const pipeline = chain([
+            fileStream,
+            parser(),
+            streamArray()
+        ]);
+
+        // Process the stream using async iteration
+        for await (const { value: character } of pipeline) {
+            let characterData = new Characters({
+                character_id: character.character_id,
+                name: character.name,
+                description: character.description,
+                birthday: character.birthday,
+                gender: character.gender,
+                race_id: character.race_id,
+                security_status: character.security_status,
+                bloodline_id: character.bloodline_id,
+                corporation_id: character.corporation_id,
+                alliance_id: character.alliance_id || 0,
+                faction_id: character.faction_id || 0,
+                history: character.history || [],
+                deleted: character.deleted || false
+            });
+
+            console.log(`Character: ${character.name}`);
+            try {
+                await characterData.save();
+            } catch (err) {
+                await characterData.updateOne({ character_id: character.character_id }, {
+                    name: character.name,
+                    description: character.description,
+                    birthday: character.birthday,
+                    gender: character.gender,
+                    race_id: character.race_id,
+                    security_status: character.security_status,
+                    bloodline_id: character.bloodline_id,
+                    corporation_id: character.corporation_id,
+                    alliance_id: character.alliance_id || 0,
+                    faction_id: character.faction_id || 0,
+                    history: character.history || [],
+                    deleted: character.deleted || false
+                });
+            }
+        }
 
         // Extract the arrays from the JSON structure
-        const alliances = alliancesFile.alliances;
-        const corporations = corporationsFile.corporations;
+        const alliances = alliancesFile.alliances || alliancesFile;
+        const corporations = corporationsFile.corporations || corporationsFile;
 
         // Import alliances
         console.log(`Processing ${alliances.length} alliances`);
@@ -40,7 +90,6 @@ export default {
                     date_founded: new Date(alliance.date_founded),
                 });
             }
-            await queueUpdateAlliance(alliance.id);
         }
 
         // Import corporations
@@ -70,7 +119,6 @@ export default {
                     member_count: corporation.member_count,
                 });
             }
-            await queueUpdateCorporation(corporation.id);
         }
 
         return { response: 'Success' };

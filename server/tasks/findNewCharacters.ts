@@ -41,6 +41,18 @@ export default defineTask({
             }
         }
 
+        if (process.env.BACKEND_DISCORD_URL !== undefined && newCharacters > 0) {
+            await fetch(process.env.BACKEND_DISCORD_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    content: `Found ${newCharacters} new characters`,
+                }),
+            });
+        }
+
         return { result: `Found ${newCharacters} new characters` };
     },
 });

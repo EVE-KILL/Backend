@@ -20,6 +20,18 @@ export default defineTask({
       newWars++;
     }
 
+    if (process.env.BACKEND_DISCORD_URL !== undefined && newWars > 0) {
+        await fetch(process.env.BACKEND_DISCORD_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                content: `Found ${newWars} new wars`,
+            }),
+        });
+    }
+
     return { result: { newWars: newWars } }; // Return the list of all war IDs
   },
 });

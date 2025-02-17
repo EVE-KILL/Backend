@@ -1,4 +1,4 @@
-import { fetchESIKillmail } from "../server/helpers/ESIData";
+import { addKillmail } from "../server/queue/Killmail";
 import { KillmailsESI } from "../server/models/KillmailsESI";
 
 export default {
@@ -12,7 +12,7 @@ export default {
         let data = await response.json();
 
         // For each day in the history, get the killmails
-        for (let [date, count] of Object.entries(data)) {
+        for (let [date, count] of Object.entries(data).reverse()) {
             // Skip ahead to 20230506
             //if (date < '20241215') {
             //    continue;
@@ -27,24 +27,17 @@ export default {
             let missingKillmails = Object.entries(data).filter(([killmail_id, killmail_hash]) => !existingIds.has(Number(killmail_id)));
 
             console.log(`Found ${missingKillmails.length} missing killmails for ${date}`);
+            let queuedCount = 0;
             // Data is a list of killmails for the day, listed as: { "killmail_id": "killmail_hash", ... }
             for (let [killmail_id, killmail_hash] of missingKillmails) {
                 let exists = await KillmailsESI.exists({ killmail_id: killmail_id });
                 if (!exists) {
-                    console.log(`Fetching killmail ${killmail_id}`);
-                    // Fetch the killmail from ESI
-                    try {
-                        await fetchESIKillmail(Number(killmail_id), killmail_hash as string);
-                    } catch (error) {
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        try {
-                            await fetchESIKillmail(Number(killmail_id), killmail_hash as string);
-                        } catch (error) {
-                            throw error;
-                        }
-                    }
+                    await addKillmail(Number(killmail_id), killmail_hash as string, 0, 100);
+                    queuedCount++;
                 }
             }
+
+            console.log(`Queued ${queuedCount} killmails for ${date}`);
 
             // Sleep to avoid rate limiting
             await new Promise(resolve => setTimeout(resolve, 500));
