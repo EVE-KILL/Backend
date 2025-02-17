@@ -12,7 +12,7 @@
     "commander": "^13.1.0",
     "csv-parser": "^3.1.0",
     "ioredis": "^5.4.2",
-    "meilisearch": "^0.46.0",
+    "meilisearch": "^0.48.2",
     "mongoose": "^8.9.3",
     "nitropack": "npm:nitropack-nightly@latest",
     "node-gyp": "^11.1.0",
