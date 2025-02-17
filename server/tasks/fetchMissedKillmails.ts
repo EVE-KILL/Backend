@@ -30,7 +30,7 @@ export default defineTask({
         let exists = await KillmailsESI.exists({ killmail_id: killmail_id });
         if (!exists) {
           foundKillmailCount++;
-          addKillmail(Number(killmail_id), killmail_hash as string, 0);
+          addKillmail(Number(killmail_id), killmail_hash as string, 0, 4);
         }
       }
     }

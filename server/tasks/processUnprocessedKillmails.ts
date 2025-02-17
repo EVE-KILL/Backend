@@ -42,7 +42,7 @@ export default defineTask({
     let foundKillmailCount = 0;
     for (let killmail of unprocessedKillmails) {
       foundKillmailCount++;
-      addKillmail(killmail.killmail_id, killmail.killmail_hash as string, 0);
+      addKillmail(killmail.killmail_id, killmail.killmail_hash as string, 0, 5);
     }
 
     return {

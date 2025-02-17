@@ -22,7 +22,7 @@ async function addKillmail(killmailId: number, killmailHash: string, warId: numb
     );
 }
 
-async function processKillmail(killmailId: number, killmailHash: string, warId: number = 0): Promise<IKillmail> {
+async function processKillmail(killmailId: number, killmailHash: string, warId: number = 0): Promise<Partial<IKillmail>> {
     let killmail = await fetchESIKillmail(killmailId, killmailHash);
 
     if (killmail.error || !killmail.victim) {
