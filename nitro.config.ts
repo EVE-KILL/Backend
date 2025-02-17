@@ -112,7 +112,7 @@ export default defineNitroConfig({
     ],
     '0 * * * *': [
       'fetchWars',
-      //'fetchMissedKillmails',
+      'fetchMissedKillmails',
       'updatePrices',
     ],
     '*/5 * * * *': [
@@ -121,7 +121,7 @@ export default defineNitroConfig({
     '* * * * *': [
       'tqStatus',
       'affiliationUpdate',
-      //'processUnprocessedKillmails',
+      'processUnprocessedKillmails',
     ],
   },
 
