@@ -10,6 +10,7 @@ export default defineNitroPlugin(() => {
     createWorker('killmail', async (job: Job) => {
         try {
             if (job.data.killmailId && job.data.killmailHash) {
+                console.log('Processing killmail:', job.data.killmailId, '-', job.data.killmailHash, 'WarID:', job.data.warId || 0, 'Priority', job.opts.priority);
                 let killmail = await processKillmail(job.data.killmailId, job.data.killmailHash, job.data.warId || 0);
                 let routingKeys = determineRoutingKeys(killmail);
                 broadcastKillmail(killmail, routingKeys);
