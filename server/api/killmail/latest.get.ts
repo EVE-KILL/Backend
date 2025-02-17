@@ -7,7 +7,7 @@ export default defineEventHandler(async () => {
     {
       _id: 0,
       killmail_id: 1,
-      hash: 1,
+      killmail_hash: 1
     },
     {
       sort: { createdAt: -1 },
@@ -15,5 +15,12 @@ export default defineEventHandler(async () => {
     },
   );
 
-  return latestKillmails.map((km) => km.killmail_id);
+  // Return { killmail_id: killmail_hash, ... }
+  let killmails: { [key: string]: string } = {};
+  latestKillmails.forEach((killmail) => {
+    killmails[killmail.killmail_id] = killmail.killmail_hash;
+  });
+
+  return killmails;
+
 });
