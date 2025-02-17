@@ -20,11 +20,13 @@
     "sharp": "^0.33.5",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
+    "stream-json": "^1.9.1",
     "tar-stream": "^3.1.7",
     "typescript": "^5.7.2",
     "unbzip2-stream": "^1.4.3"
   },
   "devDependencies": {
+    "@types/bun": "^1.2.2",
     "@types/lodash": "^4.17.14"
   }
 }
