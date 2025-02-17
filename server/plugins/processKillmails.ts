@@ -5,6 +5,11 @@ import { broadcastKillmail } from '~/helpers/WSClientManager';
 import { processKillmail } from '~/queue/Killmail';
 
 export default defineNitroPlugin(() => {
+    if (process.env.PROCESS_KILLMAILS !== 'true') {
+        console.log('✘ Skipping killmail processor');
+        return;
+    }
+
     console.log('✔ Starting killmail processor');
 
     createWorker('killmail', async (job: Job) => {
