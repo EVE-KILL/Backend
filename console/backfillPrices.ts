@@ -16,7 +16,7 @@ export default {
 };
 
 async function fetchHistoricPrices() {
-    let earliestDate = new Date("2016-11-07");
+    let earliestDate = new Date("2007-12-05");
     const currentDate = new Date();
     const daysSinceOldestDate = Math.floor(
         (currentDate.getTime() - earliestDate.getTime()) / (1000 * 60 * 60 * 24)
