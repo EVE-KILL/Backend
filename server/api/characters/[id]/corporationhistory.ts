@@ -1,7 +1,8 @@
 import { ICorporation } from "~/interfaces/ICorporation";
-import { getCharacter } from "../../../helpers/ESIData";
+import { getAlliance, getCharacter, getCorporation } from "../../../helpers/ESIData";
 import { defineEventHandler } from 'h3';
 import { IAlliance } from "~/interfaces/IAlliance";
+import { queueUpdateCharacterHistory } from "~/queue/Character";
 
 export default defineEventHandler(async (event) => {
     const characterId: number | null = event.context.params?.id ? parseInt(event.context.params.id) : null;
@@ -12,6 +13,11 @@ export default defineEventHandler(async (event) => {
     const character = await getCharacter(characterId);
     let history = character.history.reverse() ?? null;
     if (history === null) {
+        return { error: "Character history not found" };
+    }
+
+    if (history.length === 0) {
+        queueUpdateCharacterHistory(characterId, 1);
         return { error: "Character history not found" };
     }
 
@@ -28,10 +34,10 @@ export default defineEventHandler(async (event) => {
     });
 
     let result = history.map(async (char) => {
-        let corporationInfo: ICorporation = await Corporations.findOne({ corporation_id: char.corporation_id });
+        let corporationInfo: ICorporation = await getCorporation(char.corporation_id);
         let allianceInfo: IAlliance | null = null;
-        if (corporationInfo.alliance_id) {
-            allianceInfo = await Alliances.findOne({ alliance_id: corporationInfo.alliance_id });
+        if (corporationInfo?.alliance_id) {
+            allianceInfo = await getAlliance(corporationInfo.alliance_id);
         }
 
         return {

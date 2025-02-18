@@ -1,4 +1,5 @@
-import { getCorporation } from "../../../helpers/ESIData";
+import { queueUpdateCorporationHistory } from "~/queue/Corporation";
+import { getAlliance, getCorporation } from "../../../helpers/ESIData";
 import { defineEventHandler } from 'h3';
 
 export default defineEventHandler(async (event) => {
@@ -10,6 +11,11 @@ export default defineEventHandler(async (event) => {
     const corporation = await getCorporation(corporationId);
     let history = corporation.history.reverse() ?? null;
     if (history === null) {
+        return { error: "Corporation history not found" };
+    }
+
+    if (history.length === 0) {
+        queueUpdateCorporationHistory(corporationId, 1);
         return { error: "Corporation history not found" };
     }
 
@@ -28,7 +34,7 @@ export default defineEventHandler(async (event) => {
     let result = history.map(async (corp) => {
         let allianceInfo = null;
         if (corp.alliance_id) {
-            allianceInfo = await Alliances.findOne({ alliance_id: corp.alliance_id });
+            allianceInfo = getAlliance(corp.alliance_id);
         }
 
         return {
