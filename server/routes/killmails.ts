@@ -7,6 +7,10 @@ const validTopics = [
     'freighters', 'supercarriers', 'titans'
 ];
 
+const partialTopics = [
+    'victim.', 'attacker.', 'system.', 'region.'
+]
+
 export default defineWebSocketHandler({
     open(peer) {
         peer.send(JSON.stringify({
@@ -18,7 +22,10 @@ export default defineWebSocketHandler({
     async message(peer, message) {
         try {
             const topics = message.toString().split(',').map(topic => topic.trim());
-            const invalidTopics = topics.filter(topic => !validTopics.includes(topic));
+            const invalidTopics = topics.filter(topic =>
+                !validTopics.includes(topic) &&
+                !partialTopics.some(prefix => topic.startsWith(prefix))
+            );
             if (invalidTopics.length > 0) {
                 peer.send(JSON.stringify({
                     type: 'error',
