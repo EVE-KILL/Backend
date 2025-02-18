@@ -1,5 +1,5 @@
-import { addKillmail } from "../server/queue/Killmail";
 import { KillmailsESI } from "../server/models/KillmailsESI";
+import { createQueue } from "../server/helpers/Queue";
 
 export default {
     name: 'backfill:killmailsfromzkb',
@@ -10,6 +10,8 @@ export default {
 
         let response = await fetch(zkbHistoryTotals);
         let data = await response.json();
+
+        const killmailQueue = createQueue('killmail');
 
         // For each day in the history, get the killmails
         for (let [date, count] of Object.entries(data).reverse()) {
@@ -27,17 +29,13 @@ export default {
             let missingKillmails = Object.entries(data).filter(([killmail_id, killmail_hash]) => !existingIds.has(Number(killmail_id)));
 
             console.log(`Found ${missingKillmails.length} missing killmails for ${date}`);
-            let queuedCount = 0;
-            // Data is a list of killmails for the day, listed as: { "killmail_id": "killmail_hash", ... }
-            for (let [killmail_id, killmail_hash] of missingKillmails) {
-                let exists = await KillmailsESI.exists({ killmail_id: killmail_id });
-                if (!exists) {
-                    await addKillmail(Number(killmail_id), killmail_hash as string, 0, 100);
-                    queuedCount++;
-                }
-            }
+            killmailQueue.addBulk(missingKillmails.map(([killmail_id, killmail_hash]) => ({
+                name: 'processKillmail',
+                data: { killmailId: Number(killmail_id), killmailHash: killmail_hash as string },
+                opts: { priority: 100 },
+            })));
 
-            console.log(`Queued ${queuedCount} killmails for ${date}`);
+            console.log(`Queued ${missingKillmails.length} killmails for ${date}`);
 
             // Sleep to avoid rate limiting
             await new Promise(resolve => setTimeout(resolve, 500));

@@ -1,6 +1,7 @@
 import { IESIAttacker, IESIKillmail, IESIVictim, IESIVictimItem } from "../interfaces/IESIKillmail";
 import { IAttacker, IItem, IKillmail, IVictim } from "../interfaces/IKillmail";
 import { getCharacter, getCorporation, getAlliance, getFaction, getItem } from "./ESIData";
+import { Characters } from "../models/Characters";
 import { getPrice } from "./Prices";
 import { SolarSystems } from "../models/SolarSystems";
 import { Regions } from "../models/Regions";

@@ -15,7 +15,6 @@ export default defineNitroPlugin(() => {
     createWorker('killmail', async (job: Job) => {
         try {
             if (job.data.killmailId && job.data.killmailHash) {
-                //console.log('Processing killmail:', job.data.killmailId, '-', job.data.killmailHash, 'WarID:', job.data.warId || 0, 'Priority', job.opts.priority);
                 let killmail = await processKillmail(job.data.killmailId, job.data.killmailHash, job.data.warId || 0);
                 let routingKeys = determineRoutingKeys(killmail);
                 broadcastKillmail(killmail, routingKeys);
@@ -29,5 +28,7 @@ export default defineNitroPlugin(() => {
         concurrency: 10
     }).on('failed', (job: Job | undefined, err: Error) => {
         console.log('Killmail Parser:', job?.id, '( KillID:', job?.data.killmailId, `) | ${err.message} | ${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/killmails/${job?.data.killmailId}/${job?.data.killmailHash}/`);
+    }).on('completed', (job: Job) => {
+        console.log('Killmail Parser:', job.id, '( KillID:', job.data.killmailId, ') | Completed');
     });
 });
