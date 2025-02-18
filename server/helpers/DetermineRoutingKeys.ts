@@ -30,5 +30,21 @@ export function determineRoutingKeys(killmail: any): string[] {
     if ([659].includes(shipGroupId)) routingKeys.add('supercarriers');
     if ([30].includes(shipGroupId)) routingKeys.add('titans');
 
+    // Add routing keys for victim (character_id, corporation_id, alliance_id, faction_id), attackers (character_id, corporation_id, alliance_id, faction_id), system_id and region_id
+    routingKeys.add('victim.' + killmail.victim.character_id);
+    routingKeys.add('victim.' + killmail.victim.corporation_id);
+    if (killmail.victim.alliance_id) routingKeys.add('victim.' + killmail.victim.alliance_id);
+    if (killmail.victim.faction_id) routingKeys.add('victim.' + killmail.victim.faction_id);
+
+    for (const attacker of killmail.attackers) {
+        routingKeys.add('attacker.' + attacker.character_id);
+        routingKeys.add('attacker.' + attacker.corporation_id);
+        if (attacker.alliance_id) routingKeys.add('attacker.' + attacker.alliance_id);
+        if (attacker.faction_id) routingKeys.add('attacker.' + attacker.faction_id);
+    }
+
+    routingKeys.add('system.' + killmail.system_id);
+    routingKeys.add('region.' + killmail.region_id);
+
     return Array.from(routingKeys);
 }
