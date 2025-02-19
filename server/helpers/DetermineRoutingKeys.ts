@@ -13,7 +13,7 @@ export function determineRoutingKeys(killmail: any): string[] {
     else routingKeys.add('nullsec');
 
     const shipGroupId = Number(killmail.victim.ship_group_id);
-    if ([547, 485, 513, 902, 941, 30, 659].includes(shipGroupId)) routingKeys.add('bigkills');
+    if ([547, 485, 513, 902, 941, 30, 659].includes(shipGroupId)) routingKeys.add('big');
     if (killmail.is_solo) routingKeys.add('solo');
     if (killmail.is_npc) routingKeys.add('npc');
     if ([1657, 1406, 1404, 1408, 2017, 2016].includes(shipGroupId)) routingKeys.add('citadel');

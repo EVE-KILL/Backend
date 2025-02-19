@@ -2,6 +2,8 @@
 export default defineNitroConfig({
   preset: "bun",
   srcDir: "server",
+  minify: true,
+  sourceMap: true,
 
   routeRules: {
     "/api/**": {
@@ -58,13 +60,15 @@ export default defineNitroConfig({
     "/api/killlist": {
       cors: true,
       cache: {
-        maxAge: 5
+        maxAge: 5,
+        swr: false
       }
     },
     "/api/killlist/**": {
       cors: true,
       cache: {
-        maxAge: 5
+        maxAge: 5,
+        swr: false
       }
     },
     "/api/stats": {
