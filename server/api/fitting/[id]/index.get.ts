@@ -42,6 +42,13 @@ export default defineEventHandler(async (event) => {
         return { error: "Ship not found" };
     }
 
+    // Ensure it's a ship, meaning the group_id is in the allowed list
+    const shipGroupId = ship.group_id;
+    if (!shipGroupIds.includes(shipGroupId)) {
+        return { error: "Not a ship type" };
+    }
+
+
     // Find killmails in the last 30 days where the ship was destroyed
     const killmails = await Killmails.find({
         'kill_time': { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), $lte: new Date() },
