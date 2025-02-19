@@ -1,5 +1,5 @@
 import { defineEventHandler } from 'h3';
-import { topShips, topSystems } from '~/helpers/TopLists';
+import { topRegions, topShips, topSystems } from '~/helpers/TopLists';
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
@@ -20,6 +20,6 @@ export default defineEventHandler(async (event) => {
             return await topSystems('character_id', characterId, 7, 10);
 
         case 'regions':
-            return await topSystems('character_id', characterId, 7, 10);
+            return await topRegions('character_id', characterId, 7, 10);
     };
 });
