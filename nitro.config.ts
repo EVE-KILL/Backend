@@ -106,15 +106,15 @@ export default defineNitroConfig({
     "/api/fitting/**": {
       cors: true,
       cache: {
-        maxAge: 300,
+        maxAge: 3600,
         staleMaxAge: -1,
         swr: true,
       },
     },
-    "/api/item/**": {
+    "/api/items/**": {
       cors: true,
       cache: {
-        maxAge: 300,
+        maxAge: 3600,
         staleMaxAge: -1,
         swr: true,
       },

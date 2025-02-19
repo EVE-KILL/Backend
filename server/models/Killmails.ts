@@ -111,6 +111,8 @@ killmailsSchema.index({ kill_time: -1 }, { sparse: true });
 // Timestamp indexes
 killmailsSchema.index({ createdAt: 1 }, { sparse: true });
 killmailsSchema.index({ updatedAt: 1 }, { sparse: true });
+killmailsSchema.index({ createdAt: -1 }, { sparse: true });
+killmailsSchema.index({ updatedAt: -1 }, { sparse: true });
 
 // Victim indexes
 killmailsSchema.index({ "victim.character_id": 1, kill_time: 1 }, { sparse: true });
@@ -119,19 +121,36 @@ killmailsSchema.index({ "victim.alliance_id": 1, kill_time: 1 }, { sparse: true 
 killmailsSchema.index({ "victim.faction_id": 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ "victim.ship_id": 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ "victim.ship_group_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "victim.character_id": -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ "victim.corporation_id": -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ "victim.alliance_id": -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ "victim.faction_id": -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ "victim.ship_id": -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ "victim.ship_group_id": -1, kill_time: -1 }, { sparse: true });
 
 // Attacker indexes
 killmailsSchema.index({ "attackers.character_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "attackers.character_name": 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ "attackers.corporation_id": 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ "attackers.alliance_id": 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ "attackers.faction_id": 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ "attackers.ship_id": 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ "attackers.ship_group_id": 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ "attackers.weapon_type_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "attackers.character_id": -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ "attackers.character_name": -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ "attackers.corporation_id": -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ "attackers.alliance_id": -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ "attackers.faction_id": -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ "attackers.ship_id": -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ "attackers.ship_group_id": -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ "attackers.weapon_type_id": -1, kill_time: -1 }, { sparse: true });
 
 // Item indexes
 killmailsSchema.index({ "items.type_id": 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ "items.group_id": 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ "items.type_id": -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ "items.group_id": -1, kill_time: -1 }, { sparse: true });
 
 // General indexes
 killmailsSchema.index({ war_id: 1, kill_time: 1 }, { sparse: true });
@@ -141,6 +160,13 @@ killmailsSchema.index({ is_npc: 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ is_solo: 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ total_value: 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ x: 1, y: 1, z: 1, system_id: 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ war_id: -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ system_id: -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ region_id: -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ is_npc: -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ is_solo: -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ total_value: -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ x: -1, y: -1, z: -1, system_id: -1, kill_time: -1 }, { sparse: true });
 
 export const Killmails: Model<IKillmailDocument> = model<IKillmailDocument>(
   "killmails",
