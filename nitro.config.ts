@@ -19,7 +19,7 @@ export default defineNitroConfig({
     ],
   },
 
-  scheduledTasks: process.env.NODE_ENV === 'production' ? {
+  scheduledTasks: process.env.ENABLE_TASKS === 'true' ? {
     '0 0 * * *': [
       'updateMeilisearch',
       'updateWars',
