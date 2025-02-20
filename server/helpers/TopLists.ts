@@ -299,7 +299,6 @@ async function topConstellations(
     ];
 
     const result = await Killmails.aggregate(query, { allowDiskUse: true });
-    console.log(result);
 
     const mappedResults = await Promise.all(result.map(async (constellation: any) => {
         const data: IConstellation | null = await Constellations.findOne({ constellation_id: constellation.id });
