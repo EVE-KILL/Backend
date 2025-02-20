@@ -13,7 +13,7 @@ export default {
                 await processKillmail(job.data.killmailId, job.data.killmailHash, job.data.warId || 0);
             }
             catch (error) {
-                console.log("ERROR: ", error);
+                console.log("ERROR: ", error.message);
             }
         }, {
             concurrency: 5

@@ -21,8 +21,7 @@ export default defineNitroPlugin(() => {
             }
         }
         catch (error) {
-            console.log(job.data);
-            console.log("ERROR: ", error);
+            console.log("ERROR: ", error.message);
         }
     }, {
         concurrency: 10
