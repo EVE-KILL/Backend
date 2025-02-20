@@ -12,34 +12,27 @@ export default defineTask({
     const storage = new RedisStorage();
 
     if (status.error) {
-      // TQ is throwing errors, lets pause the fetcher for 120 seconds
+      // TQ is throwing errors, lets pause the fetcher for 5 minutes
       await storage.set('tqStatus', 'offline');
-      await storage.set('fetcher_paused', Date.now() + 120000);
-    }
+      await storage.set('fetcher_paused', Date.now() + 300000);
+    } else {
+      switch (request.status) {
+          case 503:
+              // TQ is offline
+              await storage.set('tqStatus', 'offline');
+              // Pause the fetcher until current time + 5 minutes
+              await storage.set('fetcher_paused', Date.now() + 300000);
+              break;
 
-    switch (status.status) {
-        case "503":
-            // TQ is offline
-            await storage.set('tqStatus', 'offline');
-            // Pause the fetcher until current time + 60seconds
-            await storage.set('fetcher_paused', Date.now() + 120000);
-            break;
-
-        case undefined:
-            // TQ is offline
-            await storage.set('tqStatus', 'offline');
-            await storage.set('fetcher_paused', Date.now() + 120000);
-            break
-
-        default:
-            // TQ is online
-            await storage.set('tqStatus', 'online');
-            await storage.del('fetcher_paused');
-            break;
+          default:
+              // TQ is online
+              await storage.set('tqStatus', 'online');
+              await storage.del('fetcher_paused');
+              break;
+      }
     }
 
     return { result: {
-      tqStatus: status.status || 'offline',
       tqPlayers: status.players || 0,
       tqStartTime: status.start_time || 0,
       tqServerVersion: status.server_version || 'unknown',
