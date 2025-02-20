@@ -6,15 +6,16 @@ export default defineTask({
     description: "Update the status of tranquility",
   },
   async run({ payload, context }) {
-    let request = await fetch(`${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/status/?datasource=tranquility`);
+    let request = await fetch('https://esi.evetech.net/latest/status/?datasource=tranquility');
     let status = await request.json();
+    console.log(status);
 
     const storage = new RedisStorage();
 
     if (status.error) {
-      // TQ is throwing errors, lets pause the fetcher for 60 seconds
+      // TQ is throwing errors, lets pause the fetcher for 120 seconds
       await storage.set('tqStatus', 'offline');
-      await storage.set('fetcher_paused', Date.now() + 60000);
+      await storage.set('fetcher_paused', Date.now() + 120000);
     }
 
     switch (status.status) {
@@ -25,6 +26,13 @@ export default defineTask({
             await storage.set('fetcher_paused', Date.now() + 60000);
             break;
 
+        case undefined:
+            // TQ is offline
+            console.log('TQ is offline');
+            await storage.set('tqStatus', 'offline');
+            await storage.set('fetcher_paused', Date.now() + 120000);
+            break
+
         default:
             // TQ is online
             await storage.set('tqStatus', 'online');
@@ -33,10 +41,10 @@ export default defineTask({
     }
 
     return { result: {
-      tqStatus: status.status,
-      tqPlayers: status.players,
-      tqStartTime: status.start_time,
-      tqServerVersion: status.server_version,
+      tqStatus: status.status || 'offline',
+      tqPlayers: status.players || 0,
+      tqStartTime: status.start_time || 0,
+      tqServerVersion: status.server_version || 'unknown',
     } }
   }
 });
