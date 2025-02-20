@@ -74,16 +74,16 @@
   maxAge: 3600,
 }
 '/killlist/attacker/[type]/[id]': {
-  maxAge: 300,
+  maxAge: 30,
 }
 '/killlist/combined/[type]/[id]': {
-  maxAge: 300,
+  maxAge: 30,
 }
 '/killlist/losses/[type]/[id]': {
-  maxAge: 300,
+  maxAge: 30,
 }
 '/killlist': {
-  maxAge: 300,
+  maxAge: 5,
 }
 '/killmail/[id]': {
   maxAge: 3600,
