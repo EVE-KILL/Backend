@@ -13,6 +13,8 @@ async function processChunk(
         attempt
     );
 
+    console.log(`Fetched ${affiliations.length} affiliations`);
+
     let originalDataLookup = {};
     for (let character of characters) {
         originalDataLookup[character.character_id] = character;

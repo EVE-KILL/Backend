@@ -85,6 +85,8 @@ export default defineTask({
             }
         }
 
+        console.log(`Found ${characters.length} characters to check`);
+
         // We can only fetch upwards of 1000 characters at a time, so we have to spluit the characters into chunks
         let characterChunks = _.chunk(characters, 1000);
         let queuedCount = 0;
@@ -108,6 +110,7 @@ export default defineTask({
             });
         }
 
+        console.log(`Queued ${queuedCount} characters for affiliation update`);
         return {
             result: {
                 queued: queuedCount,
