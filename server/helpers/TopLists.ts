@@ -5,6 +5,7 @@ import { IAlliance } from '~/interfaces/IAlliance';
 import { ISolarSystem } from '~/interfaces/ISolarSystem';
 import { IInvType } from '~/interfaces/IInvType';
 import { IRegion } from '~/interfaces/IRegion';
+import { IConstellation } from '~/interfaces/IConstellation';
 
 // Earliest known killmail is from 2007-12-05
 const timeSinceEarlyDays: Date = new Date('2007-12-05T00:00:00Z');
@@ -261,7 +262,10 @@ async function topConstellations(
         calculatedTime = new Date(Date.now() - (days * 86400 * 1000));
     }
 
-    const matchFilter: any = { "kill_time": { $gte: calculatedTime } };
+    const matchFilter: any = {
+        "kill_time": { $gte: calculatedTime },
+        "constellation_id": { $ne: null }
+    };
     if (attackerType && typeId) {
         matchFilter[`attackers.${attackerType}`] = typeId;
     }
@@ -270,45 +274,43 @@ async function topConstellations(
         { $match: matchFilter },
         { $unwind: "$attackers" },
         {
-            $lookup: {
-                from: "solarSystems", // Collection name for SolarSystems
-                localField: "system_id",
-                foreignField: "system_id",
-                as: "solarSystem"
+            $group: {
+                _id: {
+                    constellation_id: "$constellation_id",
+                    killmail_id: "$killmail_id"
+                }
             }
         },
-        { $unwind: "$solarSystem" },
-        {
-            $lookup: {
-                from: "constellations", // Collection name for Constellations
-                localField: "solarSystem.constellation_id",
-                foreignField: "constellation_id",
-                as: "constellation"
-            }
-        },
-        { $unwind: "$constellation" },
         {
             $group: {
-                _id: "$constellation.constellation_id",
-                name: { $first: "$constellation.constellation_name" },
+                _id: "$_id.constellation_id",
                 count: { $sum: 1 }
             }
         },
         {
             $project: {
                 _id: 0,
-                constellation_id: "$_id",
-                name: "$name",
-                count: "$count"
+                count: "$count",
+                id: "$_id"
             }
         },
-        { $sort: { count: -1, constellation_id: 1 } },
+        { $sort: { count: -1, id: 1 } },
         { $limit: limit }
     ];
 
     const result = await Killmails.aggregate(query, { allowDiskUse: true });
+    console.log(result);
 
-    return result;
+    const mappedResults = await Promise.all(result.map(async (constellation: any) => {
+        const data: IConstellation | null = await Constellations.findOne({ constellation_id: constellation.id });
+        return {
+            constellation_id: constellation.id,
+            name: data?.constellation_name || "Unknown",
+            count: constellation.count
+        };
+    }));
+
+    return mappedResults;
 }
 
 async function topRegions(
