@@ -16,6 +16,7 @@ export default defineTask({
             return {
                 result: {
                     queued: 0,
+                    reason: "Queue has data",
                 },
             };
         }
@@ -79,7 +80,9 @@ export default defineTask({
                 }
             );
 
-            characters.push(chunk);
+            for (let character of chunk) {
+                characters.push(character);
+            }
         }
 
         // We can only fetch upwards of 1000 characters at a time, so we have to spluit the characters into chunks
@@ -89,9 +92,7 @@ export default defineTask({
         // For each character chunk we fetch the character data
         for (let chunk of characterChunks) {
             let count = 0;
-            if (chunk.length === 0) {
-                count = await processChunk(chunk);
-            }
+            count = await processChunk(chunk);
             queuedCount += count;
         }
 
