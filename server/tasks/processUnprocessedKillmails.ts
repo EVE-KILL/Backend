@@ -7,10 +7,6 @@ export default defineTask({
     description: "Process Killmails that needs processing",
   },
   async run({ payload, context }) {
-    if (process.env.NODE_ENV === 'development') {
-      return {};
-    }
-
     // Load up the killmail queue
     let killmailQueue = createQueue("killmail");
 

@@ -4,10 +4,6 @@ export default defineTask({
         description: "Updates the historical counts of members in alliances and corporations",
     },
     async run({ payload, context }) {
-        if (process.env.NODE_ENV === 'development') {
-        return {};
-        }
-
         let currentDate = new Date();
 
         // Alliances

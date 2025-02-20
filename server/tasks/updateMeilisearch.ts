@@ -15,10 +15,6 @@ export default defineTask({
     description: "Updates the search index in Meilisearch",
   },
   async run({ payload, context }) {
-    if (process.env.NODE_ENV === 'development') {
-        return {};
-    }
-
     let meilisearch = new Meilisearch();
     // Create a placeholder index
     await meilisearch.createIndex('nitro-update');

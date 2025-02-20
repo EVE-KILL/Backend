@@ -8,10 +8,6 @@ export default defineTask({
         description: "Updates the affiliations of characters",
     },
     async run({ payload, context }) {
-        if (process.env.NODE_ENV === 'development') {
-        return {};
-        }
-
         // If the queue isn't empty, we don't want to run this task
         let queue = createQueue("character");
         let queueCount = await queue.getJobCounts();

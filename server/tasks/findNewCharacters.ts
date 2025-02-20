@@ -7,10 +7,6 @@ export default defineTask({
         description: "Updates the affiliations of cgaracters",
     },
     async run({ payload, context }) {
-        if (process.env.NODE_ENV === 'development') {
-            return {};
-        }
-
         // Find the highest character_id in the database
         let highestCharacterId = 0;
         let highestCharacter = await Characters.findOne().sort({ character_id: -1 });

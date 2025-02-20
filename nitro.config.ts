@@ -19,7 +19,7 @@ export default defineNitroConfig({
     ],
   },
 
-  scheduledTasks: {
+  scheduledTasks: process.env.NODE_ENV === 'production' ? {
     '0 0 * * *': [
       'updateMeilisearch',
       'updateWars',
@@ -38,7 +38,7 @@ export default defineNitroConfig({
       'affiliationUpdate',
       'processUnprocessedKillmails',
     ],
-  },
+  } : {},
 
   experimental: {
     openAPI: true,

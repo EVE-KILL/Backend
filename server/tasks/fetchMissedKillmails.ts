@@ -6,10 +6,6 @@ export default defineTask({
     description: "Fetch missed killmails by poking zKillboard history API",
   },
   async run({ payload, context }) {
-    if (process.env.NODE_ENV === 'development') {
-      return {};
-    }
-
     let zkbHistoryTotals = 'https://zkillboard.com/api/history/totals.json';
     let response = await fetch(zkbHistoryTotals);
     let data = await response.json();
