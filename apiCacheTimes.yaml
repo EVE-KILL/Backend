@@ -1,0 +1,147 @@
+'/alliances/[id]': {
+  maxAge: 3600,
+}
+'/alliances/[id]/members': {
+  maxAge: 3600,
+}
+'/alliances/count': {
+  maxAge: 300,
+}
+'/alliances': {
+  maxAge: 3600,
+}
+'/characters/[id]': {
+  maxAge: 3600,
+}
+'/characters/[id]/corporationhistory': {
+  maxAge: 3600,
+}
+'/characters/[id]/shortstats': {
+  maxAge: 3600,
+}
+'/characters/[id]/stats': {
+  maxAge: 3600,
+}
+'/characters/[id]/top': {
+  maxAge: 3600,
+}
+'/characters/count': {
+  maxAge: 300,
+}
+'/characters': {
+  maxAge: 3600,
+}
+'/corporations[id]': {
+  maxAge: 3600,
+}
+'/corporations/[id]/alliancehistory': {
+  maxAge: 3600,
+}
+'/corporations[id]/members': {
+  maxAge: 3600,
+}
+'/corporations/count': {
+  maxAge: 300,
+}
+'/corporations': {
+  maxAge: 3600,
+}
+'/factions/[id]': {
+  maxAge: 3600,
+}
+'/factions/count': {
+  maxAge: 300,
+}
+'/factions': {
+  maxAge: 3600,
+}
+'/fitting/[id]': {
+  maxAge: 3600,
+}
+'/items[id]': {
+  maxAge: 3600,
+}
+'/items[id]/killmails': {
+  maxAge: 300,
+}
+'/items[id]/pricing': {
+  maxAge: 300,
+}
+'/items/count': {
+  maxAge: 300,
+}
+'/items': {
+  maxAge: 3600,
+}
+'/killlist/attacker/[type]/[id]': {
+  maxAge: 300,
+}
+'/killlist/combined/[type]/[id]': {
+  maxAge: 300,
+}
+'/killlist/losses/[type]/[id]': {
+  maxAge: 300,
+}
+'/killlist': {
+  maxAge: 300,
+}
+'/killmail/[id]': {
+  maxAge: 3600,
+}
+'/killmail/[id]/esi': {
+  maxAge: 3600,
+}
+'/killmail/[id]/inbattle': {
+  maxAge: 300,
+}
+'/killmail/[id]/sibling': {
+  maxAge: 300,
+}
+'/killmail/history': {
+  maxAge: 300,
+}
+'/killmail/history/[date]': {
+  maxAge: 300,
+}
+'/killmail/count': {
+  maxAge: 300,
+}
+'/killmail/latest': {
+  maxAge: 300,
+}
+'/killmail/nearCelestial': {
+  maxAge: 300,
+}
+'/killmail/nearCoordinates': {
+  maxAge: 300,
+}
+'/prices/region/[id]': {
+  maxAge: 300,
+}
+'/prices/type_id/[id]': {
+  maxAge: 300,
+}
+'/prices/count': {
+  maxAge: 300,
+}
+'/prices': {
+  maxAge: 300,
+}
+'/search/[searchTerm]': {
+  maxAge: 30,
+}
+'/stats': {
+  maxAge: 300,
+}
+'/status': {
+  maxAge: 10,
+}
+'/wars/[id]/killmails': {
+  maxAge: 300,
+}
+'/wars/[id]': {
+  maxAge: 3600,
+}
+'/wars': {
+  maxAge: 3600,
+}

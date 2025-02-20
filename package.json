@@ -24,7 +24,8 @@
     "stream-json": "^1.9.1",
     "tar-stream": "^3.1.7",
     "typescript": "^5.7.3",
-    "unbzip2-stream": "^1.4.3"
+    "unbzip2-stream": "^1.4.3",
+    "yaml": "^2.7.0"
   },
   "devDependencies": {
     "@types/bun": "^1.2.2",

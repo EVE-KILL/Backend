@@ -1,3 +1,9 @@
+import { readFileSync } from "fs";
+import yaml from "yaml";
+
+// Load apiCacheTimes.yaml
+const apiCacheTimes = readFileSync('./apiCacheTimes.yaml', 'utf8');
+
 //https://nitro.unjs.io/config
 export default defineNitroConfig({
   preset: "bun",
@@ -5,121 +11,7 @@ export default defineNitroConfig({
   minify: true,
   sourceMap: true,
 
-  routeRules: {
-    "/api/**": {
-      cors: true
-    },
-    "/api/characters": {
-      cors: true,
-      cache: {
-        maxAge: 3600,
-        staleMaxAge: -1,
-        swr: true,
-      },
-    },
-    "/api/characters/**": {
-      cors: true,
-      cache: {
-        maxAge: 300,
-        staleMaxAge: -1,
-        swr: true,
-      },
-    },
-    "/api/corporations": {
-      cors: true,
-      cache: {
-        maxAge: 3600,
-        staleMaxAge: -1,
-        swr: true,
-      },
-    },
-    "/api/corporations/**": {
-      cors: true,
-      cache: {
-        maxAge: 300,
-        staleMaxAge: -1,
-        swr: true,
-      },
-    },
-    "/api/alliances": {
-      cors: true,
-      cache: {
-        maxAge: 3600,
-        staleMaxAge: -1,
-        swr: true,
-      },
-    },
-    "/api/alliances/**": {
-      cors: true,
-      cache: {
-        maxAge: 300,
-        staleMaxAge: -1,
-        swr: true,
-      },
-    },
-    "/api/killlist": {
-      cors: true,
-      cache: {
-        maxAge: 5,
-        swr: true
-      }
-    },
-    "/api/killlist/**": {
-      cors: true,
-      cache: {
-        maxAge: 5,
-        swr: true
-      }
-    },
-    "/api/stats": {
-      cors: true,
-      cache: {
-        maxAge: 300,
-        staleMaxAge: -1,
-        swr: true,
-      },
-    },
-    "/api/search/**": {
-      cors: true,
-      cache: {
-        maxAge: 300,
-        staleMaxAge: -1,
-        swr: true,
-      },
-    },
-    "/api/wars": {
-      cors: true,
-      cache: {
-        maxAge: 3600,
-        staleMaxAge: -1,
-        swr: true,
-      },
-    },
-    "/api/wars/**": {
-      cors: true,
-      cache: {
-        maxAge: 300,
-        staleMaxAge: -1,
-        swr: true,
-      },
-    },
-    "/api/fitting/**": {
-      cors: true,
-      cache: {
-        maxAge: 3600,
-        staleMaxAge: -1,
-        swr: true,
-      },
-    },
-    "/api/items/**": {
-      cors: true,
-      cache: {
-        maxAge: 3600,
-        staleMaxAge: -1,
-        swr: true,
-      },
-    },
-  },
+  routeRules: routeRuleGenerator(),
 
   imports: {
     dirs: [
@@ -183,3 +75,27 @@ export default defineNitroConfig({
 
   compatibilityDate: "2024-10-13",
 });
+
+function routeRuleGenerator(): Record<string, any> {
+  // Build route rules as an object with a default rule for /api/**
+  const rules: Record<string, any> = {
+    "/api/**": { cors: true },
+  };
+
+  // Parse YAML
+  const cacheTimes = yaml.parse(apiCacheTimes);
+
+  // Merge routes from YAML:
+  for (const route in cacheTimes) {
+    rules['/api' + route] = {
+      cors:true,
+      cache: {
+        maxAge: cacheTimes[route].maxAge || 60,
+        staleMaxAge: cacheTimes[route].staleMaxAge || -1,
+        swr: cacheTimes[route].swr || true,
+      }
+    };
+  }
+
+  return rules;
+}
