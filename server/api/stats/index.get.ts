@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
 
     // Parse days and limit from query
     // If not provided, default to something sensible depending on the query
-    let days: number = 30;
+    let days: number = 7;
     if (query.days !== undefined) {
         const parsedDays = parseInt(query.days as string, 10);
         days = isNaN(parsedDays) ? null : parsedDays;

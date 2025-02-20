@@ -85,6 +85,8 @@ const killmailsSchema = new Schema<IKillmailDocument>(
     system_id: { type: Number },
     system_name: { type: String },
     system_security: { type: Number },
+    constellation_id: { type: Number },
+    constellation_name: { type: String },
     total_value: { type: Number },
     victim: { type: victimSchema },
     war_id: { type: Number },
@@ -156,6 +158,8 @@ killmailsSchema.index({ "items.group_id": -1, kill_time: -1 }, { sparse: true })
 killmailsSchema.index({ war_id: 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ system_id: 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ region_id: 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ constellation_id: 1, kill_time: 1 }, { sparse: true });
+killmailsSchema.index({ system_security: 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ is_npc: 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ is_solo: 1, kill_time: 1 }, { sparse: true });
 killmailsSchema.index({ total_value: 1, kill_time: 1 }, { sparse: true });
@@ -163,6 +167,8 @@ killmailsSchema.index({ x: 1, y: 1, z: 1, system_id: 1, kill_time: 1 }, { sparse
 killmailsSchema.index({ war_id: -1, kill_time: -1 }, { sparse: true });
 killmailsSchema.index({ system_id: -1, kill_time: -1 }, { sparse: true });
 killmailsSchema.index({ region_id: -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ constellation_id: -1, kill_time: -1 }, { sparse: true });
+killmailsSchema.index({ system_security: -1, kill_time: -1 }, { sparse: true });
 killmailsSchema.index({ is_npc: -1, kill_time: -1 }, { sparse: true });
 killmailsSchema.index({ is_solo: -1, kill_time: -1 }, { sparse: true });
 killmailsSchema.index({ total_value: -1, kill_time: -1 }, { sparse: true });

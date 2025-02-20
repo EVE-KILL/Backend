@@ -22,7 +22,6 @@ async function topCharacters(
 
     const matchFilter: any = {
         "attackers.character_id": { $ne: 0 },
-        "attackers.character_name": { $ne: "Unknown" },
         "kill_time": { $gte: calculatedTime },
     };
     if (attackerType && typeId) {

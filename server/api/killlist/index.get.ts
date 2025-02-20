@@ -5,6 +5,7 @@ interface QueryConfig {
     find: Record<string, unknown>;
     sort?: Record<string, 1 | -1>;
     projection?: Record<string, 0 | 1>;
+    hint?: string;
 }
 
 const killlistQueries: Record<string, QueryConfig> = {
@@ -12,31 +13,37 @@ const killlistQueries: Record<string, QueryConfig> = {
         find: {},
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'kill_time_-1',
     },
     abyssal: {
         find: { region_id: { $gte: 12000000, $lte: 13000000 } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'region_id_-1_kill_time_-1',
     },
     wspace: {
         find: { region_id: { $gte: 11000001, $lte: 11000033 } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'region_id_-1_kill_time_-1',
     },
     highsec: {
         find: { system_security: { $gte: 0.45 } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'system_security_-1_kill_time_-1',
     },
     lowsec: {
         find: { system_security: { $lte: 0.45, $gte: 0 } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'system_security_-1_kill_time_-1',
     },
     nullsec: {
         find: { system_security: { $lte: 0 } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'system_security_-1_kill_time_-1',
     },
     big: {
         find: {
@@ -44,21 +51,25 @@ const killlistQueries: Record<string, QueryConfig> = {
         },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
     solo: {
         find: { is_solo: true },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'is_solo_-1_kill_time_-1',
     },
     npc: {
         find: { is_npc: true },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'is_npc_-1_kill_time_-1',
     },
     "5b": {
         find: { total_value: { $gte: 5000000000 } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'total_value_-1_kill_time_-1',
     },
     "10b": {
         find: { total_value: { $gte: 10000000000 } },
@@ -73,6 +84,7 @@ const killlistQueries: Record<string, QueryConfig> = {
         },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
     t1: {
         find: {
@@ -82,6 +94,7 @@ const killlistQueries: Record<string, QueryConfig> = {
         },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
     t2: {
         find: {
@@ -94,21 +107,25 @@ const killlistQueries: Record<string, QueryConfig> = {
         },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
     t3: {
         find: { "victim.ship_group_id": { $in: [963, 1305] } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
     frigate: {
         find: { "victim.ship_group_id": { $in: [324, 893, 25, 831, 237] } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
     destroyers: {
         find: { "victim.ship_group_id": { $in: [420, 541] } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
     cruisers: {
         find: {
@@ -116,36 +133,43 @@ const killlistQueries: Record<string, QueryConfig> = {
         },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
     battlecruisers: {
         find: { "victim.ship_group_id": { $in: [419, 540] } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
     battleships: {
         find: { "victim.ship_group_id": { $in: [27, 898, 900] } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
     capitals: {
         find: { "victim.ship_group_id": { $in: [547, 485] } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
     freighters: {
         find: { "victim.ship_group_id": { $in: [513, 902] } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
     supercarriers: {
         find: { "victim.ship_group_id": { $in: [659] } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
     titans: {
         find: { "victim.ship_group_id": { $in: [30] } },
         sort: { kill_time: -1 },
         projection: { _id: 0, items: 0 },
+        hint: 'victim.ship_group_id_-1_kill_time_-1',
     },
 };
 
@@ -172,10 +196,12 @@ export default defineEventHandler(async (event) => {
         sort: config.sort || { kill_time: -1 },
         limit: limit,
         skip: skip,
+        hint: config.hint || 'kill_time_-1',
     };
 
     const projection = config.projection || {};
 
+    // Explain the query
     const killmails: IKillmail[] = await Killmails.find(
         config.find,
         projection,

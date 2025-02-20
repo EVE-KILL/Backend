@@ -66,6 +66,8 @@ export interface IKillmail {
   system_id: number;
   system_name: string;
   system_security: number;
+  constellation_id: number;
+  constellation_name: string;
   total_value: number;
   victim: IVictim;
   war_id: number;

@@ -116,6 +116,7 @@ async function getItemValue(item: IESIVictimItem, killTime: Date, isCargo: boole
 
 async function generateTop(killmail: IESIKillmail, warId: number = 0): Promise<Partial<IKillmail>> {
     const solarSystem = await SolarSystems.findOne({ system_id: killmail.solar_system_id });
+    const constellation = await Constellations.findOne({ constellation_id: solarSystem?.constellation_id });
     const region = solarSystem ? await Regions.findOne({ region_id: solarSystem.region_id }) : null;
     const killValue = await calculateKillValue(killmail);
 
@@ -130,6 +131,8 @@ async function generateTop(killmail: IESIKillmail, warId: number = 0): Promise<P
         system_id: killmail.solar_system_id,
         system_name: solarSystem?.system_name || "",
         system_security: solarSystem?.security || 0,
+        constellation_id: solarSystem?.constellation_id || 0,
+        constellation_name: constellation?.constellation_name || "",
         region_id: solarSystem?.region_id || 0,
         region_name: region?.region_name || "",
         near: await getNear(Number(x), Number(y), Number(z), Number(killmail.solar_system_id)),
