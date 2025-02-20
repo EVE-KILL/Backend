@@ -31,8 +31,8 @@ async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
         // Check if TQ is offline
         const tqOffline = (await storage.get('tqStatus')) === 'offline';
         if (tqOffline) {
-            console.warn('TQ is offline. Sleeping for 5 seconds...');
-            await sleep(5000);
+            console.warn('TQ is offline. Sleeping for 30 seconds...');
+            await sleep(30000);
             throw new Error('TQ is offline, fetcher cannot proceed.');
         }
 

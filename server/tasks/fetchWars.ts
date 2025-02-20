@@ -8,6 +8,10 @@ export default defineTask({
     description: "Fetch new wars from the ESI",
   },
   async run({ payload, context }) {
+    if (process.env.NODE_ENV === 'development') {
+      return {};
+    }
+
     const wars: number[] = await getLatestWars();
     let newWars = 0;
     for (let warId of wars) {
