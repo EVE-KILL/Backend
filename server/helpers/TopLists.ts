@@ -481,18 +481,7 @@ async function mostValuableKills(days: number | null = 7, limit: number = 10) {
         calculatedTime = new Date(Date.now() - (days * 86400 * 1000));
     }
 
-    const query: any[] = [
-        {
-            $match: {
-                "kill_time": { $gte: calculatedTime }
-            }
-        },
-        { $project: { _id: 0 } },
-        { $sort: { "total_value": -1 }},
-        { $limit: limit }
-    ];
-
-    return (await Killmails.aggregate(query, { allowDiskUse: true })).map((killmail: any) => {
+    return (await Killmails.find({ kill_time: { $gte: calculatedTime } }, { _id: 0 }).sort({ total_value: -1 }).limit(limit)).map((killmail: any) => {
         return {
             killmail_id: killmail.killmail_id,
             total_value: killmail.total_value,
@@ -511,19 +500,7 @@ async function mostValuableStructures(days: number | null = 7, limit: number = 1
     }
     const structureGroupIDs = [1657, 1406, 1404, 1408, 2017, 2016];
 
-    const query: any[] = [
-        {
-            $match: {
-                "kill_time": { $gte: calculatedTime },
-                "victim.ship_group_id": { $in: structureGroupIDs }
-            }
-        },
-        { $project: { _id: 0 }},
-        { $sort: { "total_value": -1 } },
-        { $limit: limit }
-    ];
-
-    return (await Killmails.aggregate(query, { allowDiskUse: true })).map((killmail: any) => {
+    return (await Killmails.find({ kill_time: { $gte: calculatedTime }, "victim.ship_group_id": { $in: structureGroupIDs } }, { _id: 0 }).sort({ total_value: -1 }).limit(limit)).map((killmail: any) => {
         return {
             killmail_id: killmail.killmail_id,
             total_value: killmail.total_value,
@@ -533,6 +510,7 @@ async function mostValuableStructures(days: number | null = 7, limit: number = 1
             }
         }
     });
+
 }
 
 async function mostValuableShips(days: number | null = 7, limit: number = 10) {
@@ -546,19 +524,7 @@ async function mostValuableShips(days: number | null = 7, limit: number = 10) {
         324,898,906,540,830,893,543,541,833,358,894,831,832,900,834,380,963,1305
     ];
 
-    const query: any[] = [
-        {
-            $match: {
-                "kill_time": { $gte: calculatedTime },
-                "victim.ship_group_id": { $in: shipGroupIDs }
-            }
-        },
-        { $project: { _id: 0 }},
-        { $sort: { "total_value": -1 } },
-        { $limit: limit }
-    ];
-
-    return (await Killmails.aggregate(query, { allowDiskUse: true })).map((killmail: any) => {
+    return (await Killmails.find({ kill_time: { $gte: calculatedTime }, "victim.ship_group_id": { $in: shipGroupIDs } }, { _id: 0 }).sort({ total_value: -1 }).limit(limit)).map((killmail: any) => {
         return {
             killmail_id: killmail.killmail_id,
             total_value: killmail.total_value,
