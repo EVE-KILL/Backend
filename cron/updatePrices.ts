@@ -1,22 +1,22 @@
-import { Prices } from "../models/Prices";
+import { cliLogger } from '../server/helpers/Logger';
+import { Prices } from "../server/models/Prices";
 import bz2 from "unbzip2-stream";
 import { Readable } from "stream";
 import csvParser from "csv-parser";
 
-export default defineTask({
-    meta: {
-        name: "update:prices",
-        description: "Update the Prices using EVERef",
-    },
-    async run({ payload, context }) {
+export default {
+    name: "updatePrices",
+    description: "Fetch the latest prices from EVERef",
+    schedule: "0 * * * *",
+    run: async ({ args }) => {
         const daysToFetch = 7;
 
-        console.log(`Fetching prices for the last ${daysToFetch} days...`);
+        cliLogger.info(`Fetching prices for the last ${daysToFetch} days...`);
         await fetchPrices(daysToFetch);
 
-        return { result: "Prices updated" };
+        return cliLogger.info("Prices updated");
     },
-});
+};
 
 async function fetchPrices(daysToFetch: number) {
     for (let i = 0; i < daysToFetch; i++) {
@@ -35,11 +35,10 @@ async function processDate(date: string) {
         // Fetch the data
         const response = await fetch(url);
         if (!response.ok) {
-            console.log(`No data available for ${date}`);
-            return;
+            return cliLogger.info(`No data available for ${date}`);
         }
 
-        console.log(`Processing market history for ${date}...`);
+        cliLogger.info(`Processing market history for ${date}...`);
 
         // Convert the Web ReadableStream to a Node.js ReadableStream
         const nodeStream = Readable.fromWeb(response.body);
@@ -79,8 +78,8 @@ async function processDate(date: string) {
                                 csvStream.resume();
                             })
                             .catch((error) => {
-                                console.error(
-                                    `Error inserting data for ${date}:`,
+                                cliLogger.error(
+                                    `Error inserting data for ${date}:` +
                                     error
                                 );
                                 // Even if there's an error, we should resume the stream
@@ -94,32 +93,32 @@ async function processDate(date: string) {
                             .then((result) => {
                                 insertCount +=
                                     result.upsertedCount + result.modifiedCount;
-                                console.log(
+                                cliLogger.info(
                                     `Inserted ${insertCount} prices for ${date}`
                                 );
                                 resolve();
                             })
                             .catch((error) => {
-                                console.error(
-                                    `Error inserting data at the end for ${date}:`,
+                                cliLogger.error(
+                                    `Error inserting data at the end for ${date}:` +
                                     error
                                 );
                                 resolve();
                             });
                     } else {
-                        console.log(
+                        cliLogger.info(
                             `Inserted ${insertCount} prices for ${date}`
                         );
                         resolve();
                     }
                 })
                 .on("error", (error) => {
-                    console.error(`Error processing data for ${date}:`, error);
+                    cliLogger.error(`Error processing data for ${date}:` + error);
                     reject(error);
                 });
         });
     } catch (error) {
-        console.error(`Error processing date ${date}:`, error);
+        cliLogger.error(`Error processing date ${date}:` + error);
     }
 }
 

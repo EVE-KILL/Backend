@@ -1,0 +1,53 @@
+#!/usr/bin/env bun
+import path from 'path';
+import fs from 'fs/promises';
+import { CronExpressionParser } from 'cron-parser';
+import { cliLogger } from '../server/helpers/Logger';
+import { initMongooseConnection } from '../server/helpers/Mongoose';
+
+await initMongooseConnection();
+
+const cliPath = path.join(__dirname, '../cron');
+const files = await fs.readdir(cliPath);
+
+let cronjobs: CronJob[] = [];
+interface CronJob {
+    name: string;
+    description: string;
+    schedule: string;
+    run: (args: any) => Promise<void>;
+}
+
+// Load cron jobs from files
+for (const file of files) {
+    const jobModule = await import(path.join(cliPath, file));
+    const job: CronJob = jobModule.default || jobModule;
+    cronjobs.push(job);
+}
+
+// Emit table listing cronjob details
+console.table(cronjobs.map(job => ({
+    Name: job.name,
+    Description: job.description,
+    Schedule: job.schedule
+})));
+
+// Recursive scheduling using cron-parser
+function scheduleJob(job: any) {
+    try {
+        const interval = CronExpressionParser.parse(job.schedule);
+        const nextDate = interval.next().getTime();
+        const delay = nextDate - Date.now();
+        setTimeout(() => {
+            Promise.resolve(job.run({ args: [] }))
+                .catch((err: any) => cliLogger.error(`Error in job "${job.name}": ${err}`))
+                .finally(() => scheduleJob(job));
+        }, delay);
+    } catch (e) {
+        cliLogger.error(`Job "${job.name}" schedule error: ${job.schedule} - ${e}`);
+    }
+}
+
+for (const job of cronjobs) {
+    scheduleJob(job);
+}

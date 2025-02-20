@@ -19,27 +19,6 @@ export default defineNitroConfig({
     ],
   },
 
-  scheduledTasks: process.env.ENABLE_TASKS === 'true' ? {
-    '0 0 * * *': [
-      'updateMeilisearch',
-      'updateWars',
-      'updateHistoricalCounts',
-    ],
-    '0 * * * *': [
-      'fetchWars',
-      'fetchMissedKillmails',
-      'updatePrices',
-    ],
-    '*/5 * * * *': [
-      'findNewCharacters',
-    ],
-    '* * * * *': [
-      'tqStatus',
-      'affiliationUpdate',
-      'processUnprocessedKillmails',
-    ],
-  } : {},
-
   experimental: {
     openAPI: true,
     wasm: true,

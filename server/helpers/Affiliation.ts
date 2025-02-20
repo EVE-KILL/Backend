@@ -1,7 +1,8 @@
-import { queueUpdateAlliance } from "~/queue/Alliance";
-import { queueUpdateCharacter } from "~/queue/Character";
-import { queueUpdateCorporation } from "~/queue/Corporation";
-import { esiFetcher } from "~/helpers/ESIFetcher";
+import { queueUpdateAlliance } from "../queue/Alliance";
+import { queueUpdateCharacter } from "../queue/Character";
+import { queueUpdateCorporation } from "../queue/Corporation";
+import { esiFetcher } from "../helpers/ESIFetcher";
+import { Characters } from "../models/Characters";
 
 async function processChunk(
     characters: ICharacters[],
@@ -12,8 +13,6 @@ async function processChunk(
         characters,
         attempt
     );
-
-    console.log(`Fetched ${affiliations.length} affiliations`);
 
     let originalDataLookup = {};
     for (let character of characters) {

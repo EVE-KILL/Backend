@@ -1,4 +1,4 @@
-import { Config } from "../models/Config";
+import { Config } from "../server/models/Config";
 import bz2 from "unbzip2-stream";
 import { promisify } from "util";
 import { pipeline, Readable } from "stream";
@@ -6,25 +6,23 @@ import fs from "fs";
 import fetch from "node-fetch";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
-
 // Import Models
-import { Celestials } from "../models/Celestials";
-import { InvFlags } from "../models/InvFlags";
-import { InvTypes } from "../models/InvTypes";
-import { Factions } from "../models/Factions";
-import { InvGroups } from "../models/InvGroups";
-import { SolarSystems } from "../models/SolarSystems";
-import { Regions } from "../models/Regions";
-import { Constellations } from "../models/Constellations";
+import { Celestials } from "../server/models/Celestials";
+import { InvFlags } from "../server/models/InvFlags";
+import { InvTypes } from "../server/models/InvTypes";
+import { Factions } from "../server/models/Factions";
+import { InvGroups } from "../server/models/InvGroups";
+import { SolarSystems } from "../server/models/SolarSystems";
+import { Regions } from "../server/models/Regions";
+import { Constellations } from "../server/models/Constellations";
 
 const pipe = promisify(pipeline);
 
-export default defineTask({
-    meta: {
-        name: "update:sde",
-        description: "Update the SDE",
-    },
-    async run({ payload, context }) {
+export default {
+    name: 'update:sde',
+    description: 'Update the EVE-Online SDE',
+    longRunning: false,
+    run: async ({ args }) => {
         console.log("Updating SDE");
         const sqliteUrl = "https://www.fuzzwork.co.uk/dump/sqlite-latest.sqlite.bz2";
         const sqliteMd5Url = "https://www.fuzzwork.co.uk/dump/sqlite-latest.sqlite.bz2.md5";
@@ -78,7 +76,7 @@ export default defineTask({
         console.log("SDE updated successfully.");
         return { result: "SDE updated successfully" };
     }
-});
+};
 
 async function invTypes() {
     const db = await connectToDatabase();

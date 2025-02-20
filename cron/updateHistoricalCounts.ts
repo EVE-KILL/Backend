@@ -1,9 +1,12 @@
-export default defineTask({
-    meta: {
-        name: "update:historicalcounts",
-        description: "Updates the historical counts of members in alliances and corporations",
-    },
-    async run({ payload, context }) {
+import { cliLogger } from '../server/helpers/Logger';
+import { Characters } from '../server/models/Characters';
+import { HistoricalStats } from '../server/models/HistoricalStats';
+
+export default {
+    name: "updateHistoricalCounts",
+    description: "Update historical counts",
+    schedule: "0 0 * * *",
+    run: async ({ args }) => {
         let currentDate = new Date();
 
         // Alliances
@@ -106,6 +109,6 @@ export default defineTask({
         });
         await HistoricalStats.bulkWrite(corporationOps);
 
-        return { result: "success" };
-    }
-});
+        return cliLogger.info(`Updated historical counts`);
+    },
+};

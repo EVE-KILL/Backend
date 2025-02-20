@@ -1,24 +1,22 @@
 import _ from "lodash";
-import { processChunk } from "~/helpers/Affiliation";
-import { createQueue } from "~/helpers/Queue";
+import { cliLogger } from '../server/helpers/Logger';
+import { processChunk } from "../server/helpers/Affiliation";
+import { createQueue } from "../server/helpers/Queue";
+import { Characters } from "../server/models/Characters";
 
-export default defineTask({
-    meta: {
-        name: "update:affiliations",
-        description: "Updates the affiliations of characters",
-    },
-    async run({ payload, context }) {
+export default {
+    name: "affiliationUpdate",
+    description: "Updates the affiliations of characters",
+    schedule: "* * * * *",
+    run: async ({ args }) => {
+        cliLogger.info("Updating affiliations");
+
         // If the queue isn't empty, we don't want to run this task
         let queue = createQueue("character");
         let queueCount = await queue.getJobCounts();
 
         if (queueCount.waiting > 0 || queueCount.active > 0 || queueCount.prioritized > 0) {
-            return {
-                result: {
-                    queued: 0,
-                    reason: "Queue has data",
-                },
-            };
+            return cliLogger.info("Queue has data, skipping");
         }
 
         let limit = 10000; // Get up to 10000 characters at a time, this means we send 10 requests to ESI
@@ -76,7 +74,7 @@ export default defineTask({
                     alliance_id: 1,
                 },
                 {
-                    limit: limit,
+                    limit: limit
                 }
             );
 
@@ -85,7 +83,7 @@ export default defineTask({
             }
         }
 
-        console.log(`Found ${characters.length} characters to check`);
+        cliLogger.info(`Found ${characters.length} characters to check`);
 
         // We can only fetch upwards of 1000 characters at a time, so we have to spluit the characters into chunks
         let characterChunks = _.chunk(characters, 1000);
@@ -110,11 +108,6 @@ export default defineTask({
             });
         }
 
-        console.log(`Queued ${queuedCount} characters for affiliation update`);
-        return {
-            result: {
-                queued: queuedCount,
-            },
-        };
+        return cliLogger.info(`Queued ${queuedCount} characters for affiliation update`);
     },
-});
+};

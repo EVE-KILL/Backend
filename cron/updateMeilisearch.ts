@@ -1,58 +1,65 @@
-import { Meilisearch } from "~/helpers/Meilisearch";
-import { IAlliance } from "~/interfaces/IAlliance";
-import { ICharacter } from "~/interfaces/ICharacter";
-import { ICorporation } from "~/interfaces/ICorporation";
-import { IFaction } from "~/interfaces/IFaction";
-import { IInvType } from "~/interfaces/IInvType";
-import { IRegion } from "~/interfaces/IRegion";
-import { ISolarSystem } from "~/interfaces/ISolarSystem";
+import { Meilisearch } from "../server/helpers/Meilisearch";
+import { IAlliance } from "../server/interfaces/IAlliance";
+import { ICharacter } from "../server/interfaces/ICharacter";
+import { ICorporation } from "../server/interfaces/ICorporation";
+import { IFaction } from "../server/interfaces/IFaction";
+import { IInvType } from "../server/interfaces/IInvType";
+import { IRegion } from "../server/interfaces/IRegion";
+import { ISolarSystem } from "../server/interfaces/ISolarSystem";
+import { cliLogger } from '../server/helpers/Logger';
+import { Alliances } from "../server/models/Alliances";
+import { Characters } from "../server/models/Characters";
+import { Corporations } from "../server/models/Corporations";
+import { Factions } from "../server/models/Factions";
+import { InvTypes } from "../server/models/InvTypes";
+import { Regions } from "../server/models/Regions";
+import { SolarSystems } from "../server/models/SolarSystems";
 
 const BATCH_SIZE = 100000;
 
-export default defineTask({
-  meta: {
-    name: "update:meilisearch",
-    description: "Updates the search index in Meilisearch",
-  },
-  async run({ payload, context }) {
-    let meilisearch = new Meilisearch();
-    // Create a placeholder index
-    await meilisearch.createIndex('nitro-update');
+export default {
+    name: "updateMeilisearch",
+    description: "Update entities in Meilisearch",
+    schedule: "0 0 * * *",
+    run: async ({ args }) => {
+        let meilisearch = new Meilisearch();
+        // Create a placeholder index
+        await meilisearch.createIndex('nitro-update');
 
-    // Ensure the nitro index exists
-    await meilisearch.createIndex('nitro');
+        // Ensure the nitro index exists
+        await meilisearch.createIndex('nitro');
 
-    let entityTypes = [
-        "characters",
-        "corporations",
-        "alliances",
-        "factions",
-        "systems",
-        "regions",
-        "items",
-    ];
+        let entityTypes = [
+            "characters",
+            "corporations",
+            "alliances",
+            "factions",
+            "systems",
+            "regions",
+            "items",
+        ];
 
-    let resultCount = {
-        characters: 0,
-        corporations: 0,
-        alliances: 0,
-        factions: 0,
-        systems: 0,
-        regions: 0,
-        items: 0,
-    };
+        let resultCount = {
+            characters: 0,
+            corporations: 0,
+            alliances: 0,
+            factions: 0,
+            systems: 0,
+            regions: 0,
+            items: 0,
+        };
 
-    for (let entityType of entityTypes) {
-        resultCount[entityType] = await processEntities(entityType, meilisearch);
-    }
+        for (let entityType of entityTypes) {
+            resultCount[entityType] = await processEntities(entityType, meilisearch);
+        }
 
-    // Replace the nitro index with nitro-update
-    await meilisearch.replaceIndex('nitro', 'nitro-update');
-    await meilisearch.deleteIndex('nitro-update');
+        // Replace the nitro index with nitro-update
+        await meilisearch.replaceIndex('nitro', 'nitro-update');
+        await meilisearch.deleteIndex('nitro-update');
 
-    return { result: resultCount };
-  },
-});
+        return cliLogger.info(`Updated Meilisearch with ${resultCount} entities`);
+    },
+};
 
 async function processEntities(entityType: string, meilisearch: Meilisearch): Promise<number> {
     let count = 0;

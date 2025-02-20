@@ -1,12 +1,12 @@
-import { getCharacter } from "../helpers/ESIData";
-import { Characters } from '../models/Characters';
+import { getCharacter } from "../server/helpers/ESIData";
+import { Characters } from '../server/models/Characters';
+import { cliLogger } from '../server/helpers/Logger';
 
-export default defineTask({
-    meta: {
-        name: "update:affiliations",
-        description: "Updates the affiliations of cgaracters",
-    },
-    async run({ payload, context }) {
+export default {
+    name: "findNewCharacters",
+    description: "Find new characters",
+    schedule: "*/5 * * * *",
+    run: async ({ args }) => {
         // Find the highest character_id in the database
         let highestCharacterId = 0;
         let highestCharacter = await Characters.findOne().sort({ character_id: -1 });
@@ -28,7 +28,7 @@ export default defineTask({
         // Try and fetch the characters
         for (let characterId of newCharacterIds) {
             if (errorCount > 2) {
-                return { result: `Too many errors, stopping` };
+                return cliLogger.error(`Too many errors, stopping`);
             }
 
             let characterData = await getCharacter(characterId, true);
@@ -53,6 +53,6 @@ export default defineTask({
             });
         }
 
-        return { result: `Found ${newCharacters} new characters` };
+        return cliLogger.info(`Found ${newCharacters} new characters`);
     },
-});
+};
