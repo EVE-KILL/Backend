@@ -8,7 +8,6 @@ export default defineTask({
   async run({ payload, context }) {
     let request = await fetch('https://esi.evetech.net/latest/status/?datasource=tranquility');
     let status = await request.json();
-    console.log(status);
 
     const storage = new RedisStorage();
 
@@ -21,14 +20,13 @@ export default defineTask({
     switch (status.status) {
         case "503":
             // TQ is offline
-            await
+            await storage.set('tqStatus', 'offline');
             // Pause the fetcher until current time + 60seconds
-            await storage.set('fetcher_paused', Date.now() + 60000);
+            await storage.set('fetcher_paused', Date.now() + 120000);
             break;
 
         case undefined:
             // TQ is offline
-            console.log('TQ is offline');
             await storage.set('tqStatus', 'offline');
             await storage.set('fetcher_paused', Date.now() + 120000);
             break
