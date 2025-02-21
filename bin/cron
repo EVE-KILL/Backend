@@ -45,24 +45,24 @@ if (process.argv[2]) {
         console.error(`Job "${jobName}" not found.`);
         process.exit(1);
     }
-}
-
-// Recursive scheduling using cron-parser
-function scheduleJob(job: any) {
-    try {
-        const interval = CronExpressionParser.parse(job.schedule);
-        const nextDate = interval.next().getTime();
-        const delay = nextDate - Date.now();
-        setTimeout(() => {
-            Promise.resolve(job.run({ args: [] }))
-                .catch((err: any) => cliLogger.error(`Error in job "${job.name}": ${err}`))
-                .finally(() => scheduleJob(job));
-        }, delay);
-    } catch (e) {
-        cliLogger.error(`Job "${job.name}" schedule error: ${job.schedule} - ${e}`);
+} else {
+    // Recursive scheduling using cron-parser
+    function scheduleJob(job: any) {
+        try {
+            const interval = CronExpressionParser.parse(job.schedule);
+            const nextDate = interval.next().getTime();
+            const delay = nextDate - Date.now();
+            setTimeout(() => {
+                Promise.resolve(job.run({ args: [] }))
+                    .catch((err: any) => cliLogger.error(`Error in job "${job.name}": ${err}`))
+                    .finally(() => scheduleJob(job));
+            }, delay);
+        } catch (e) {
+            cliLogger.error(`Job "${job.name}" schedule error: ${job.schedule} - ${e}`);
+        }
     }
-}
 
-for (const job of cronjobs) {
-    scheduleJob(job);
+    for (const job of cronjobs) {
+        scheduleJob(job);
+    }
 }
