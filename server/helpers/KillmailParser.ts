@@ -43,22 +43,6 @@ const factionCache = new LRUCache({
     allowStale: true
 });
 
-// Every 5 seconds emit how many entries are in all the individual caches
-setInterval(() => {
-    console.log("SolarSystems Cache Size:", solarSystemsCache.size);
-    console.log("Regions Cache Size:", regionsCache.size);
-    console.log("InvGroups Cache Size:", invGroupsCache.size);
-    console.log("Near Cache Size:", nearCache.size);
-    console.log("Constellations Cache Size:", constellationsCache.size);
-    console.log("Items Cache Size:", itemsCache.size);
-    console.log("Prices Cache Size:", priceCache.size);
-    console.log("Characters Cache Size:", characterCache.size);
-    console.log("Corporations Cache Size:", corporationCache.size);
-    console.log("Alliances Cache Size:", allianceCache.size);
-    console.log("Factions Cache Size:", factionCache.size);
-}, 5000);
-
-
 // New helper for getPrice using the LRU cache
 async function getCachedPrice(typeId: number, killTime: Date): Promise<number> {
 	const key = `${typeId}-${killTime.getTime()}`;
