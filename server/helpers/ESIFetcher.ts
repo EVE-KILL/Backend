@@ -52,7 +52,7 @@ async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
         // Set the user agent
         options = options || {};
         options.headers = options.headers || {};
-        options.headers['User-Agent'] = 'EVE-KILL/Nitro/1.0 - michael@karbowiak.dk';
+        options.headers['User-Agent'] = 'EVE-KILL Nitro/1.0 (michael@karbowiak.dk; +https://github.com/eve-kill/backend; @lilllamah; @Karbowiak)';
 
         let response: Response;
         try {
