@@ -11,6 +11,7 @@ const warsSchema = new Schema<IWarDocument>(
     declared: { type: Date, required: true },
     started: { type: Date, required: true },
     finished: { type: Date },
+    retracted: { type: Date },
     mutual: { type: Boolean, required: true },
     open_for_allies: { type: Boolean, required: true },
     aggressor: {

@@ -22,6 +22,7 @@ export interface IWar {
     declared: Date;
     started: Date;
     finished?: Date;
+    retracted?: Date;
     mutual: boolean;
     open_for_allies: boolean;
     aggressor: IAggressor;

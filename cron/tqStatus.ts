@@ -6,9 +6,9 @@ export default {
     description: "Check the status of the TQ server",
     schedule: "* * * * *",
     run: async ({ args }) => {
+        cliLogger.info("Checking TQ status...");
         let request = await fetch('https://esi.evetech.net/latest/status/?datasource=tranquility');
         let status = await request.json();
-
         const storage = new RedisStorage();
 
         if (status.error) {
