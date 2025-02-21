@@ -106,10 +106,10 @@
   maxAge: 300,
 }
 '/killmail/history': {
-  maxAge: 300,
+  maxAge: 3600,
 }
 '/killmail/history/[date]': {
-  maxAge: 300,
+  maxAge: 3600,
 }
 '/killmail/count': {
   maxAge: 300,
