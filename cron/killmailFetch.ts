@@ -111,7 +111,10 @@ export default {
                 { _id: user._id },
                 { lastChecked: new Date() }
             );
-            cliLogger.info(`Found ${killmails.length} new killmails for ${characterName} (${characterId})`);
+
+            if (killmails.length > 0) {
+                cliLogger.info(`Found ${killmails.length} new killmails for ${characterName} (${characterId})`);
+            }
         }
     },
 };
