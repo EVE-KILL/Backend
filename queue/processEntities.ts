@@ -49,7 +49,7 @@ export default {
         createWorker('characterhistory', async (job: Job) => {
             await updateCharacterHistory(job.data.characterId);
             // Sleep for a random amount of time, between 100ms and 1000ms
-            let sleepTime = Math.floor(Math.random() * 900) + 100;
+            let sleepTime = Math.floor(Math.random() * 1500) + 100;
             await new Promise(resolve => setTimeout(resolve, sleepTime));
         }, {
             concurrency: 1
@@ -64,7 +64,7 @@ export default {
         createWorker('corporationhistory', async (job: Job) => {
             await updateCorporationHistory(job.data.corporationId);
             // Sleep for a random amount of time, between 100ms and 1000ms
-            let sleepTime = Math.floor(Math.random() * 900) + 100;
+            let sleepTime = Math.floor(Math.random() * 1500) + 100;
             await new Promise(resolve => setTimeout(resolve, sleepTime));
         }, {
             concurrency: 1
