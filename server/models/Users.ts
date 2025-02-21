@@ -15,6 +15,7 @@ const userSchema = new Schema<IUserDocument>(
     characterOwnerHash: { type: String, required: true },
     uniqueIdentifier: { type: String, required: true },
     lastChecked: { type: Date, default: Date.now },
+    canFetchCorporationKillmails: { type: Boolean, default: true },
   },
   {
     collection: "users",

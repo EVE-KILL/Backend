@@ -9,4 +9,5 @@ export interface IUser {
     characterOwnerHash: string;
     uniqueIdentifier: string;
     lastChecked: Date;
+    canFetchCorporationKillmails: boolean;
 }
