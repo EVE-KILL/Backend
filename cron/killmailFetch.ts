@@ -96,7 +96,8 @@ export default {
                 let killmailHash = killmail.killmail_hash;
                 let killmailExists = await Killmails.exists({ killmail_id: killmailId, killmail_hash: killmailHash });
                 if (killmailExists) {
-                    killmails.splice(killmails.indexOf(killmail), 1);
+                    killmails = killmails.filter(k => k.killmail_id !== killmailId);
+                    continue;
                 }
             }
 

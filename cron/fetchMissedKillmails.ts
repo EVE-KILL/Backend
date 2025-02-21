@@ -30,8 +30,8 @@ export default {
         for (let [killmail_id, killmail_hash] of missingKillmails) {
             let exists = await KillmailsESI.exists({ killmail_id: killmail_id });
             if (!exists) {
-            foundKillmailCount++;
-            addKillmail(Number(killmail_id), killmail_hash as string, 0, 4);
+                foundKillmailCount++;
+                addKillmail(Number(killmail_id), killmail_hash as string, 0, 4);
             }
         }
         }
