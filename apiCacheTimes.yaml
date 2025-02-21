@@ -75,15 +75,23 @@
 }
 '/killlist/attacker/[type]/[id]': {
   maxAge: 30,
+  staleMaxAge: 0,
+  swr: true
 }
 '/killlist/combined/[type]/[id]': {
   maxAge: 30,
+  staleMaxAge: 0,
+  swr: true
 }
 '/killlist/losses/[type]/[id]': {
   maxAge: 30,
+  staleMaxAge: 0,
+  swr: true
 }
 '/killlist': {
   maxAge: 5,
+  staleMaxAge: 0,
+  swr: true
 }
 '/killmail/[id]': {
   maxAge: 3600,
