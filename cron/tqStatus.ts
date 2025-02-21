@@ -32,6 +32,6 @@ export default {
             }
         }
 
-        return cliLogger.info(`TQ Status: ${status.players} players, ${status.start_time} start time, ${status.server_version} server version`);
+        return cliLogger.info(`TQ Status: ${status.players} players`);
     },
 };
