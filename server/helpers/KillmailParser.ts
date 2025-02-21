@@ -147,13 +147,14 @@ async function getCachedFaction(factionId: number) {
 }
 
 async function parseKillmail(killmail: IESIKillmail, warId: number = 0): Promise<Partial<IKillmail>> {
-    const top = await generateTop(killmail, warId);
-    const victim = await processVictim(killmail.victim);
-    const attackers = await processAttackers(killmail.attackers);
-    const items = await processItems(killmail.victim.items, new Date(killmail.killmail_time));
-
-    // Update the last active field for the victim and all attackers
-    await updateLastActive(killmail);
+    // Run independent tasks concurrently.
+    const [top, victim, attackers, items] = await Promise.all([
+        generateTop(killmail, warId),
+        processVictim(killmail.victim),
+        processAttackers(killmail.attackers),
+        processItems(killmail.victim.items, new Date(killmail.killmail_time)),
+        updateLastActive(killmail)
+    ]);
 
     return {
         ...top,
