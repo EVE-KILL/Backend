@@ -49,6 +49,11 @@ async function esiFetcher(url: string, options?: RequestInit): Promise<any> {
         // Rate limit ESI requests
         await rateLimit();
 
+        // Set the user agent
+        options = options || {};
+        options.headers = options.headers || {};
+        options.headers['User-Agent'] = 'EVE-KILL/Nitro/1.0 - michael@karbowiak.dk';
+
         let response: Response;
         try {
             response = await fetch(url, options);
