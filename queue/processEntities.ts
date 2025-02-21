@@ -3,23 +3,24 @@ import { createWorker } from '../server/helpers/Queue';
 import { updateCharacter, updateCharacterHistory } from '../server/queue/Character';
 import { updateCorporation, updateCorporationHistory } from '../server/queue/Corporation';
 import { updateAlliance } from '../server/queue/Alliance';
+import { cliLogger } from '../server/helpers/Logger';
 
 export default {
     name: 'process:entities',
     description: 'Process updates for characters, corporations and alliances',
     run: ({ args }) => {
-        console.log('✔ Starting entity processor');
+        cliLogger.info('✔ Starting entity processor');
 
         createWorker('character', async (job: Job) => {
             await updateCharacter(job.data.characterId);
         }, {
             concurrency: 5
         }).on('failed', (job: Job | undefined, err: Error) => {
-            console.log('Character Update:', job?.id, '( CharacterID:', job?.data.characterId, `) | ${err.message} | ${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/characters/${job?.data.characterId}/`);
+            cliLogger.error(`Character Update: ${job?.id} ( CharacterID: ${job?.data.characterId} ) | ${err.message} | ${(process.env.ESI_URL || 'https://esi.evetech.net/')}latest/characters/${job?.data.characterId}/`);
         }).on('completed', (job: Job) => {
-            console.log('Character Update:', job.id, '( CharacterID:', job.data.characterId, ') | Completed');
+            cliLogger.info(`Character Update: ${job.id} ( CharacterID: ${job.data.characterId} ) | Completed`);
         }).on('ready', () => {
-            console.log('Character Worker Ready');
+            cliLogger.info('Character Worker Ready');
         });
 
         createWorker('corporation', async (job: Job) => {
@@ -27,11 +28,11 @@ export default {
         }, {
             concurrency: 5
         }).on('failed', (job: Job | undefined, err: Error) => {
-            console.log('Corporation Update:', job?.id, '( CorporationID:', job?.data.corporationId, `) | ${err.message} | ${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/corporations/${job?.data.corporationId}/`);
+            cliLogger.error(`Corporation Update: ${job?.id} ( CorporationID: ${job?.data.corporationId} ) | ${err.message} | ${(process.env.ESI_URL || 'https://esi.evetech.net/')}latest/corporations/${job?.data.corporationId}/`);
         }).on('completed', (job: Job) => {
-            console.log('Corporation Update:', job.id, '( CorporationID:', job.data.corporationId, ') | Completed');
+            cliLogger.info(`Corporation Update: ${job.id} ( CorporationID: ${job.data.corporationId} ) | Completed`);
         }).on('ready', () => {
-            console.log('Corporation Worker Ready');
+            cliLogger.info('Corporation Worker Ready');
         });
 
         createWorker('alliance', async (job: Job) => {
@@ -39,11 +40,11 @@ export default {
         }, {
             concurrency: 5
         }).on('failed', (job: Job | undefined, err: Error) => {
-            console.log('Alliance Update:', job?.id, '( AllianceID:', job?.data.allianceId, `) | ${err.message} | ${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/alliances/${job?.data.allianceId}/`);
+            cliLogger.error(`Alliance Update: ${job?.id} ( AllianceID: ${job?.data.allianceId} ) | ${err.message} | ${(process.env.ESI_URL || 'https://esi.evetech.net/')}latest/alliances/${job?.data.allianceId}/`);
         }).on('completed', (job: Job) => {
-            console.log('Alliance Update:', job.id, '( AllianceID:', job.data.allianceId, ') | Completed');
+            cliLogger.info(`Alliance Update: ${job.id} ( AllianceID: ${job.data.allianceId} ) | Completed`);
         }).on('ready', () => {
-            console.log('Alliance Worker Ready');
+            cliLogger.info('Alliance Worker Ready');
         });
 
         createWorker('characterhistory', async (job: Job) => {
@@ -54,11 +55,11 @@ export default {
         }, {
             concurrency: 1
         }).on('failed', (job: Job | undefined, err: Error) => {
-            console.log('Character History Update:', job?.id, '( CharacterID:', job?.data.characterId, `) | ${err.message} | ${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/characters/${job?.data.characterId}/`);
+            cliLogger.error(`Character History Update: ${job?.id} ( CharacterID: ${job?.data.characterId} ) | ${err.message} | ${(process.env.ESI_URL || 'https://esi.evetech.net/')}latest/characters/${job?.data.characterId}/`);
         }).on('completed', (job: Job) => {
-            console.log('Character History Update:', job.id, '( CharacterID:', job.data.characterId, ') | Completed');
+            cliLogger.info(`Character History Update: ${job.id} ( CharacterID: ${job.data.characterId} ) | Completed`);
         }).on('ready', () => {
-            console.log('Character History Worker Ready');
+            cliLogger.info('Character History Worker Ready');
         });
 
         createWorker('corporationhistory', async (job: Job) => {
@@ -69,11 +70,11 @@ export default {
         }, {
             concurrency: 1
         }).on('failed', (job: Job | undefined, err: Error) => {
-            console.log('Corporation History Update:', job?.id, '( CorporationID:', job?.data.corporationId, `) | ${err.message} | ${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/corporations/${job?.data.corporationId}/`);
+            cliLogger.error(`Corporation History Update: ${job?.id} ( CorporationID: ${job?.data.corporationId} ) | ${err.message} | ${(process.env.ESI_URL || 'https://esi.evetech.net/')}latest/corporations/${job?.data.corporationId}/`);
         }).on('completed', (job: Job) => {
-            console.log('Corporation History Update:', job.id, '( CorporationID:', job.data.corporationId, ') | Completed');
+            cliLogger.info(`Corporation History Update: ${job.id} ( CorporationID: ${job.data.corporationId} ) | Completed`);
         }).on('ready', () => {
-            console.log('Corporation History Worker Ready');
+            cliLogger.info('Corporation History Worker Ready');
         });
     }
 };
