@@ -13,7 +13,7 @@ export default defineEventHandler(async () => {
       sort: { createdAt: -1 },
       limit: 10000,
     },
-  );
+  ).hint('createdAt_-1');
 
   // Return { killmail_id: killmail_hash, ... }
   let killmails: { [key: string]: string } = {};
