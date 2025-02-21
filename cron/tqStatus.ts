@@ -6,7 +6,7 @@ export default {
     description: "Check the status of the TQ server",
     schedule: "* * * * *",
     run: async ({ args }) => {
-        let request = await fetch(`${process.env.ESI_URL || 'https://esi.evetech.net/'}latest/status/?datasource=tranquility`);
+        let request = await fetch('https://esi.evetech.net/latest/status/?datasource=tranquility');
         let status = await request.json();
 
         const storage = new RedisStorage();
