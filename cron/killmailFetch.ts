@@ -32,6 +32,11 @@ export default {
             if (dateExpiration.getTime() < Date.now() + 60 * 5 * 1000) {
                 cliLogger.info(`Refreshing token for ${characterName} (${characterId})`);
                 let newTokens = await getNewRefreshToken(refreshToken);
+                if (newTokens.error) {
+                    cliLogger.error(`Error refreshing token for ${characterName} (${characterId}): ${newTokens.error} - ${newTokens.error_description}`);
+                    continue;
+                }
+
                 accessToken = newTokens.access_token;
                 dateExpiration = new Date(Date.now() + newTokens.expires_in * 1000);
                 refreshToken = newTokens.refresh_token;
