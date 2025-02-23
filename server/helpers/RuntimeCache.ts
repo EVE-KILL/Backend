@@ -33,7 +33,7 @@ export const priceCache = new LRUCache<string, number>({ max: 1000000, ttl: 1000
 export const characterCache = new LRUCache<string, ICharacter>({ max: 100000, ttl: 1000 * 60 * 60 * 6, allowStale: true });
 export const corporationCache = new LRUCache<string, ICorporation>({ max: 100000, ttl: 1000 * 60 * 60 * 6, allowStale: true });
 export const allianceCache = new LRUCache<string, IAlliance>({ max: 100000, ttl: 1000 * 60 * 60 * 6, allowStale: true });
-export const nearCache = new LRUCache<string, any>({ max: 10000, ttl: 1000 * 60 * 60 * 1, allowStale: true });
+export const nearCache = new LRUCache<string, any>({ max: 500000, ttl: 1000 * 60 * 60 * 1, allowStale: true });
 
 export const cacheHits = {
 	invGroups: 0,
