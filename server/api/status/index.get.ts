@@ -9,11 +9,11 @@ import {
     invTypesCache,
     invFlagsCache,
     factionsCache,
-    // Remaining caches are still LRU caches
     priceCache,
     characterCache,
     corporationCache,
-    allianceCache
+    allianceCache,
+    cacheHits
 } from "~/helpers/RuntimeCache";
 
 export default defineEventHandler(async (event) => {
@@ -56,6 +56,7 @@ export default defineEventHandler(async (event) => {
             characterCache: characterCache.size,
             corporationCache: corporationCache.size,
             allianceCache: allianceCache.size
-        }
+        },
+        cacheHits
     };
 });
