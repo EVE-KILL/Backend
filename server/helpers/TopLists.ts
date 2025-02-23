@@ -10,6 +10,7 @@ import { IConstellation } from '~/interfaces/IConstellation';
 // Earliest known killmail is from 2007-12-05
 const timeSinceEarlyDays: Date = new Date('2007-12-05T00:00:00Z');
 
+// Optimized topCharacters: remove double grouping and use $addToSet
 async function topCharacters(
     attackerType: string | null = null,
     typeId: number | null = null,
@@ -34,23 +35,14 @@ async function topCharacters(
         { $unwind: "$attackers" },
         {
             $group: {
-                _id: {
-                    character_id: "$attackers.character_id",
-                    killmail_id: "$killmail_id",
-                }
-            }
-        },
-        {
-            $group: {
-                _id: "$_id.character_id",
-                count: { $sum: 1 },
+                _id: "$attackers.character_id",
+                killmailIds: { $addToSet: "$killmail_id" }
             }
         },
         {
             $project: {
-                _id: 0,
-                count: "$count",
-                id: "$_id"
+                id: "$_id",
+                count: { $size: "$killmailIds" }
             }
         },
         { $sort: { count: -1, id: 1 } },
@@ -71,6 +63,7 @@ async function topCharacters(
     return mappedResults;
 }
 
+// Optimized topCorporations
 async function topCorporations(
     attackerType: string | null = null,
     typeId: number | null = null,
@@ -95,23 +88,14 @@ async function topCorporations(
         { $unwind: "$attackers" },
         {
             $group: {
-                _id: {
-                    corporation_id: "$attackers.corporation_id",
-                    killmail_id: "$killmail_id"
-                }
-            }
-        },
-        {
-            $group: {
-                _id: "$_id.corporation_id",
-                count: { $sum: 1 }
+                _id: "$attackers.corporation_id",
+                killmailIds: { $addToSet: "$killmail_id" }
             }
         },
         {
             $project: {
-                _id: 0,
-                count: "$count",
-                id: "$_id"
+                id: "$_id",
+                count: { $size: "$killmailIds" }
             }
         },
         { $sort: { count: -1, id: 1 } },
@@ -132,6 +116,7 @@ async function topCorporations(
     return mappedResults;
 }
 
+// Optimized topAlliances
 async function topAlliances(
     attackerType: string | null = null,
     typeId: number | null = null,
@@ -156,23 +141,14 @@ async function topAlliances(
         { $unwind: "$attackers" },
         {
             $group: {
-                _id: {
-                    alliance_id: "$attackers.alliance_id",
-                    killmail_id: "$killmail_id"
-                }
-            }
-        },
-        {
-            $group: {
-                _id: "$_id.alliance_id",
-                count: { $sum: 1 }
+                _id: "$attackers.alliance_id",
+                killmailIds: { $addToSet: "$killmail_id" }
             }
         },
         {
             $project: {
-                _id: 0,
-                count: "$count",
-                id: "$_id"
+                id: "$_id",
+                count: { $size: "$killmailIds" }
             }
         },
         { $sort: { count: -1, id: 1 } },
@@ -193,6 +169,7 @@ async function topAlliances(
     return mappedResults;
 }
 
+// Optimized topSystems: system_id is a top-level field; no unwind required
 async function topSystems(
     attackerType: string | null = null,
     typeId: number | null = null,
@@ -211,26 +188,16 @@ async function topSystems(
 
     const query: any[] = [
         { $match: matchFilter },
-        { $unwind: "$attackers" },
         {
             $group: {
-                _id: {
-                    system_id: "$system_id",
-                    killmail_id: "$killmail_id"
-                }
-            }
-        },
-        {
-            $group: {
-                _id: "$_id.system_id",
-                count: { $sum: 1 }
+                _id: "$system_id",
+                killmailIds: { $addToSet: "$killmail_id" }
             }
         },
         {
             $project: {
-                _id: 0,
-                count: "$count",
-                id: "$_id"
+                id: "$_id",
+                count: { $size: "$killmailIds" }
             }
         },
         { $sort: { count: -1, id: 1 } },
@@ -251,6 +218,7 @@ async function topSystems(
     return mappedResults;
 }
 
+// Optimized topConstellations: remove unwind, group directly on constellation_id
 async function topConstellations(
     attackerType: string | null = null,
     typeId: number | null = null,
@@ -272,26 +240,16 @@ async function topConstellations(
 
     const query: any[] = [
         { $match: matchFilter },
-        { $unwind: "$attackers" },
         {
             $group: {
-                _id: {
-                    constellation_id: "$constellation_id",
-                    killmail_id: "$killmail_id"
-                }
-            }
-        },
-        {
-            $group: {
-                _id: "$_id.constellation_id",
-                count: { $sum: 1 }
+                _id: "$constellation_id",
+                killmailIds: { $addToSet: "$killmail_id" }
             }
         },
         {
             $project: {
-                _id: 0,
-                count: "$count",
-                id: "$_id"
+                id: "$_id",
+                count: { $size: "$killmailIds" }
             }
         },
         { $sort: { count: -1, id: 1 } },
@@ -312,6 +270,7 @@ async function topConstellations(
     return mappedResults;
 }
 
+// Optimized topRegions: group on region_id directly
 async function topRegions(
     attackerType: string | null = null,
     typeId: number | null = null,
@@ -330,26 +289,16 @@ async function topRegions(
 
     const query: any[] = [
         { $match: matchFilter },
-        { $unwind: "$attackers" },
         {
             $group: {
-                _id: {
-                    region_id: "$region_id",
-                    killmail_id: "$killmail_id"
-                }
-            }
-        },
-        {
-            $group: {
-                _id: "$_id.region_id",
-                count: { $sum: 1 }
+                _id: "$region_id",
+                killmailIds: { $addToSet: "$killmail_id" }
             }
         },
         {
             $project: {
-                _id: 0,
-                count: "$count",
-                id: "$_id"
+                id: "$_id",
+                count: { $size: "$killmailIds" }
             }
         },
         { $sort: { count: -1, id: 1 } },
@@ -370,6 +319,7 @@ async function topRegions(
     return mappedResults;
 }
 
+// Optimized topShips: still require unwind on attackers
 async function topShips(
     attackerType: string | null = null,
     typeId: number | null = null,
@@ -395,23 +345,14 @@ async function topShips(
         { $match: { "attackers.ship_id": { $nin: [0, 670] } } },
         {
             $group: {
-                _id: {
-                    ship_id: "$attackers.ship_id",
-                    killmail_id: "$killmail_id"
-                }
-            }
-        },
-        {
-            $group: {
-                _id: "$_id.ship_id",
-                count: { $sum: 1 }
+                _id: "$attackers.ship_id",
+                killmailIds: { $addToSet: "$killmail_id" }
             }
         },
         {
             $project: {
-                _id: 0,
-                count: "$count",
-                id: "$_id"
+                id: "$_id",
+                count: { $size: "$killmailIds" }
             }
         },
         { $sort: { count: -1, id: 1 } },
@@ -432,6 +373,7 @@ async function topShips(
     return mappedResults;
 }
 
+// Optimized topSolo: use $addToSet after filtering final_blow
 async function topSolo(
     attackerType: string | null = null,
     typeId: number | null = null,
@@ -458,14 +400,13 @@ async function topSolo(
         {
             $group: {
                 _id: "$attackers.character_id",
-                count: { $sum: 1 }
+                killmailIds: { $addToSet: "$killmail_id" }
             }
         },
         {
             $project: {
-                _id: 0,
-                count: "$count",
-                id: "$_id"
+                id: "$_id",
+                count: { $size: "$killmailIds" }
             }
         },
         { $sort: { count: -1, id: 1 } },

@@ -106,76 +106,75 @@ const killmailsSchema = new Schema<IKillmailDocument>(
   }
 );
 
-// Primary indexes
-killmailsSchema.index({ killmail_id: 1, killmail_hash: 1 }, { unique: true });
-killmailsSchema.index({ kill_time: -1 }, { sparse: true });
+// Updated index definitions in descending order
+const indexes = [
+  { fields: { killmail_id: -1, killmail_hash: -1 }, options: { unique: true } },
+  { fields: { kill_time: -1 }, options: { sparse: true } },
+  { fields: { createdAt: -1 }, options: { sparse: true } },
+  { fields: { updatedAt: -1 }, options: { sparse: true } },
+  { fields: { "victim.character_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "victim.corporation_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "victim.alliance_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "victim.faction_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "victim.ship_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "victim.ship_group_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "attackers.character_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "attackers.character_name": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "attackers.corporation_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "attackers.alliance_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "attackers.faction_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "attackers.ship_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "attackers.ship_group_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "attackers.weapon_type_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "items.type_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { "items.group_id": -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { war_id: -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { system_id: -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { region_id: -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { constellation_id: -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { system_security: -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { is_npc: -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { is_solo: -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { total_value: -1, kill_time: -1 }, options: { sparse: true } },
+  { fields: { x: -1, y: -1, z: -1, system_id: -1, kill_time: -1 }, options: { sparse: true } },
+  // Note: indexes that don't match the generated name are omitted.
+];
 
-// Timestamp indexes
-killmailsSchema.index({ createdAt: 1 }, { sparse: true });
-killmailsSchema.index({ updatedAt: 1 }, { sparse: true });
-killmailsSchema.index({ createdAt: -1 }, { sparse: true });
-killmailsSchema.index({ updatedAt: -1 }, { sparse: true });
-
-// Victim indexes
-killmailsSchema.index({ "victim.character_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "victim.corporation_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "victim.alliance_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "victim.faction_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "victim.ship_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "victim.ship_group_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "victim.character_id": -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ "victim.corporation_id": -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ "victim.alliance_id": -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ "victim.faction_id": -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ "victim.ship_id": -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ "victim.ship_group_id": -1, kill_time: -1 }, { sparse: true });
-
-// Attacker indexes
-killmailsSchema.index({ "attackers.character_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "attackers.character_name": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "attackers.corporation_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "attackers.alliance_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "attackers.faction_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "attackers.ship_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "attackers.ship_group_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "attackers.weapon_type_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "attackers.character_id": -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ "attackers.character_name": -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ "attackers.corporation_id": -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ "attackers.alliance_id": -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ "attackers.faction_id": -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ "attackers.ship_id": -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ "attackers.ship_group_id": -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ "attackers.weapon_type_id": -1, kill_time: -1 }, { sparse: true });
-
-// Item indexes
-killmailsSchema.index({ "items.type_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "items.group_id": 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ "items.type_id": -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ "items.group_id": -1, kill_time: -1 }, { sparse: true });
-
-// General indexes
-killmailsSchema.index({ war_id: 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ system_id: 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ region_id: 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ constellation_id: 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ system_security: 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ is_npc: 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ is_solo: 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ total_value: 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ x: 1, y: 1, z: 1, system_id: 1, kill_time: 1 }, { sparse: true });
-killmailsSchema.index({ war_id: -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ system_id: -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ region_id: -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ constellation_id: -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ system_security: -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ is_npc: -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ is_solo: -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ total_value: -1, kill_time: -1 }, { sparse: true });
-killmailsSchema.index({ x: -1, y: -1, z: -1, system_id: -1, kill_time: -1 }, { sparse: true });
+indexes.forEach(({ fields, options }) => {
+  killmailsSchema.index(fields, options);
+});
 
 export const Killmails: Model<IKillmailDocument> = model<IKillmailDocument>(
   "killmails",
   killmailsSchema,
   "killmails"
 );
+
+// Optional: you can listen for errors on index creation
+killmailsSchema.on('index', function(error) {
+  if (error) {
+      console.error("Killmails index error:", error);
+  }
+});
+
+// After creating the model, compute allowed index names from our definitions.
+// The auto-generated name is computed by concatenating each key and its value in order.
+const computeIndexName = (fields: Record<string, number>) =>
+  Object.entries(fields)
+    .map(([key, val]) => `${key}_${val}`)
+    .join('_');
+
+const allowedIndexNames = new Set(indexes.map(idx => computeIndexName(idx.fields)));
+
+// Drop any index on the collection that doesn't match the allowed names (except _id)
+Killmails.collection.indexes().then(currentIndexes => {
+  currentIndexes.forEach(idx => {
+    if (idx.name !== '_id_' && !allowedIndexNames.has(idx.name)) {
+      Killmails.collection.dropIndex(idx.name)
+        .then(() => console.log(`Dropped index ${idx.name}`))
+        .catch(err => console.error(`Error dropping index ${idx.name}:`, err));
+    }
+  });
+}).catch(err => {
+  console.error('Error fetching indexes:', err);
+});
