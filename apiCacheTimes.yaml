@@ -142,7 +142,9 @@
   maxAge: 300,
 }
 '/status': {
-  maxAge: 10,
+  maxAge: 1,
+  staleMaxAge: 0,
+  swr: false
 }
 '/wars/*/killmails': {
   maxAge: 300,
