@@ -79,6 +79,11 @@ export default defineEventHandler(async (event) => {
         Wars.estimatedDocumentCount(),
     ]);
 
+    // Format cacheHits with formatNumber
+    const formattedCacheHits = Object.fromEntries(
+        Object.entries(cacheHits).map(([key, value]) => [key, formatNumber(value)])
+    );
+
     return {
         uptime: Math.floor(process.uptime()),
         upSince: startTime,
@@ -92,17 +97,17 @@ export default defineEventHandler(async (event) => {
             systemPlatform: process.platform,
             systemArch: process.arch,
             loadAvg: os.loadavg().map((avg) => avg.toFixed(2)),
-            totalCPUs: os.cpus().length,
-            totalMemoryGB: Math.floor(os.totalmem() / 1024 / 1024 / 1024),
+            totalCPUs: formatNumber(os.cpus().length),
+            totalMemoryGB: formatNumber(Math.floor(os.totalmem() / 1024 / 1024 / 1024)),
         },
         queueCounts: {
-            alliance: allianceQueueCount,
-            corporation: corporationQueueCount,
-            character: characterQueueCount,
-            characterhistory: characterHistoryQueueCount,
-            corporationhistory: corporationHistoryQueueCount,
-            killmail: killmailQueueCount,
-            war: warQueueCount
+            alliance: formatNumber(allianceQueueCount),
+            corporation: formatNumber(corporationQueueCount),
+            character: formatNumber(characterQueueCount),
+            characterhistory: formatNumber(characterHistoryQueueCount),
+            corporationhistory: formatNumber(corporationHistoryQueueCount),
+            killmail: formatNumber(killmailQueueCount),
+            war: formatNumber(warQueueCount)
         },
         databaseCounts: {
             alliances: formatNumber(allianceCount),
@@ -124,21 +129,23 @@ export default defineEventHandler(async (event) => {
             wars: formatNumber(warCount)
         },
         cacheSizes: {
-            solarSystemsCache: solarSystemsCache.size,
-            regionsCache: regionsCache.size,
-            nearCache: nearCache.size,
-            constellationsCache: constellationsCache.size,
-            customPriceCache: customPriceCache.size,
-            invGroupsCache: invGroupsCache.size,
-            invFlagsCache: invFlagsCache.size,
-            invTypesCache: invTypesCache.size,
-            factionsCache: factionsCache.size,
-            priceCache: priceCache.size,
-            characterCache: characterCache.size,
-            corporationCache: corporationCache.size,
-            allianceCache: allianceCache.size
+            solarSystemsCache: formatNumber(solarSystemsCache.size),
+            regionsCache: formatNumber(regionsCache.size),
+            nearCache: formatNumber(nearCache.size),
+            constellationsCache: formatNumber(constellationsCache.size),
+            customPriceCache: formatNumber(customPriceCache.size),
+            invGroupsCache: formatNumber(invGroupsCache.size),
+            invFlagsCache: formatNumber(invFlagsCache.size),
+            invTypesCache: formatNumber(invTypesCache.size),
+            factionsCache: formatNumber(factionsCache.size),
+            priceCache: formatNumber(priceCache.size),
+            characterCache: formatNumber(characterCache.size),
+            corporationCache: formatNumber(corporationCache.size),
+            allianceCache: formatNumber(allianceCache.size)
         },
-        cacheHits
+        cacheHits: {
+            ...formattedCacheHits
+        }
     };
 });
 
