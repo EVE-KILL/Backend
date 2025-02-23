@@ -302,9 +302,10 @@ async function processItems(items: IESIVictimItem[], killmail_date: Date): Promi
     return await Promise.all(items.map(async item => {
         const type = await getCachedItem(Number(item.item_type_id));
         if (!type) throw new Error(`Type not found for type_id: ${item.item_type_id}`);
-        const group = await InvGroups.findOne({ group_id: type.group_id });
+        const group = await getCachedInvGroup(type.group_id);
         if (!group) throw new Error(`Group not found for group_id: ${type.group_id}`);
         const nestedItems = item.items ? await processItems(item.items, killmail_date) : [];
+        const value = await getCachedPrice(Number(item.item_type_id), killmail_date);
         return {
             type_id: item.item_type_id,
             type_name: type.type_name || "",
@@ -315,7 +316,7 @@ async function processItems(items: IESIVictimItem[], killmail_date: Date): Promi
             qty_dropped: Number(item.quantity_dropped || 0),
             qty_destroyed: Number(item.quantity_destroyed || 0),
             singleton: item.singleton,
-            value: await getCachedPrice(Number(item.item_type_id), killmail_date),
+            value: value,
             ...(nestedItems.length > 0 && { items: nestedItems })
         };
     }));
