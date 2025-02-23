@@ -93,7 +93,7 @@ export default defineEventHandler(async (event) => {
             systemArch: process.arch,
             loadAvg: os.loadavg().map((avg) => avg.toFixed(2)),
             totalCPUs: os.cpus().length,
-            totalMemoryGB: os.totalmem() / 1024 / 1024 / 1024,
+            totalMemoryGB: Math.floor(os.totalmem() / 1024 / 1024 / 1024),
         },
         queueCounts: {
             alliance: allianceQueueCount,
