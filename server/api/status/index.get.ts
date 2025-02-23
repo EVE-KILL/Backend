@@ -1,18 +1,20 @@
 import { createQueue } from "~/helpers/Queue";
-import { customPriceCache } from "~/helpers/Prices";
 import {
     solarSystemsCache,
     regionsCache,
-    invGroupsCache,
     nearCache,
     constellationsCache,
-    itemsCache,
+    customPriceCache,
+    invGroupsCache,
+    invTypesCache,
+    invFlagsCache,
+    factionsCache,
+    // Remaining caches are still LRU caches
     priceCache,
     characterCache,
     corporationCache,
-    allianceCache,
-    factionCache
-} from "~/helpers/KillmailParser";
+    allianceCache
+} from "~/helpers/RuntimeCache";
 
 export default defineEventHandler(async (event) => {
     const allianceQueue = createQueue('alliance');
@@ -39,20 +41,21 @@ export default defineEventHandler(async (event) => {
         killmailCount: await Killmails.estimatedDocumentCount(),
         esiKillmailCount: await KillmailsESI.estimatedDocumentCount(),
         warCount: await Wars.estimatedDocumentCount(),
-        // Added cache sizes
+        // Updated cache sizes using maps and LRU caches
         cacheSizes: {
             solarSystemsCache: solarSystemsCache.size,
             regionsCache: regionsCache.size,
-            invGroupsCache: invGroupsCache.size,
             nearCache: nearCache.size,
             constellationsCache: constellationsCache.size,
-            itemsCache: itemsCache.size,
+            customPriceCache: customPriceCache.size,
+            invGroupsCache: invGroupsCache.size,
+            invFlagsCache: invFlagsCache.size,
+            invTypesCache: invTypesCache.size,
+            factionsCache: factionsCache.size,
             priceCache: priceCache.size,
             characterCache: characterCache.size,
             corporationCache: corporationCache.size,
-            allianceCache: allianceCache.size,
-            factionCache: factionCache.size,
-            customPriceCache: customPriceCache.size,
+            allianceCache: allianceCache.size
         }
-    }
+    };
 });

@@ -1,25 +1,6 @@
-import { ICustomPrice } from "~/interfaces/ICustomPrice";
 import { IPrice } from "../interfaces/IPrice";
-import { CustomPrices } from "../models/CustomPrices";
 import { Prices } from "../models/Prices";
-import { LRUCache } from "lru-cache";
-
-export const customPriceCache = new LRUCache<number, ICustomPrice>({
-    max: 10000,
-    ttl: 1000 * 60 * 60 * 24,
-    allowStale: true,
-});
-
-// on an interval, load all custom prices into the cache
-setInterval(loadAllCustomPrices, 1000 * 60 * 60); // 1 hour
-loadAllCustomPrices(); // Load data at startup
-
-async function loadAllCustomPrices(): Promise<void> {
-    const prices: ICustomPrice[] = await CustomPrices.find({}).sort({ date: 1 });
-    for (const price of prices) {
-        customPriceCache.set(price.type_id, price);
-    }
-}
+import { customPriceCache } from "./RuntimeCache";
 
 async function getPrice(typeId: number, date: Date, regionId: number = 10000002): Promise<number> {
     // Check if a custom price exists

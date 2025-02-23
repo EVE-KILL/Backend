@@ -11,6 +11,12 @@ export default defineNitroConfig({
   minify: true,
   sourceMap: true,
 
+  esbuild: {
+    options: {
+      target: 'esnext',
+    }
+  },
+
   routeRules: routeRuleGenerator(),
 
   imports: {
@@ -20,6 +26,7 @@ export default defineNitroConfig({
   },
 
   experimental: {
+    asyncContext: true,
     openAPI: true,
     wasm: true,
     tasks: true,

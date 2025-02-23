@@ -1,134 +1,21 @@
 import { IESIAttacker, IESIKillmail, IESIVictim, IESIVictimItem } from "../interfaces/IESIKillmail";
 import { IAttacker, IItem, IKillmail, IVictim } from "../interfaces/IKillmail";
-import { getCharacter, getCorporation, getAlliance, getFaction, getItem } from "./ESIData";
 import { Characters } from "../models/Characters";
-import { getPrice } from "./Prices";
-import { SolarSystems } from "../models/SolarSystems";
-import { Regions } from "../models/Regions";
 import { Celestials } from "../models/Celestials";
-import { InvGroups } from "../models/InvGroups";
-import { Constellations } from "../models/Constellations";
-import { LRUCache } from "lru-cache";
 
-// Add caches at module level
-export const solarSystemsCache = new Map<number, any>();
-export const regionsCache = new Map<number, any>();
-export const invGroupsCache = new Map<number, any>();
-export const nearCache = new Map<string, any[]>();
-export const constellationsCache = new Map<number, any>();
-export const itemsCache = new Map<number, any>();
-export const priceCache = new LRUCache({
-    max: 500000,
-    ttl: 1000 * 60 * 60 * 6,
-    allowStale: true
-});
-export const characterCache = new LRUCache({
-    max: 100000,
-    ttl: 1000 * 60 * 60 * 6,
-    allowStale: true
-});
-export const corporationCache = new LRUCache({
-    max: 100000,
-    ttl: 1000 * 60 * 60 * 6,
-    allowStale: true
-});
-export const allianceCache = new LRUCache({
-    max: 100000,
-    ttl: 1000 * 60 * 60 * 6,
-    allowStale: true
-});
-export const factionCache = new LRUCache({
-    max: 100000,
-    ttl: 1000 * 60 * 60 * 6,
-    allowStale: true
-});
-
-// New helper for getPrice using the LRU cache
-async function getCachedPrice(typeId: number, killTime: Date): Promise<number> {
-	const key = `${typeId}-${killTime.getTime()}`;
-	const cached = priceCache.get(key);
-	if (cached !== undefined) return cached;
-	const price = await getPrice(typeId, killTime);
-	priceCache.set(key, price);
-	return price;
-}
-
-// Cache helper for SolarSystems
-async function getCachedSolarSystem(system_id: number) {
-    if (solarSystemsCache.has(system_id)) return solarSystemsCache.get(system_id);
-    const system = await SolarSystems.findOne({ system_id });
-    if (system) solarSystemsCache.set(system_id, system);
-    return system;
-}
-
-// Cache helper for Regions
-async function getCachedRegion(region_id: number) {
-    if (regionsCache.has(region_id)) return regionsCache.get(region_id);
-    const region = await Regions.findOne({ region_id });
-    if (region) regionsCache.set(region_id, region);
-    return region;
-}
-
-// Updated helper for InvGroups: now takes two inputs: key field and value.
-async function getCachedInvGroup(key: string, value: number) {
-    if (invGroupsCache.has(value)) return invGroupsCache.get(value);
-    const group = await InvGroups.findOne({ [key]: value });
-    if (group) invGroupsCache.set(value, group);
-    return group;
-}
-
-// New helper for Constellations
-async function getCachedConstellation(constellation_id: number) {
-    if (constellationsCache.has(constellation_id)) return constellationsCache.get(constellation_id);
-    const constellation = await Constellations.findOne({ constellation_id });
-    if (constellation) constellationsCache.set(constellation_id, constellation);
-    return constellation;
-}
-
-// New helper for getItem, wrapping the existing getItem call
-async function getCachedItem(type_id: number) {
-    if (itemsCache.has(type_id)) return itemsCache.get(type_id);
-    const item = await getItem(type_id);
-    if (item) itemsCache.set(type_id, item);
-    return item;
-}
-
-// New wrappers using the LRU caches
-async function getCachedCharacter(characterId: number) {
-    const key = String(characterId);
-    const cached = characterCache.get(key);
-    if (cached !== undefined) return cached;
-    const result = await getCharacter(characterId);
-    if (result) characterCache.set(key, result);
-    return result;
-}
-
-async function getCachedCorporation(corporationId: number) {
-    const key = String(corporationId);
-    const cached = corporationCache.get(key);
-    if (cached !== undefined) return cached;
-    const result = await getCorporation(corporationId);
-    if (result) corporationCache.set(key, result);
-    return result;
-}
-
-async function getCachedAlliance(allianceId: number) {
-    const key = String(allianceId);
-    const cached = allianceCache.get(key);
-    if (cached !== undefined) return cached;
-    const result = await getAlliance(allianceId);
-    if (result) allianceCache.set(key, result);
-    return result;
-}
-
-async function getCachedFaction(factionId: number) {
-    const key = String(factionId);
-    const cached = factionCache.get(key);
-    if (cached !== undefined) return cached;
-    const result = await getFaction(factionId);
-    if (result) factionCache.set(key, result);
-    return result;
-}
+import {
+    getCachedSolarSystem,
+    getCachedRegion,
+    getCachedConstellation,
+    getCachedItem,
+    getCachedInvGroup,
+    getCachedCharacter,
+    getCachedCorporation,
+    getCachedAlliance,
+    getCachedFaction,
+    getCachedPrice,
+    nearCache
+} from "./RuntimeCache";
 
 async function parseKillmail(killmail: IESIKillmail, warId: number = 0): Promise<Partial<IKillmail>> {
     // Run independent tasks concurrently.
@@ -149,42 +36,26 @@ async function parseKillmail(killmail: IESIKillmail, warId: number = 0): Promise
 }
 
 async function updateLastActive(killmail: IESIKillmail): Promise<void> {
-    // Use the victim character_id, and all the attackers character_ids to update the last_active field in the Characters model
-    for (let attacker of killmail.attackers) {
-        if (attacker.character_id) {
-            // Get the existing last_active from the characters
-            let existingLastActive = await Characters.findOne({ character_id: attacker.character_id }, { last_active: 1 });
-
-            // If the last_active on the character is older than the killmail kill_time, update it - otherwise don't
-            if (existingLastActive && existingLastActive.last_active < new Date(killmail.killmail_time)) {
-                // Update the last_active field for the attacker
-                await Characters.updateOne(
-                    { character_id: attacker.character_id },
-                    { last_active: killmail.killmail_time }
-                );
-            // In case there is no existingLastActive we set it to what the killmail_time is
-            } else if (!existingLastActive) {
-                await Characters.updateOne(
-                    { character_id: attacker.character_id },
-                    { last_active: killmail.killmail_time }
-                );
+    const attackerTasks = killmail.attackers
+        .filter(attacker => attacker.character_id)
+        .map(async attacker => {
+            const existing = await Characters.findOne({ character_id: attacker.character_id }, { last_active: 1 });
+            if (existing && existing.last_active < new Date(killmail.killmail_time)) {
+                return Characters.updateOne({ character_id: attacker.character_id }, { last_active: killmail.killmail_time });
+            } else if (!existing) {
+                return Characters.updateOne({ character_id: attacker.character_id }, { last_active: killmail.killmail_time });
             }
+        });
+    // Process victim update separately.
+    const victimTask = (async () => {
+        const existing = await Characters.findOne({ character_id: killmail.victim.character_id }, { last_active: 1 });
+        if (existing && existing.last_active < new Date(killmail.killmail_time)) {
+            return Characters.updateOne({ character_id: killmail.victim.character_id }, { last_active: killmail.killmail_time });
+        } else if (!existing) {
+            return Characters.updateOne({ character_id: killmail.victim.character_id }, { last_active: killmail.killmail_time });
         }
-    }
-
-    let existingLastActive = await Characters.findOne({ character_id: killmail.victim.character_id }, { last_active: 1 });
-    if (existingLastActive && existingLastActive.last_active < new Date(killmail.killmail_time)) {
-        await Characters.updateOne(
-            { character_id: killmail.victim.character_id },
-            { last_active: killmail.killmail_time }
-        );
-    // In case there is no existingLastActive we set it to what the killmail_time is
-    } else if (!existingLastActive) {
-        await Characters.updateOne(
-            { character_id: killmail.victim.character_id },
-            { last_active: killmail.killmail_time }
-        );
-    }
+    })();
+    await Promise.all([...attackerTasks, victimTask]);
 }
 
 async function calculateKillValue(killmail: IESIKillmail): Promise<{ item_value: number; ship_value: number; total_value: number }> {
@@ -238,15 +109,20 @@ async function getItemValue(item: IESIVictimItem, killTime: Date, isCargo: boole
 }
 
 async function generateTop(killmail: IESIKillmail, warId: number = 0): Promise<Partial<IKillmail>> {
-    const solarSystem = await getCachedSolarSystem(killmail.solar_system_id);
-    const constellation = solarSystem ? await getCachedConstellation(solarSystem.constellation_id) : null;
-    const region = solarSystem ? await getCachedRegion(solarSystem.region_id) : null;
-    const killValue = await calculateKillValue(killmail);
-
+    const [solarSystem, killValue] = await Promise.all([
+        getCachedSolarSystem(killmail.solar_system_id),
+        calculateKillValue(killmail)
+    ]);
+    let constellation = null, region = null;
+    if (solarSystem) {
+        [constellation, region] = await Promise.all([
+            getCachedConstellation(solarSystem.constellation_id),
+            getCachedRegion(solarSystem.region_id)
+        ]);
+    }
     const x = killmail.victim?.position?.x || 0;
     const y = killmail.victim?.position?.y || 0;
     const z = killmail.victim?.position?.z || 0;
-
     return {
         killmail_id: killmail.killmail_id,
         killmail_hash: killmail.killmail_hash,
@@ -276,7 +152,7 @@ async function processVictim(victim: IESIVictim): Promise<IVictim> {
     if (!ship) throw new Error(`Type not found for type_id: ${victim.ship_type_id}`);
 
     // Replace DB lookup with cache for ship group
-    const shipGroup = await getCachedInvGroup("group_id", ship.group_id);
+    const shipGroup = await getCachedInvGroup(ship.group_id);
     if (!shipGroup) throw new Error(`Group not found for group_id: ${ship.group_id}`);
 
     // Use cached character, corporation, alliance and faction lookups
@@ -307,11 +183,13 @@ async function getNear(x: number, y: number, z: number, solarSystemId: number): 
         return "";
     }
 
-    if (nearCache.has(`${x}-${y}-${z}-${solarSystemId}`)) {
-        const cachedValue = nearCache.get(`${x}-${y}-${z}-${solarSystemId}`);
-        return typeof cachedValue === 'string' ? cachedValue : '';
+    const nearKey = `${solarSystemId}-${x}-${y}-${z}`;
+    const cached = nearCache.get(nearKey);
+    if (cached) {
+        return cached;
     }
 
+    // This query remains here due to its complexity
     const distance = 1000 * 3.086e16;
 
     const celestials = await Celestials.aggregate([
@@ -343,7 +221,7 @@ async function getNear(x: number, y: number, z: number, solarSystemId: number): 
     ]);
 
     let result = celestials?.[0]?.item_name || "";
-    nearCache.set(`${x}-${y}-${z}-${solarSystemId}`, result);
+    nearCache.set(nearKey, result);
     return result;
 }
 
@@ -358,7 +236,7 @@ async function isNPC(killmail: IESIKillmail): Promise<boolean> {
             if (!ship) return false;
 
             // Use updated helper instead of direct DB call
-            const shipGroup = await getCachedInvGroup("group_id", ship.group_id);
+            const shipGroup = await getCachedInvGroup(ship.group_id);
             return shipGroup?.category_id === 11;
         })
     );
@@ -381,24 +259,24 @@ async function isSolo(killmail: IESIKillmail): Promise<boolean> {
 }
 
 async function processAttackers(attackers: IESIAttacker[]): Promise<IAttacker[]> {
-    const processedAttackers: IAttacker[] = [];
-
-    for (const attacker of attackers) {
-        const ship = attacker.ship_type_id ? await getCachedItem(attacker.ship_type_id) : attacker.weapon_type_id ? await getCachedItem(attacker.weapon_type_id) : null;
-        const weapon = attacker.weapon_type_id ? await getCachedItem(attacker.weapon_type_id) : await getCachedItem(attacker.ship_type_id);
-
+    return await Promise.all(attackers.map(async attacker => {
+        const ship = attacker.ship_type_id
+            ? await getCachedItem(attacker.ship_type_id)
+            : attacker.weapon_type_id
+                ? await getCachedItem(attacker.weapon_type_id)
+                : null;
+        const weapon = attacker.weapon_type_id
+            ? await getCachedItem(attacker.weapon_type_id)
+            : await getCachedItem(attacker.ship_type_id);
         if (!ship) throw new Error(`Type not found for type_id: ${attacker.ship_type_id}`);
         if (!weapon) throw new Error(`Type not found for type_id: ${attacker.weapon_type_id}`);
-
-        const shipGroup = await getCachedInvGroup("group_id", ship.group_id);
+        const shipGroup = await getCachedInvGroup(ship.group_id);
         if (!shipGroup) throw new Error(`Group not found for group_id: ${ship.group_id}`);
-
-        const character = attacker.character_id ? await getCachedCharacter(attacker.character_id): null;
-        const corporation = attacker.corporation_id ? await getCachedCorporation(attacker.corporation_id): null;
+        const character = attacker.character_id ? await getCachedCharacter(attacker.character_id) : null;
+        const corporation = attacker.corporation_id ? await getCachedCorporation(attacker.corporation_id) : null;
         const alliance = attacker.alliance_id ? await getCachedAlliance(Number(attacker.alliance_id)) : null;
         const faction = attacker.faction_id ? await getCachedFaction(Number(attacker.faction_id)) : null;
-
-        processedAttackers.push({
+        return {
             ship_id: attacker.ship_type_id || attacker.weapon_type_id || 0,
             ship_name: ship.type_name || weapon.type_name || "",
             ship_group_id: shipGroup.group_id || 0,
@@ -416,25 +294,18 @@ async function processAttackers(attackers: IESIAttacker[]): Promise<IAttacker[]>
             final_blow: attacker.final_blow,
             weapon_type_id: attacker.weapon_type_id || 0,
             weapon_type_name: weapon.type_name || "",
-        });
-    }
-
-    return processedAttackers;
+        };
+    }));
 }
 
 async function processItems(items: IESIVictimItem[], killmail_date: Date): Promise<IItem[]> {
-    const processedItems: IItem[] = [];
-
-    for (const item of items) {
+    return await Promise.all(items.map(async item => {
         const type = await getCachedItem(Number(item.item_type_id));
         if (!type) throw new Error(`Type not found for type_id: ${item.item_type_id}`);
-
         const group = await InvGroups.findOne({ group_id: type.group_id });
         if (!group) throw new Error(`Group not found for group_id: ${type.group_id}`);
-
         const nestedItems = item.items ? await processItems(item.items, killmail_date) : [];
-
-        let innerItem: IItem & { items?: IItem[] } = {
+        return {
             type_id: item.item_type_id,
             type_name: type.type_name || "",
             group_id: type.group_id,
@@ -444,17 +315,10 @@ async function processItems(items: IESIVictimItem[], killmail_date: Date): Promi
             qty_dropped: Number(item.quantity_dropped || 0),
             qty_destroyed: Number(item.quantity_destroyed || 0),
             singleton: item.singleton,
-            value: await getCachedPrice(Number(item.item_type_id), killmail_date)
+            value: await getCachedPrice(Number(item.item_type_id), killmail_date),
+            ...(nestedItems.length > 0 && { items: nestedItems })
         };
-
-        if (nestedItems.length > 0) {
-            innerItem.items = nestedItems;
-        }
-
-        processedItems.push(innerItem);
-    }
-
-    return processedItems;
+    }));
 }
 
 export { parseKillmail };
