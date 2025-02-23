@@ -11,33 +11,33 @@ import { Constellations } from "../models/Constellations";
 import { LRUCache } from "lru-cache";
 
 // Add caches at module level
-const solarSystemsCache = new Map<number, any>();
-const regionsCache = new Map<number, any>();
-const invGroupsCache = new Map<number, any>();
-const nearCache = new Map<string, any[]>();
-const constellationsCache = new Map<number, any>();
-const itemsCache = new Map<number, any>();
-const priceCache = new LRUCache({
+export const solarSystemsCache = new Map<number, any>();
+export const regionsCache = new Map<number, any>();
+export const invGroupsCache = new Map<number, any>();
+export const nearCache = new Map<string, any[]>();
+export const constellationsCache = new Map<number, any>();
+export const itemsCache = new Map<number, any>();
+export const priceCache = new LRUCache({
     max: 500000,
     ttl: 1000 * 60 * 60 * 6,
     allowStale: true
 });
-const characterCache = new LRUCache({
+export const characterCache = new LRUCache({
     max: 100000,
     ttl: 1000 * 60 * 60 * 6,
     allowStale: true
 });
-const corporationCache = new LRUCache({
+export const corporationCache = new LRUCache({
     max: 100000,
     ttl: 1000 * 60 * 60 * 6,
     allowStale: true
 });
-const allianceCache = new LRUCache({
+export const allianceCache = new LRUCache({
     max: 100000,
     ttl: 1000 * 60 * 60 * 6,
     allowStale: true
 });
-const factionCache = new LRUCache({
+export const factionCache = new LRUCache({
     max: 100000,
     ttl: 1000 * 60 * 60 * 6,
     allowStale: true

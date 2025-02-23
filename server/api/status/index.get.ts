@@ -1,4 +1,18 @@
 import { createQueue } from "~/helpers/Queue";
+import { customPriceCache } from "~/helpers/Prices";
+import {
+    solarSystemsCache,
+    regionsCache,
+    invGroupsCache,
+    nearCache,
+    constellationsCache,
+    itemsCache,
+    priceCache,
+    characterCache,
+    corporationCache,
+    allianceCache,
+    factionCache
+} from "~/helpers/KillmailParser";
 
 export default defineEventHandler(async (event) => {
     const allianceQueue = createQueue('alliance');
@@ -24,6 +38,21 @@ export default defineEventHandler(async (event) => {
         characterCount: await Characters.estimatedDocumentCount(),
         killmailCount: await Killmails.estimatedDocumentCount(),
         esiKillmailCount: await KillmailsESI.estimatedDocumentCount(),
-        warCount: await Wars.estimatedDocumentCount()
+        warCount: await Wars.estimatedDocumentCount(),
+        // Added cache sizes
+        cacheSizes: {
+            solarSystemsCache: solarSystemsCache.size,
+            regionsCache: regionsCache.size,
+            invGroupsCache: invGroupsCache.size,
+            nearCache: nearCache.size,
+            constellationsCache: constellationsCache.size,
+            itemsCache: itemsCache.size,
+            priceCache: priceCache.size,
+            characterCache: characterCache.size,
+            corporationCache: corporationCache.size,
+            allianceCache: allianceCache.size,
+            factionCache: factionCache.size,
+            customPriceCache: customPriceCache.size,
+        }
     }
 });

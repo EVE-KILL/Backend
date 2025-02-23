@@ -4,7 +4,7 @@ import { CustomPrices } from "../models/CustomPrices";
 import { Prices } from "../models/Prices";
 import { LRUCache } from "lru-cache";
 
-const customPriceCache = new LRUCache<number, ICustomPrice>({
+export const customPriceCache = new LRUCache<number, ICustomPrice>({
     max: 10000,
     ttl: 1000 * 60 * 60 * 24,
     allowStale: true,
