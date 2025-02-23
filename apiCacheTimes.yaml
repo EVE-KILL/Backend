@@ -1,7 +1,7 @@
-'/alliances/[id]': {
+'/alliances/*': {
   maxAge: 3600,
 }
-'/alliances/[id]/members': {
+'/alliances/*/members': {
   maxAge: 3600,
 }
 '/alliances/count': {
@@ -10,19 +10,19 @@
 '/alliances': {
   maxAge: 3600,
 }
-'/characters/[id]': {
+'/characters/*': {
   maxAge: 3600,
 }
-'/characters/[id]/corporationhistory': {
+'/characters/*/corporationhistory': {
   maxAge: 3600,
 }
-'/characters/[id]/shortstats': {
+'/characters/*/shortstats': {
   maxAge: 3600,
 }
-'/characters/[id]/stats': {
+'/characters/*/stats': {
   maxAge: 3600,
 }
-'/characters/[id]/top': {
+'/characters/*/top': {
   maxAge: 3600,
 }
 '/characters/count': {
@@ -31,13 +31,13 @@
 '/characters': {
   maxAge: 3600,
 }
-'/corporations[id]': {
+'/corporations*': {
   maxAge: 3600,
 }
-'/corporations/[id]/alliancehistory': {
+'/corporations/*/alliancehistory': {
   maxAge: 3600,
 }
-'/corporations[id]/members': {
+'/corporations/*/members': {
   maxAge: 3600,
 }
 '/corporations/count': {
@@ -46,7 +46,7 @@
 '/corporations': {
   maxAge: 3600,
 }
-'/factions/[id]': {
+'/factions/*': {
   maxAge: 3600,
 }
 '/factions/count': {
@@ -55,16 +55,16 @@
 '/factions': {
   maxAge: 3600,
 }
-'/fitting/[id]': {
+'/fitting/*': {
   maxAge: 3600,
 }
-'/items[id]': {
+'/items*': {
   maxAge: 3600,
 }
-'/items[id]/killmails': {
+'/items*/killmails': {
   maxAge: 300,
 }
-'/items[id]/pricing': {
+'/items*/pricing': {
   maxAge: 300,
 }
 '/items/count': {
@@ -73,17 +73,17 @@
 '/items': {
   maxAge: 3600,
 }
-'/killlist/attacker/[type]/[id]': {
+'/killlist/attacker/**': {
   maxAge: 30,
   staleMaxAge: 0,
   swr: true
 }
-'/killlist/combined/[type]/[id]': {
+'/killlist/combined/**': {
   maxAge: 30,
   staleMaxAge: 0,
   swr: true
 }
-'/killlist/losses/[type]/[id]': {
+'/killlist/losses/**': {
   maxAge: 30,
   staleMaxAge: 0,
   swr: true
@@ -93,22 +93,22 @@
   staleMaxAge: 0,
   swr: true
 }
-'/killmail/[id]': {
+'/killmail/*': {
   maxAge: 3600,
 }
-'/killmail/[id]/esi': {
+'/killmail/*/esi': {
   maxAge: 3600,
 }
-'/killmail/[id]/inbattle': {
+'/killmail/*/inbattle': {
   maxAge: 300,
 }
-'/killmail/[id]/sibling': {
+'/killmail/*/sibling': {
   maxAge: 300,
 }
 '/killmail/history': {
   maxAge: 3600,
 }
-'/killmail/history/[date]': {
+'/killmail/history/*': {
   maxAge: 3600,
 }
 '/killmail/count': {
@@ -123,10 +123,10 @@
 '/killmail/nearCoordinates': {
   maxAge: 300,
 }
-'/prices/region/[id]': {
+'/prices/region/*': {
   maxAge: 300,
 }
-'/prices/type_id/[id]': {
+'/prices/type_id/*': {
   maxAge: 300,
 }
 '/prices/count': {
@@ -135,7 +135,7 @@
 '/prices': {
   maxAge: 300,
 }
-'/search/[searchTerm]': {
+'/search/*': {
   maxAge: 30,
 }
 '/stats': {
@@ -144,10 +144,10 @@
 '/status': {
   maxAge: 10,
 }
-'/wars/[id]/killmails': {
+'/wars/*/killmails': {
   maxAge: 300,
 }
-'/wars/[id]': {
+'/wars/*': {
   maxAge: 3600,
 }
 '/wars': {

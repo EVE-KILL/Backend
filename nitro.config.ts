@@ -66,11 +66,15 @@ export default defineNitroConfig({
   compatibilityDate: "2024-10-13",
 });
 
-function routeRuleGenerator(): Record<string, any> {
+function routeRuleGenerator(debug: boolean = false): Record<string, any> {
   // Build route rules as an object with a default rule for /api/**
   const rules: Record<string, any> = {
     "/api/**": { cors: true },
   };
+
+  if (debug === true) {
+    return rules;
+  }
 
   // Parse YAML
   const cacheTimes = yaml.parse(apiCacheTimes);
