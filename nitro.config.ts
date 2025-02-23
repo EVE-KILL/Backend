@@ -11,6 +11,10 @@ export default defineNitroConfig({
   minify: true,
   sourceMap: true,
 
+  runtimeConfig: {
+    enabledRunTimeCache: true,
+  },
+
   esbuild: {
     options: {
       target: 'esnext',

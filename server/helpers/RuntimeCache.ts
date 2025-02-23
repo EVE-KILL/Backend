@@ -84,105 +84,109 @@ async function loadAllCustomPrices(): Promise<void> {
 	}
 }
 
-// Load at startup.
-await Promise.all([
-	loadAllInvGroups(),
-	loadAllInvTypes(),
-	loadAllInvFlags(),
-	loadAllFactions(),
-	loadAllRegions(),
-	loadAllConstellations(),
-	loadAllSolarSystems(),
-	loadAllCustomPrices()
-]);
-console.log(`ℹ️  Runtime caches loaded`,
-	`invGroups: ${invGroupsCache.size}`,
-	`invTypes: ${invTypesCache.size}`,
-	`invFlags: ${invFlagsCache.size}`,
-	`factions: ${factionsCache.size}`,
-	`regions: ${regionsCache.size}`,
-	`constellations: ${constellationsCache.size}`,
-	`solarSystems: ${solarSystemsCache.size}`,
-	`customPrices: ${customPriceCache.size}`
-)
+// useRuntimeConfig() exists only in nitro, so the ./bin/console job will fail, check if it exists before using it
+// If it exists, check if useRuntimeConfig().enabledRunTimeCache is true
+if (typeof useRuntimeConfig === "function" && useRuntimeConfig()?.enabledRunTimeCache) {
+	// Load at startup
+	await Promise.all([
+		loadAllInvGroups(),
+		loadAllInvTypes(),
+		loadAllInvFlags(),
+		loadAllFactions(),
+		loadAllRegions(),
+		loadAllConstellations(),
+		loadAllSolarSystems(),
+		loadAllCustomPrices()
+	]);
+	console.log(`ℹ️  Runtime caches loaded`,
+		`invGroups: ${invGroupsCache.size}`,
+		`invTypes: ${invTypesCache.size}`,
+		`invFlags: ${invFlagsCache.size}`,
+		`factions: ${factionsCache.size}`,
+		`regions: ${regionsCache.size}`,
+		`constellations: ${constellationsCache.size}`,
+		`solarSystems: ${solarSystemsCache.size}`,
+		`customPrices: ${customPriceCache.size}`
+	);
 
-setInterval(loadAllInvGroups, 1000 * 60 * 60);
-setInterval(loadAllInvTypes, 1000 * 60 * 60);
-setInterval(loadAllInvFlags, 1000 * 60 * 60);
-setInterval(loadAllFactions, 1000 * 60 * 60);
-setInterval(loadAllRegions, 1000 * 60 * 60);
-setInterval(loadAllConstellations, 1000 * 60 * 60);
-setInterval(loadAllSolarSystems, 1000 * 60 * 60);
-setInterval(loadAllCustomPrices, 1000 * 60 * 60);
+	setInterval(loadAllInvGroups, 1000 * 60 * 60);
+	setInterval(loadAllInvTypes, 1000 * 60 * 60);
+	setInterval(loadAllInvFlags, 1000 * 60 * 60);
+	setInterval(loadAllFactions, 1000 * 60 * 60);
+	setInterval(loadAllRegions, 1000 * 60 * 60);
+	setInterval(loadAllConstellations, 1000 * 60 * 60);
+	setInterval(loadAllSolarSystems, 1000 * 60 * 60);
+	setInterval(loadAllCustomPrices, 1000 * 60 * 60);
+}
 
-export async function getCachedInvGroup(groupId: number): Promise<any> {
-	if (invGroupsCache.has(groupId)) return invGroupsCache.get(groupId);
+export async function getCachedInvGroup(groupId: number): Promise<IInvGroup | null> {
+	if (invGroupsCache.has(groupId)) return invGroupsCache.get(groupId) as IInvGroup | null;
 	const group = await InvGroups.findOne({ group_id: groupId });
 	if (group) invGroupsCache.set(groupId, group);
 	return group;
 }
 
-export async function getCachedItem(typeId: number): Promise<any> {
-	if (invTypesCache.has(typeId)) return invTypesCache.get(typeId);
+export async function getCachedItem(typeId: number): Promise<IInvType | null> {
+	if (invTypesCache.has(typeId)) return invTypesCache.get(typeId) as IInvType | null;
 	const type = await InvTypes.findOne({ type_id: typeId });
 	if (type) invTypesCache.set(typeId, type);
 	return type;
 }
 
-export async function getCachedInvFlag(flagId: number): Promise<any> {
-	if (invFlagsCache.has(flagId)) return invFlagsCache.get(flagId);
+export async function getCachedInvFlag(flagId: number): Promise<IInvFlag | null> {
+	if (invFlagsCache.has(flagId)) return invFlagsCache.get(flagId) as IInvFlag | null;
 	const flag = await InvFlags.findOne({ flag_id: flagId });
 	if (flag) invFlagsCache.set(flagId, flag);
 	return flag;
 }
 
-export async function getCachedFaction(factionId: number): Promise<any> {
-	if (factionsCache.has(factionId)) return factionsCache.get(factionId);
+export async function getCachedFaction(factionId: number): Promise<IFaction | null> {
+	if (factionsCache.has(factionId)) return factionsCache.get(factionId) as IFaction | null;
 	const faction = await Factions.findOne({ faction_id: factionId });
 	if (faction) factionsCache.set(factionId, faction);
 	return faction;
 }
 
-export async function getCachedRegion(regionId: number): Promise<any> {
-	if (regionsCache.has(regionId)) return regionsCache.get(regionId);
+export async function getCachedRegion(regionId: number): Promise<IRegion | null> {
+	if (regionsCache.has(regionId)) return regionsCache.get(regionId) as IRegion | null;
 	const region = await Regions.findOne({ region_id: regionId });
 	if (region) regionsCache.set(regionId, region);
 	return region;
 }
 
-export async function getCachedConstellation(constellationId: number): Promise<any> {
-	if (constellationsCache.has(constellationId)) return constellationsCache.get(constellationId);
+export async function getCachedConstellation(constellationId: number): Promise<IConstellation | null> {
+	if (constellationsCache.has(constellationId)) return constellationsCache.get(constellationId) as IConstellation | null;
 	const constellation = await Constellations.findOne({ constellation_id: constellationId });
 	if (constellation) constellationsCache.set(constellationId, constellation);
 	return constellation;
 }
 
-export async function getCachedSolarSystem(solarSystemId: number): Promise<any> {
-	if (solarSystemsCache.has(solarSystemId)) return solarSystemsCache.get(solarSystemId);
+export async function getCachedSolarSystem(solarSystemId: number): Promise<ISolarSystem | null> {
+	if (solarSystemsCache.has(solarSystemId)) return solarSystemsCache.get(solarSystemId) as ISolarSystem | null;
 	const solarSystem = await SolarSystems.findOne({ solar_system_id: solarSystemId });
 	if (solarSystem) solarSystemsCache.set(solarSystemId, solarSystem);
 	return solarSystem;
 }
 
-export async function getCachedCharacter(characterId: number): Promise<any> {
+export async function getCachedCharacter(characterId: number): Promise<ICharacter | null> {
     const key = String(characterId);
-    if (characterCache.has(key)) return characterCache.get(key);
+    if (characterCache.has(key)) return characterCache.get(key) as ICharacter | null;
     const character = await getCharacter(characterId);
     if (character) characterCache.set(key, character);
     return character;
 }
 
-export async function getCachedCorporation(corporationId: number): Promise<any> {
+export async function getCachedCorporation(corporationId: number): Promise<ICorporation | null> {
     const key = String(corporationId);
-    if (corporationCache.has(key)) return corporationCache.get(key);
+    if (corporationCache.has(key)) return corporationCache.get(key) as ICorporation | null;
     const corp = await getCorporation(corporationId);
     if (corp) corporationCache.set(key, corp);
     return corp;
 }
 
-export async function getCachedAlliance(allianceId: number): Promise<any> {
+export async function getCachedAlliance(allianceId: number): Promise<IAlliance | null> {
     const key = String(allianceId);
-    if (allianceCache.has(key)) return allianceCache.get(key);
+    if (allianceCache.has(key)) return allianceCache.get(key) as IAlliance | null;
     const alliance = await getAlliance(allianceId);
     if (alliance) allianceCache.set(key, alliance);
     return alliance;
@@ -190,7 +194,7 @@ export async function getCachedAlliance(allianceId: number): Promise<any> {
 
 export async function getCachedPrice(typeId: number, killTime: Date): Promise<number> {
 	const key = `${typeId}-${killTime.getTime()}`;
-	if (priceCache.has(key)) return priceCache.get(key);
+	if (priceCache.has(key)) return priceCache.get(key) as number | undefined;
 	const price = await getPrice(typeId, killTime);
 	if (price) priceCache.set(key, price);
 	return price;
