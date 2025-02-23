@@ -15,7 +15,9 @@ import {
     allianceCache,
     cacheHits
 } from "~/helpers/RuntimeCache";
+import os from "os";
 
+const startTime = new Date();
 export default defineEventHandler(async (event) => {
     const allianceQueue = createQueue('alliance');
     const corporationQueue = createQueue('corporation');
@@ -25,23 +27,102 @@ export default defineEventHandler(async (event) => {
     const killmailQueue = createQueue('killmail');
     const warQueue = createQueue('war');
 
+    const [
+        allianceQueueCount,
+        corporationQueueCount,
+        characterQueueCount,
+        characterHistoryQueueCount,
+        corporationHistoryQueueCount,
+        killmailQueueCount,
+        warQueueCount,
+        allianceCount,
+        celestialCount,
+        characterCount,
+        commentCount,
+        constellationCount,
+        customPriceCount,
+        factionCount,
+        invFlagCount,
+        invGroupCount,
+        invTypeCount,
+        killmailCount,
+        esiKillmailCount,
+        priceCount,
+        regionCount,
+        solarSystemsCount,
+        userCount,
+        warCount
+    ] = await Promise.all([
+        allianceQueue.count(),
+        corporationQueue.count(),
+        characterQueue.count(),
+        characterHistoryQueue.count(),
+        corporationHistoryQueue.count(),
+        killmailQueue.count(),
+        warQueue.count(),
+        Alliances.estimatedDocumentCount(),
+        Celestials.estimatedDocumentCount(),
+        Characters.estimatedDocumentCount(),
+        Comments.estimatedDocumentCount(),
+        Constellations.estimatedDocumentCount(),
+        CustomPrices.estimatedDocumentCount(),
+        Factions.estimatedDocumentCount(),
+        InvFlags.estimatedDocumentCount(),
+        InvGroups.estimatedDocumentCount(),
+        InvTypes.estimatedDocumentCount(),
+        Killmails.estimatedDocumentCount(),
+        KillmailsESI.estimatedDocumentCount(),
+        Prices.estimatedDocumentCount(),
+        Regions.estimatedDocumentCount(),
+        SolarSystems.estimatedDocumentCount(),
+        Users.estimatedDocumentCount(),
+        Wars.estimatedDocumentCount(),
+    ]);
+
     return {
-        queueCounts: {
-            alliance: await allianceQueue.count(),
-            corporation: await corporationQueue.count(),
-            character: await characterQueue.count(),
-            characterhistory: await characterHistoryQueue.count(),
-            corporationhistory: await corporationHistoryQueue.count(),
-            killmail: await killmailQueue.count(),
-            war: await warQueue.count()
+        uptime: Math.floor(process.uptime()),
+        upSince: startTime,
+        localTime: new Date(),
+        env: {
+            nodeEnv: process.env.NODE_ENV,
+            nodeVersion: process.version,
+            processName: process.title
         },
-        allianceCount: await Alliances.estimatedDocumentCount(),
-        corporationCount: await Corporations.estimatedDocumentCount(),
-        characterCount: await Characters.estimatedDocumentCount(),
-        killmailCount: await Killmails.estimatedDocumentCount(),
-        esiKillmailCount: await KillmailsESI.estimatedDocumentCount(),
-        warCount: await Wars.estimatedDocumentCount(),
-        // Updated cache sizes using maps and LRU caches
+        operatingSystem: {
+            systemPlatform: process.platform,
+            systemArch: process.arch,
+            loadAvg: os.loadavg().map((avg) => avg.toFixed(2)),
+            totalCPUs: os.cpus().length,
+            totalMemoryGB: os.totalmem() / 1024 / 1024 / 1024,
+        },
+        queueCounts: {
+            alliance: allianceQueueCount,
+            corporation: corporationQueueCount,
+            character: characterQueueCount,
+            characterhistory: characterHistoryQueueCount,
+            corporationhistory: corporationHistoryQueueCount,
+            killmail: killmailQueueCount,
+            war: warQueueCount
+        },
+        databaseCounts: {
+            alliances: formatNumber(allianceCount),
+            celestial: formatNumber(celestialCount),
+            characters: formatNumber(characterCount),
+            comments: formatNumber(commentCount),
+            constellations: formatNumber(constellationCount),
+            customPrices: formatNumber(customPriceCount),
+            factions: formatNumber(factionCount),
+            invFlags: formatNumber(invFlagCount),
+            invGroups: formatNumber(invGroupCount),
+            invTypes: formatNumber(invTypeCount),
+            killmails: formatNumber(killmailCount),
+            esiKillmails: formatNumber(esiKillmailCount),
+            prices: formatNumber(priceCount),
+            regions: formatNumber(regionCount),
+            solarSystems: formatNumber(solarSystemsCount),
+            users: formatNumber(userCount),
+            wars: formatNumber(warCount)
+        },
         cacheSizes: {
             solarSystemsCache: solarSystemsCache.size,
             regionsCache: regionsCache.size,
@@ -60,3 +141,8 @@ export default defineEventHandler(async (event) => {
         cacheHits
     };
 });
+
+function formatNumber(num: number) {
+    return num.toLocaleString('da-DK'); // Lets be real, US using commas as decimal separator is just wrong.
+    // When are ya'll gonne give up and use metric? plebs..
+}
