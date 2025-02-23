@@ -14,7 +14,8 @@ import {
     getCachedAlliance,
     getCachedFaction,
     getCachedPrice,
-    nearCache
+    nearCache,
+    cacheHits
 } from "./RuntimeCache";
 
 async function parseKillmail(killmail: IESIKillmail, warId: number = 0): Promise<Partial<IKillmail>> {
@@ -186,6 +187,7 @@ async function getNear(x: number, y: number, z: number, solarSystemId: number): 
     const nearKey = `${solarSystemId}-${x}-${y}-${z}`;
     const cached = nearCache.get(nearKey);
     if (cached) {
+        cacheHits.near++;
         return cached;
     }
 

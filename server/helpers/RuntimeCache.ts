@@ -46,7 +46,8 @@ export const cacheHits = {
 	price: 0,
 	character: 0,
 	corporation: 0,
-	alliance: 0
+	alliance: 0,
+	near: 0
 };
 
 async function loadAllInvGroups(): Promise<void> {
