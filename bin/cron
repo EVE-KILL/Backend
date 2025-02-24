@@ -46,23 +46,27 @@ if (process.argv[2]) {
         process.exit(1);
     }
 } else {
-    // Recursive scheduling using cron-parser
-    function scheduleJob(job: any) {
+    // Single-run scheduled mode: run only jobs that are due now
+    const now = Date.now();
+    const tolerance = 60000; // 60 seconds tolerance
+    const runningJobs: Promise<any>[] = [];
+    cronjobs.forEach(job => {
         try {
+            // Parse expression and get the previous occurrence
             const interval = CronExpressionParser.parse(job.schedule);
-            const nextDate = interval.next().getTime();
-            const delay = nextDate - Date.now();
-            setTimeout(() => {
-                Promise.resolve(job.run({ args: [] }))
-                    .catch((err: any) => cliLogger.error(`Error in job "${job.name}": ${err}`))
-                    .finally(() => scheduleJob(job));
-            }, delay);
+            const prev = interval.prev();
+            if (Math.abs(now - prev.getTime()) <= tolerance) {
+                console.log(`Running scheduled job "${job.name}" at ${new Date(prev.getTime()).toISOString()}.`);
+                runningJobs.push(
+                    job.run({ args: [] })
+                        .catch((err: any) => cliLogger.error(`Error in job "${job.name}": ${err}`))
+                );
+            }
         } catch (e) {
             cliLogger.error(`Job "${job.name}" schedule error: ${job.schedule} - ${e}`);
         }
-    }
-
-    for (const job of cronjobs) {
-        scheduleJob(job);
-    }
+    });
+    Promise.all(runningJobs)
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1));
 }
