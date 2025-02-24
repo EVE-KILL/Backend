@@ -149,12 +149,8 @@ async function generateTop(killmail: IESIKillmail, warId: number = 0): Promise<P
 }
 
 async function processVictim(victim: IESIVictim): Promise<IVictim> {
-    const ship = await getCachedItem(Number(victim.ship_type_id));
-    if (!ship) throw new Error(`Type not found for type_id: ${victim.ship_type_id}`);
-
-    // Replace DB lookup with cache for ship group
-    const shipGroup = await getCachedInvGroup(ship.group_id);
-    if (!shipGroup) throw new Error(`Group not found for group_id: ${ship.group_id}`);
+    const ship = await getCachedItem(Number(victim.ship_type_id)) || null;
+    const shipGroup = await getCachedInvGroup(ship.group_id) || null;
 
     // Use cached character, corporation, alliance and faction lookups
     const character = victim.character_id ? await getCachedCharacter(victim.character_id) : null;
@@ -163,15 +159,15 @@ async function processVictim(victim: IESIVictim): Promise<IVictim> {
     const faction = victim.faction_id ? await getCachedFaction(Number(victim.faction_id)) : null;
 
     return {
-        ship_id: victim.ship_type_id,
-        ship_name: ship.type_name,
-        ship_group_id: shipGroup.group_id,
-        ship_group_name: shipGroup.group_name,
-        damage_taken: victim.damage_taken,
-        character_id: victim.character_id,
-        character_name: character?.name || ship.type_name,
-        corporation_id: victim.corporation_id,
-        corporation_name: corporation.name,
+        ship_id: victim.ship_type_id || 0,
+        ship_name: ship?.type_name || "",
+        ship_group_id: shipGroup.group_id || 0,
+        ship_group_name: shipGroup.group_name || "",
+        damage_taken: victim.damage_taken || 0,
+        character_id: victim.character_id || 0,
+        character_name: character?.name || ship?.type_name || "",
+        corporation_id: victim.corporation_id || 0,
+        corporation_name: corporation.name || "",
         alliance_id: victim.alliance_id || 0,
         alliance_name: alliance?.name || "",
         faction_id: victim.faction_id || 0,
@@ -262,29 +258,27 @@ async function isSolo(killmail: IESIKillmail): Promise<boolean> {
 
 async function processAttackers(attackers: IESIAttacker[]): Promise<IAttacker[]> {
     return await Promise.all(attackers.map(async attacker => {
-        const ship = attacker.ship_type_id
+        let ship = attacker.ship_type_id
             ? await getCachedItem(attacker.ship_type_id)
             : attacker.weapon_type_id
                 ? await getCachedItem(attacker.weapon_type_id)
                 : null;
-        const weapon = attacker.weapon_type_id
+        let weapon = attacker.weapon_type_id
             ? await getCachedItem(attacker.weapon_type_id)
             : await getCachedItem(attacker.ship_type_id);
-        if (!ship) throw new Error(`Type not found for type_id: ${attacker.ship_type_id}`);
-        if (!weapon) throw new Error(`Type not found for type_id: ${attacker.weapon_type_id}`);
-        const shipGroup = await getCachedInvGroup(ship.group_id);
-        if (!shipGroup) throw new Error(`Group not found for group_id: ${ship.group_id}`);
+
+        let shipGroup = ship && ship.group_id ? await getCachedInvGroup(ship.group_id) : null;
         const character = attacker.character_id ? await getCachedCharacter(attacker.character_id) : null;
         const corporation = attacker.corporation_id ? await getCachedCorporation(attacker.corporation_id) : null;
         const alliance = attacker.alliance_id ? await getCachedAlliance(Number(attacker.alliance_id)) : null;
         const faction = attacker.faction_id ? await getCachedFaction(Number(attacker.faction_id)) : null;
         return {
             ship_id: attacker.ship_type_id || attacker.weapon_type_id || 0,
-            ship_name: ship.type_name || weapon.type_name || "",
-            ship_group_id: shipGroup.group_id || 0,
-            ship_group_name: shipGroup.group_name || "",
+            ship_name: ship?.type_name || weapon?.type_name || "",
+            ship_group_id: shipGroup?.group_id || 0,
+            ship_group_name: shipGroup?.group_name || "",
             character_id: attacker.character_id || 0,
-            character_name: character?.name || ship.type_name || weapon.type_name,
+            character_name: character?.name || ship?.type_name || weapon?.type_name || "",
             corporation_id: attacker.corporation_id || 0,
             corporation_name: corporation?.name || "",
             alliance_id: attacker.alliance_id || 0,
@@ -295,30 +289,28 @@ async function processAttackers(attackers: IESIAttacker[]): Promise<IAttacker[]>
             damage_done: attacker.damage_done,
             final_blow: attacker.final_blow,
             weapon_type_id: attacker.weapon_type_id || 0,
-            weapon_type_name: weapon.type_name || "",
+            weapon_type_name: weapon?.type_name || "",
         };
     }));
 }
 
 async function processItems(items: IESIVictimItem[], killmail_date: Date): Promise<IItem[]> {
     return await Promise.all(items.map(async item => {
-        const type = await getCachedItem(Number(item.item_type_id));
-        if (!type) throw new Error(`Type not found for type_id: ${item.item_type_id}`);
-        const group = await getCachedInvGroup(type.group_id);
-        if (!group) throw new Error(`Group not found for group_id: ${type.group_id}`);
+        const type = await getCachedItem(Number(item.item_type_id)) || null;
+        const group = await getCachedInvGroup(type.group_id) || null;
         const nestedItems = item.items ? await processItems(item.items, killmail_date) : [];
         const value = await getCachedPrice(Number(item.item_type_id), killmail_date);
         return {
-            type_id: item.item_type_id,
-            type_name: type.type_name || "",
-            group_id: type.group_id,
-            group_name: group.group_name || "",
-            category_id: group.category_id,
-            flag: item.flag,
+            type_id: item.item_type_id || 0,
+            type_name: type?.type_name || "",
+            group_id: type?.group_id || 0,
+            group_name: group?.group_name || "",
+            category_id: group?.category_id || 0,
+            flag: item.flag || 0,
             qty_dropped: Number(item.quantity_dropped || 0),
             qty_destroyed: Number(item.quantity_destroyed || 0),
-            singleton: item.singleton,
-            value: value,
+            singleton: item.singleton || 0,
+            value: value || 0,
             ...(nestedItems.length > 0 && { items: nestedItems })
         };
     }));
