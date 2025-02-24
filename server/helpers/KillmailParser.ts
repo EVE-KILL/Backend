@@ -150,7 +150,7 @@ async function generateTop(killmail: IESIKillmail, warId: number = 0): Promise<P
 
 async function processVictim(victim: IESIVictim): Promise<IVictim> {
     const ship = await getCachedItem(Number(victim.ship_type_id)) || null;
-    const shipGroup = await getCachedInvGroup(ship.group_id) || null;
+    const shipGroup = ship?.group_id ? await getCachedInvGroup(ship.group_id) : null;
 
     // Use cached character, corporation, alliance and faction lookups
     const character = victim.character_id ? await getCachedCharacter(victim.character_id) : null;
@@ -161,8 +161,8 @@ async function processVictim(victim: IESIVictim): Promise<IVictim> {
     return {
         ship_id: victim.ship_type_id || 0,
         ship_name: ship?.type_name || "",
-        ship_group_id: shipGroup.group_id || 0,
-        ship_group_name: shipGroup.group_name || "",
+        ship_group_id: shipGroup?.group_id || 0,
+        ship_group_name: shipGroup?.group_name || "",
         damage_taken: victim.damage_taken || 0,
         character_id: victim.character_id || 0,
         character_name: character?.name || ship?.type_name || "",
@@ -267,7 +267,7 @@ async function processAttackers(attackers: IESIAttacker[]): Promise<IAttacker[]>
             ? await getCachedItem(attacker.weapon_type_id)
             : await getCachedItem(attacker.ship_type_id);
 
-        let shipGroup = ship && ship.group_id ? await getCachedInvGroup(ship.group_id) : null;
+        let shipGroup = ship?.group_id ? await getCachedInvGroup(ship.group_id) : null;
         const character = attacker.character_id ? await getCachedCharacter(attacker.character_id) : null;
         const corporation = attacker.corporation_id ? await getCachedCorporation(attacker.corporation_id) : null;
         const alliance = attacker.alliance_id ? await getCachedAlliance(Number(attacker.alliance_id)) : null;
@@ -297,7 +297,7 @@ async function processAttackers(attackers: IESIAttacker[]): Promise<IAttacker[]>
 async function processItems(items: IESIVictimItem[], killmail_date: Date): Promise<IItem[]> {
     return await Promise.all(items.map(async item => {
         const type = await getCachedItem(Number(item.item_type_id)) || null;
-        const group = await getCachedInvGroup(type.group_id) || null;
+        const group = type?.group_id ? await getCachedInvGroup(type.group_id) : null;
         const nestedItems = item.items ? await processItems(item.items, killmail_date) : [];
         const value = await getCachedPrice(Number(item.item_type_id), killmail_date);
         return {
