@@ -28,7 +28,7 @@ export default {
         // Try and fetch the characters
         for (let characterId of newCharacterIds) {
             if (errorCount > 2) {
-                return cliLogger.error(`Too many errors, stopping`);
+                return cliLogger.error(`Too many errors while trying to find new characters, stopping`);
             }
 
             let characterData = await getCharacter(characterId, true);
