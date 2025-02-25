@@ -24,8 +24,8 @@ export default defineEventHandler(async (event) => {
 
     // Fetch killmail from ESI
     let esiKillmail: IESIKillmail | null = await fetchESIKillmail(killmail_id, killmail_hash);
-    if (!esiKillmail) {
-        return { error: "Error fetching killmail from ESI" };
+    if (!esiKillmail || esiKillmail.error) {
+        return { error: "Error fetching killmail from ESI", esiError: esiKillmail.error || '' };
     }
 
     // Process killmail and save to database
