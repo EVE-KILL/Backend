@@ -15,8 +15,8 @@ export default {
 
         // For each day in the history, get the killmails
         for (let [date, count] of Object.entries(data).reverse()) {
-            // Skip ahead to 20230506
-            //if (date < '20241215') {
+            // Skip ahead to 20240411
+            //if (date > '20240411') {
             //    continue;
             //}
             console.log(`Getting killmails for ${date}`);

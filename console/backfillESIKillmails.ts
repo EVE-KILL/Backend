@@ -60,21 +60,33 @@ async function processDate(date: string) {
     const killmailFiles = await fs.promises.readdir(filesPath);
 
     // Process each file
+    const bulkOps = [];
     for (const file of killmailFiles) {
-        // Read the file
+        // Read the file and parse its contents
         const fileContents = await fs.promises.readFile(filesPath + "/" + file);
-        // Parse the file
         const killmail = JSON.parse(fileContents.toString());
-        // Save the killmail to the database
-        let km = new KillmailsESI(killmail);
+        bulkOps.push({ insertOne: { document: killmail } });
+    }
+    let insertedCount = 0;
+    let errorCount = 0;
+    let totalCount = bulkOps.length;
+    if (bulkOps.length) {
         try {
-            await km.save();
-        } catch (err) {
+            const bulkResult = await KillmailsESI.collection.bulkWrite(bulkOps, { ordered: false });
+            insertedCount = bulkResult.insertedCount;
+        } catch (err: any) {
+            if (err.errorResponse.writeErrors) {
+                errorCount = err.errorResponse.writeErrors.length;
+                insertedCount = err.insertedCount;
+            }
         }
     }
 
     // Cleanup
     await fs.promises.rm(tmpFile, { force: true });
     await fs.promises.rm(tmpExtractDir, { recursive: true, force: true });
+
+    console.log(`Inserted ${insertedCount} killmails for ${date}, with ${errorCount} errors out of ${totalCount} total killmails`);
+    return insertedCount;
 }
 
