@@ -1,5 +1,5 @@
-import { Schema, model, Document, Model } from "mongoose";
-import { IRegion } from "../interfaces/IRegion"; // Adjust the path as necessary
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { IRegion } from "../interfaces/IRegion"; // Adjust the path as necessary
 
 export interface IRegionDocument extends IRegion, Document {}
 
@@ -26,16 +26,16 @@ const regionsSchema = new Schema<IRegionDocument>(
     collection: "regions",
     timestamps: true,
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret) => {
         delete ret._id;
         delete ret.__v;
       },
     },
-  }
+  },
 );
 
 export const Regions: Model<IRegionDocument> = model<IRegionDocument>(
   "regions",
   regionsSchema,
-  "regions"
+  "regions",
 );

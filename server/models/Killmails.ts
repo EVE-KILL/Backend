@@ -1,7 +1,7 @@
 // models/Killmails.ts
 
-import { Schema, model, Document, Model } from "mongoose";
-import { IKillmail, IAttacker, IItem, IVictim } from "../interfaces/IKillmail"; // Adjust the path as necessary
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { IKillmail, IAttacker, IItem, IVictim } from "../interfaces/IKillmail"; // Adjust the path as necessary
 
 export interface IKillmailDocument extends IKillmail, Document {}
 
@@ -25,7 +25,7 @@ const attackerSchema = new Schema<IAttacker>(
     weapon_type_id: { type: Number },
     weapon_type_name: { type: String },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const itemSchema = new Schema<IItem>(
@@ -41,7 +41,7 @@ const itemSchema = new Schema<IItem>(
     singleton: { type: Number },
     value: { type: Number },
   },
-  { _id: false }
+  { _id: false },
 );
 itemSchema.add({
   items: { type: [itemSchema], default: undefined, required: false },
@@ -63,7 +63,7 @@ const victimSchema = new Schema<IVictim>(
     faction_id: { type: Number },
     faction_name: { type: String },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const killmailsSchema = new Schema<IKillmailDocument>(
@@ -92,18 +92,18 @@ const killmailsSchema = new Schema<IKillmailDocument>(
     war_id: { type: Number },
     x: { type: Number },
     y: { type: Number },
-    z: { type: Number }
+    z: { type: Number },
   },
   {
     collection: "killmails",
     timestamps: true,
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret) => {
         delete ret._id;
         delete ret.__v;
       },
     },
-  }
+  },
 );
 
 // Updated index definitions in descending order
@@ -140,20 +140,20 @@ const indexes = [
   // Note: indexes that don't match the generated name are omitted.
 ];
 
-indexes.forEach(({ fields, options }) => {
-  killmailsSchema.index(fields, options);
-});
+for (const { fields, options } of indexes) {
+  killmailsSchema.index(fields as any, options);
+}
 
 export const Killmails: Model<IKillmailDocument> = model<IKillmailDocument>(
   "killmails",
   killmailsSchema,
-  "killmails"
+  "killmails",
 );
 
 // Optional: you can listen for errors on index creation
-killmailsSchema.on('index', function(error) {
+killmailsSchema.on("index", (error) => {
   if (error) {
-      console.error("Killmails index error:", error);
+    console.error("Killmails index error:", error);
   }
 });
 
@@ -162,19 +162,25 @@ killmailsSchema.on('index', function(error) {
 const computeIndexName = (fields: Record<string, number>) =>
   Object.entries(fields)
     .map(([key, val]) => `${key}_${val}`)
-    .join('_');
+    .join("_");
 
-const allowedIndexNames = new Set(indexes.map(idx => computeIndexName(idx.fields)));
+const allowedIndexNames = new Set(indexes.map((idx) => computeIndexName(idx.fields)));
 
 // Drop any index on the collection that doesn't match the allowed names (except _id)
-Killmails.collection.indexes().then(currentIndexes => {
-  currentIndexes.forEach(idx => {
-    if (idx.name !== '_id_' && !allowedIndexNames.has(idx.name)) {
-      Killmails.collection.dropIndex(idx.name)
-        .then(() => console.log(`Dropped index ${idx.name}`))
-        .catch(err => console.error(`Error dropping index ${idx.name}:`, err));
+Killmails.collection
+  .indexes()
+  .then(async (currentIndexes) => {
+    for (const idx of currentIndexes) {
+      if (idx.name !== "_id_" && !allowedIndexNames.has(idx.name)) {
+        try {
+          await Killmails.collection.dropIndex(idx.name);
+          console.log(`Dropped index ${idx.name}`);
+        } catch (err) {
+          console.error(`Error dropping index ${idx.name}:`, err);
+        }
+      }
     }
+  })
+  .catch((err) => {
+    console.error("Error fetching indexes:", err);
   });
-}).catch(err => {
-  console.error('Error fetching indexes:', err);
-});

@@ -1,7 +1,7 @@
 // models/Corporations.ts
 
-import { Schema, model, Document, Model } from "mongoose";
-import { ICorporation, ICorporationHistory } from "../interfaces/ICorporation"; // Adjust the path as necessary
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { ICorporation, ICorporationHistory } from "../interfaces/ICorporation"; // Adjust the path as necessary
 
 // Extend the ICorporation interface with Mongoose's Document interface
 export interface ICorporationDocument extends ICorporation, Document {}
@@ -13,7 +13,7 @@ const corporationHistorySchema = new Schema<ICorporationHistory>(
     alliance_id: { type: Number },
     start_date: { type: Date },
   },
-  { _id: false } // Prevents automatic creation of _id for subdocuments
+  { _id: false }, // Prevents automatic creation of _id for subdocuments
 );
 
 // Define the main Corporations schema
@@ -44,12 +44,12 @@ const corporationsSchema = new Schema<ICorporationDocument>(
     collection: "corporations",
     timestamps: true, // Automatically adds createdAt and updatedAt fields
     toJSON: {
-      transform: (doc, ret) => {
-        delete ret._id;   // Removes _id from the JSON output
-        delete ret.__v;   // Removes __v (version key) from the JSON output
+      transform: (_doc, ret) => {
+        delete ret._id; // Removes _id from the JSON output
+        delete ret.__v; // Removes __v (version key) from the JSON output
       },
     },
-  }
+  },
 );
 
 // Define indexes for the schema
@@ -64,5 +64,5 @@ corporationsSchema.index({ updatedAt: 1 }, { sparse: true }); // Sparse index on
 export const Corporations: Model<ICorporationDocument> = model<ICorporationDocument>(
   "corporations",
   corporationsSchema,
-  "corporations" // Explicitly specifying the collection name
+  "corporations", // Explicitly specifying the collection name
 );

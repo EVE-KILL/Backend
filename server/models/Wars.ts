@@ -1,7 +1,5 @@
-
-
-import { Schema, model, Document, Model } from "mongoose";
-import { IWar } from "../interfaces/IWar";
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { IWar } from "../interfaces/IWar";
 
 export interface IWarDocument extends IWar, Document {}
 
@@ -37,16 +35,12 @@ const warsSchema = new Schema<IWarDocument>(
     collection: "wars",
     timestamps: true,
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret) => {
         delete ret._id;
         delete ret.__v;
       },
     },
-  }
+  },
 );
 
-export const Wars: Model<IWarDocument> = model<IWarDocument>(
-  "wars",
-  warsSchema,
-  "wars"
-);
+export const Wars: Model<IWarDocument> = model<IWarDocument>("wars", warsSchema, "wars");

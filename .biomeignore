@@ -1,0 +1,8 @@
+node_modules
+.nuxt
+.nitro
+.output
+dist
+build
+*.d.ts
+.git

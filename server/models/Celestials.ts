@@ -1,7 +1,7 @@
 // models/Celestials.ts
 
-import { Schema, model, Document, Model } from "mongoose";
-import { ICelestial } from "../interfaces/ICelestial"; // Adjust the path as necessary
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { ICelestial } from "../interfaces/ICelestial"; // Adjust the path as necessary
 
 // Extend the ICelestial interface with Mongoose's Document interface
 export interface ICelestialDocument extends ICelestial, Document {}
@@ -28,12 +28,12 @@ const celestialsSchema = new Schema<ICelestialDocument>(
     collection: "celestials",
     timestamps: true, // Automatically adds createdAt and updatedAt fields
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret) => {
         delete ret._id; // Removes _id from the JSON output
         delete ret.__v; // Removes __v (version key) from the JSON output
       },
     },
-  }
+  },
 );
 
 // Define indexes for the schema
@@ -45,5 +45,5 @@ celestialsSchema.index({ x: 1, y: 1, z: 1 }, { name: "x_y_z" }); // Compound ind
 export const Celestials: Model<ICelestialDocument> = model<ICelestialDocument>(
   "celestials",
   celestialsSchema,
-  "celestials" // Explicitly specifying the collection name
+  "celestials", // Explicitly specifying the collection name
 );

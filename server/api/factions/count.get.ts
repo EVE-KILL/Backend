@@ -1,6 +1,6 @@
-import { defineEventHandler } from 'h3';
+import { defineEventHandler } from "h3";
 
-export default defineEventHandler(async (event) => {
-    let count: Number = await Factions.estimatedDocumentCount();
-    return { count: count };
+export default defineEventHandler(async () => {
+  const count: number = await Factions.estimatedDocumentCount();
+  return { count: count };
 });

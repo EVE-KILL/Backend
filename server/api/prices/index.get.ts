@@ -1,5 +1,5 @@
 import { Prices } from "../../models/Prices";
-import { defineEventHandler } from 'h3';
+import { defineEventHandler } from "h3";
 
 export default defineEventHandler(async () => {
   const pipeline = [
@@ -12,7 +12,7 @@ export default defineEventHandler(async () => {
       },
     },
     {
-      $sort: { "_id": -1 },
+      $sort: { _id: -1 },
     },
   ];
 

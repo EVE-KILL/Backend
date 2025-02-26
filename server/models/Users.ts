@@ -1,4 +1,4 @@
-import { Schema, model, Document, Model } from "mongoose";
+import { Schema, model, type Document, type Model } from "mongoose";
 import type { IUser } from "../interfaces/IUser";
 
 export interface IUserDocument extends IUser, Document {}
@@ -21,19 +21,15 @@ const userSchema = new Schema<IUserDocument>(
     collection: "users",
     timestamps: true,
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret) => {
         delete ret._id;
         delete ret.__v;
       },
     },
-  }
+  },
 );
 
 // Primary indexes
 userSchema.index({ characterId: 1 }, { unique: true });
 
-export const Users: Model<IUserDocument> = model<IUserDocument>(
-  "users",
-  userSchema,
-  "users"
-);
+export const Users: Model<IUserDocument> = model<IUserDocument>("users", userSchema, "users");

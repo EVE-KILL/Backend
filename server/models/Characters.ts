@@ -1,7 +1,7 @@
 // models/Characters.ts
 
-import { Schema, model, Document, Model } from "mongoose";
-import { ICharacter, ICharacterHistory } from "../interfaces/ICharacter"; // Adjust the path as necessary
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { ICharacter, ICharacterHistory } from "../interfaces/ICharacter"; // Adjust the path as necessary
 
 // Extend the ICharacter interface with Mongoose's Document interface
 export interface ICharacterDocument extends ICharacter, Document {}
@@ -13,7 +13,7 @@ const characterHistorySchema = new Schema<ICharacterHistory>(
     corporation_id: { type: Number },
     start_date: { type: Date },
   },
-  { _id: false } // Prevents automatic creation of _id for subdocuments
+  { _id: false }, // Prevents automatic creation of _id for subdocuments
 );
 
 // Define the main Characters schema
@@ -40,12 +40,12 @@ const charactersSchema = new Schema<ICharacterDocument>(
     collection: "characters",
     timestamps: true, // Automatically adds createdAt and updatedAt fields
     toJSON: {
-      transform: (doc, ret) => {
-        delete ret._id;   // Removes _id from the JSON output
-        delete ret.__v;   // Removes __v (version key) from the JSON output
+      transform: (_doc, ret) => {
+        delete ret._id; // Removes _id from the JSON output
+        delete ret.__v; // Removes __v (version key) from the JSON output
       },
     },
-  }
+  },
 );
 
 // Define indexes for the schema
@@ -61,5 +61,5 @@ charactersSchema.index({ updatedAt: 1 }, { sparse: true }); // Sparse index on u
 export const Characters: Model<ICharacterDocument> = model<ICharacterDocument>(
   "characters",
   charactersSchema,
-  "characters" // Explicitly specifying the collection name
+  "characters", // Explicitly specifying the collection name
 );

@@ -1,7 +1,7 @@
 // models/InvGroups.ts
 
-import { Schema, model, Document, Model } from "mongoose";
-import { IInvGroup } from "../interfaces/IInvGroup"; // Adjust the path as necessary
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { IInvGroup } from "../interfaces/IInvGroup"; // Adjust the path as necessary
 
 // Extend the IInvGroup interface with Mongoose's Document interface
 export interface IInvGroupDocument extends IInvGroup, Document {}
@@ -24,17 +24,17 @@ const invGroupsSchema = new Schema<IInvGroupDocument>(
     collection: "invGroups",
     timestamps: true,
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret) => {
         delete ret._id;
         delete ret.__v;
       },
     },
-  }
+  },
 );
 
 // Create and export the InvGroups model
 export const InvGroups: Model<IInvGroupDocument> = model<IInvGroupDocument>(
   "invgroups",
   invGroupsSchema,
-  "invGroups" // Explicitly specifying the collection name
+  "invGroups", // Explicitly specifying the collection name
 );

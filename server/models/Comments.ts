@@ -1,7 +1,7 @@
 // models/Comments.ts
 
-import { Schema, model, Document, Model } from "mongoose";
-import { IComments } from "../interfaces/IComments";
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { IComments } from "../interfaces/IComments";
 
 // Extend the IConfig interface with Mongoose's Document interface
 export interface ICommentsDocument extends IComments, Document {}
@@ -16,16 +16,16 @@ const commentsSchema = new Schema<ICommentsDocument>(
     collection: "comments",
     timestamps: true, // Automatically adds createdAt and updatedAt fields
     toJSON: {
-      transform: (doc, ret) => {
-        delete ret._id;   // Removes _id from the JSON output
-        delete ret.__v;   // Removes __v (version key) from the JSON output
+      transform: (_doc, ret) => {
+        delete ret._id; // Removes _id from the JSON output
+        delete ret.__v; // Removes __v (version key) from the JSON output
       },
     },
-  }
+  },
 );
 
 export const Comments: Model<ICommentsDocument> = model<ICommentsDocument>(
   "comments",
   commentsSchema,
-  "comments"
+  "comments",
 );

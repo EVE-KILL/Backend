@@ -1,7 +1,7 @@
 // models/Alliances.ts
 
-import { Schema, model, Document, Model } from "mongoose";
-import { IAlliance } from "../interfaces/IAlliance"; // Adjust the path as necessary
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { IAlliance } from "../interfaces/IAlliance"; // Adjust the path as necessary
 
 // Extend the IAlliance interface with Mongoose's Document interface
 export interface IAllianceDocument extends IAlliance, Document {}
@@ -22,12 +22,12 @@ const alliancesSchema = new Schema<IAllianceDocument>(
     collection: "alliances",
     timestamps: true, // Automatically adds createdAt and updatedAt fields
     toJSON: {
-      transform: (doc, ret) => {
-        delete ret._id;   // Removes _id from the JSON output
-        delete ret.__v;   // Removes __v (version key) from the JSON output
+      transform: (_doc, ret) => {
+        delete ret._id; // Removes _id from the JSON output
+        delete ret.__v; // Removes __v (version key) from the JSON output
       },
     },
-  }
+  },
 );
 
 // Define indexes for the schema
@@ -43,5 +43,5 @@ alliancesSchema.index({ updatedAt: 1 }, { sparse: true }); // Sparse index on up
 export const Alliances: Model<IAllianceDocument> = model<IAllianceDocument>(
   "alliances",
   alliancesSchema,
-  "alliances" // Explicitly specifying the collection name
+  "alliances", // Explicitly specifying the collection name
 );

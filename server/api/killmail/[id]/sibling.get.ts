@@ -1,4 +1,4 @@
-import { IKillmail } from "../../../interfaces/IKillmail";
+import type { IKillmail } from "../../../interfaces/IKillmail";
 import { Killmails } from "../../../models/Killmails";
 
 export default defineEventHandler(async (event) => {
@@ -11,10 +11,7 @@ export default defineEventHandler(async (event) => {
   const capsuleIds = [670, 33328];
 
   // If the victim ship_id isn't a capsule, we can't find siblings
-  if (
-    !killmail?.victim?.ship_id ||
-    !capsuleIds.includes(Number(killmail.victim.ship_id))
-  ) {
+  if (!killmail?.victim?.ship_id || !capsuleIds.includes(Number(killmail.victim.ship_id))) {
     throw createError({
       statusCode: 400,
       statusMessage: "Victim ship is not a capsule",
@@ -35,9 +32,13 @@ export default defineEventHandler(async (event) => {
     killmail_id: { $ne: killmail_id },
   };
 
-  const sibling = await Killmails.findOne(query, { _id: 0, killmail_id: 1 }, {
-    sort: { kill_time: -1 },
-  });
+  const sibling = await Killmails.findOne(
+    query,
+    { _id: 0, killmail_id: 1 },
+    {
+      sort: { kill_time: -1 },
+    },
+  );
 
   if (!sibling?.killmail_id) {
     throw createError({
@@ -46,5 +47,5 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return [ sibling.killmail_id ];
+  return [sibling.killmail_id];
 });

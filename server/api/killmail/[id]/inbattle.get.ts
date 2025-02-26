@@ -1,13 +1,16 @@
-import { PipelineStage } from "mongoose";
-import { IKillmail } from "../../../interfaces/IKillmail";
+import type { PipelineStage } from "mongoose";
+import type { IKillmail } from "../../../interfaces/IKillmail";
 import { Killmails } from "../../../models/Killmails";
 
 export default defineEventHandler(async (event) => {
   const killmail_id = event.context.params?.id;
 
-  const killmail: IKillmail | null = await Killmails.findOne({
-    killmail_id: killmail_id,
-  }, { _id: 0, system_id: 1, kill_time: 1 });
+  const killmail: IKillmail | null = await Killmails.findOne(
+    {
+      killmail_id: killmail_id,
+    },
+    { _id: 0, system_id: 1, kill_time: 1 },
+  );
   if (!killmail) {
     throw createError({
       statusCode: 400,
@@ -22,29 +25,29 @@ export default defineEventHandler(async (event) => {
 
   const pipeline: PipelineStage[] = [
     {
-      "$match": {
+      $match: {
         system_id: systemId,
         kill_time: { $gte: killTimeStart, $lt: killTimeEnd },
       },
     },
     {
-      "$group": {
+      $group: {
         _id: "$system_id",
         count: { $sum: 1 },
       },
     },
     {
-      "$match": {
+      $match: {
         count: { $gt: 25 },
       },
     },
     {
-      "$sort": {
+      $sort: {
         count: -1,
       },
     },
     {
-      "$limit": 1,
+      $limit: 1,
     },
   ];
 

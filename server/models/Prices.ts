@@ -1,7 +1,7 @@
 // models/Prices.ts
 
-import { Schema, model, Document, Model } from "mongoose";
-import { IPrice } from "../interfaces/IPrice"; // Adjust the path as necessary
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { IPrice } from "../interfaces/IPrice"; // Adjust the path as necessary
 
 export interface IPriceDocument extends IPrice, Document {}
 
@@ -22,12 +22,12 @@ const priceSchema = new Schema<IPriceDocument>(
     collection: "prices",
     timestamps: true,
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret) => {
         delete ret._id;
         delete ret.__v;
       },
     },
-  }
+  },
 );
 
 // Define indexes for the schema
@@ -35,8 +35,4 @@ priceSchema.index({ type_id: 1, region_id: 1, date: 1 }, { unique: true });
 priceSchema.index({ region_id: 1 }, { sparse: true });
 priceSchema.index({ date: 1 }, { sparse: true });
 
-export const Prices: Model<IPriceDocument> = model<IPriceDocument>(
-  "prices",
-  priceSchema,
-  "prices"
-);
+export const Prices: Model<IPriceDocument> = model<IPriceDocument>("prices", priceSchema, "prices");

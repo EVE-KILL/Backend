@@ -1,5 +1,5 @@
-import { Schema, model, Document, Model } from "mongoose";
-import { ISolarSystem } from "../interfaces/ISolarSystem"; // Adjust the path as necessary
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { ISolarSystem } from "../interfaces/ISolarSystem"; // Adjust the path as necessary
 
 export interface ISolarSystemDocument extends ISolarSystem, Document {}
 
@@ -38,12 +38,12 @@ const solarSystemsSchema = new Schema<ISolarSystemDocument>(
     collection: "solarSystems",
     timestamps: true,
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret) => {
         delete ret._id;
         delete ret.__v;
       },
     },
-  }
+  },
 );
 
 // Define indexes for the schema
@@ -53,5 +53,5 @@ solarSystemsSchema.index({ region_id: 1 }, { sparse: true });
 export const SolarSystems: Model<ISolarSystemDocument> = model<ISolarSystemDocument>(
   "solarsystems",
   solarSystemsSchema,
-  "solarSystems" // Explicitly specifying the collection name
+  "solarSystems", // Explicitly specifying the collection name
 );

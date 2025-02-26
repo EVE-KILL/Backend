@@ -1,5 +1,5 @@
-import { Schema, model, Document, Model } from "mongoose";
-import { IInvType } from "../interfaces/IInvType"; // Adjust the path as necessary
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { IInvType } from "../interfaces/IInvType"; // Adjust the path as necessary
 
 export interface IInvTypeDocument extends IInvType, Document {}
 
@@ -27,12 +27,12 @@ const invTypesSchema = new Schema<IInvTypeDocument>(
     collection: "invTypes",
     timestamps: true,
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret) => {
         delete ret._id;
         delete ret.__v;
       },
     },
-  }
+  },
 );
 
 invTypesSchema.index({ group_id: 1 }, { sparse: true });
@@ -40,5 +40,5 @@ invTypesSchema.index({ group_id: 1 }, { sparse: true });
 export const InvTypes: Model<IInvTypeDocument> = model<IInvTypeDocument>(
   "invTypes",
   invTypesSchema,
-  "invTypes"
+  "invTypes",
 );

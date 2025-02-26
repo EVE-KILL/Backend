@@ -1,7 +1,7 @@
 // models/Constellations.ts
 
-import { Schema, model, Document, Model } from "mongoose";
-import { IConstellation } from "../interfaces/IConstellation"; // Adjust the path as necessary
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { IConstellation } from "../interfaces/IConstellation"; // Adjust the path as necessary
 
 // Extend the IConstellation interface with Mongoose's Document interface
 export interface IConstellationDocument extends IConstellation, Document {}
@@ -29,12 +29,12 @@ const constellationsSchema = new Schema<IConstellationDocument>(
     collection: "constellations",
     timestamps: true,
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret) => {
         delete ret._id;
         delete ret.__v;
       },
     },
-  }
+  },
 );
 
 // Define indexes for the schema
@@ -44,5 +44,5 @@ constellationsSchema.index({ region_id: 1 }, { sparse: true });
 export const Constellations: Model<IConstellationDocument> = model<IConstellationDocument>(
   "constellations",
   constellationsSchema,
-  "constellations" // Explicitly specifying the collection name
+  "constellations", // Explicitly specifying the collection name
 );

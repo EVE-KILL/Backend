@@ -3,13 +3,16 @@ import { Celestials } from "../../models/Celestials";
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
-  const celestialId = parseInt(query.celestial_id as string);
-  const distanceInMeters = parseInt(query.distanceInMeters as string);
-  const days = parseInt(query.days as string) || 1;
+  const celestialId = Number.parseInt(query.celestial_id as string);
+  const distanceInMeters = Number.parseInt(query.distanceInMeters as string);
+  const days = Number.parseInt(query.days as string) || 1;
 
-  const celestial = await Celestials.findOne({ item_id: celestialId }, {
-    _id: 0,
-  });
+  const celestial = await Celestials.findOne(
+    { item_id: celestialId },
+    {
+      _id: 0,
+    },
+  );
   if (!celestial) {
     return { error: "Celestial not found" };
   }

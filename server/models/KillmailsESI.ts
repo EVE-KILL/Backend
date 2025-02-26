@@ -1,5 +1,10 @@
-import { Schema, model, Document, Model } from "mongoose";
-import { IESIAttacker, IESIVictim, IESIVictimItem, IESIKillmail } from "../interfaces/IESIKillmail";
+import { Schema, model, type Document, type Model } from "mongoose";
+import type {
+  IESIAttacker,
+  IESIVictim,
+  IESIVictimItem,
+  IESIKillmail,
+} from "../interfaces/IESIKillmail";
 
 // Extend the IESIKillmail interface with Mongoose's Document interface
 export interface IESIKillmailDocument extends IESIKillmail, Document {}
@@ -13,11 +18,11 @@ const victimItemSchema = new Schema<IESIVictimItem>(
     flag: { type: Number },
     singleton: { type: Number },
   },
-  { _id: false } // Prevents automatic creation of _id for subdocuments
+  { _id: false }, // Prevents automatic creation of _id for subdocuments
 );
 victimItemSchema.add({
   items: { type: [victimItemSchema], default: undefined, required: false },
-})
+});
 
 // Subschema for Victims
 const victimSchema = new Schema<IESIVictim>(
@@ -35,7 +40,7 @@ const victimSchema = new Schema<IESIVictim>(
       z: { type: Number },
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Subschema for Attackers
@@ -51,7 +56,7 @@ const attackerSchema = new Schema<IESIAttacker>(
     ship_type_id: { type: Number },
     weapon_type_id: { type: Number },
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Main KillmailsESI schema
@@ -62,12 +67,12 @@ const killmailsESISchema = new Schema<IESIKillmailDocument>(
     killmail_time: { type: Date },
     solar_system_id: { type: Number },
     attackers: { type: [attackerSchema] },
-    victim: { type: victimSchema }
+    victim: { type: victimSchema },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret) => {
         delete ret._id; // Removes _id from the JSON output
         delete ret.__v; // Removes __v (version key) from the JSON output
       },
@@ -93,7 +98,7 @@ killmailsESISchema.index({ "victim.alliance_id": 1 }, { sparse: true });
 export const KillmailsESI: Model<IESIKillmailDocument> = model<IESIKillmailDocument>(
   "killmails_esi",
   killmailsESISchema,
-  "killmails_esi"
+  "killmails_esi",
 );
 
 export type { IESIKillmailDocument as ESIKillmailDocument };

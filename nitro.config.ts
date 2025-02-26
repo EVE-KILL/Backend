@@ -1,8 +1,8 @@
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
 import yaml from "yaml";
 
 // Load apiCacheTimes.yaml
-const apiCacheTimes = readFileSync('./apiCacheTimes.yaml', 'utf8');
+const apiCacheTimes = readFileSync("./apiCacheTimes.yaml", "utf8");
 
 //https://nitro.unjs.io/config
 export default defineNitroConfig({
@@ -17,16 +17,14 @@ export default defineNitroConfig({
 
   esbuild: {
     options: {
-      target: 'esnext',
-    }
+      target: "esnext",
+    },
   },
 
   routeRules: routeRuleGenerator(),
 
   imports: {
-    dirs: [
-      "./server/models/**",
-    ],
+    dirs: ["./server/models/**"],
   },
 
   experimental: {
@@ -34,7 +32,7 @@ export default defineNitroConfig({
     openAPI: true,
     wasm: true,
     tasks: true,
-    websocket: true
+    websocket: true,
   },
 
   openAPI: {
@@ -50,15 +48,15 @@ export default defineNitroConfig({
         theme: "dark",
       },
       swagger: {
-        route: "/swagger"
-      }
+        route: "/swagger",
+      },
     },
   },
 
   storage: {
     redis: {
       driver: "redis",
-      url: 'redis://' + process.env.REDIS_URI ? process.env.REDIS_URI : '192.168.10.10' + ':' + process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
+      url: `redis://${process.env.REDIS_URI || "192.168.10.10"}:${process.env.REDIS_PORT ? Number.parseInt(process.env.REDIS_PORT) : 6379}`,
       database: process.env.REDIS_DB,
     },
   },
@@ -66,7 +64,7 @@ export default defineNitroConfig({
   compatibilityDate: "2024-10-13",
 });
 
-function routeRuleGenerator(debug: boolean = false): Record<string, any> {
+function routeRuleGenerator(debug = false): Record<string, any> {
   // Build route rules as an object with a default rule for /api/**
   const rules: Record<string, any> = {
     "/api/**": { cors: true },
@@ -81,13 +79,13 @@ function routeRuleGenerator(debug: boolean = false): Record<string, any> {
 
   // Merge routes from YAML:
   for (const route in cacheTimes) {
-    rules['/api' + route] = {
-      cors:true,
+    rules[`/api${route}`] = {
+      cors: true,
       cache: {
         maxAge: cacheTimes[route].maxAge || 60,
         staleMaxAge: cacheTimes[route].staleMaxAge || -1,
         swr: cacheTimes[route].swr || true,
-      }
+      },
     };
   }
 

@@ -1,7 +1,7 @@
 // models/Factions.ts
 
-import { Schema, model, Document, Model } from "mongoose";
-import { IFaction } from "../interfaces/IFaction"; // Adjust the path as necessary
+import { Schema, model, type Document, type Model } from "mongoose";
+import type { IFaction } from "../interfaces/IFaction"; // Adjust the path as necessary
 
 // Extend the IFaction interface with Mongoose's Document interface
 export interface IFactionDocument extends IFaction, Document {}
@@ -30,12 +30,12 @@ const factionsSchema = new Schema<IFactionDocument>(
     collection: "factions",
     timestamps: true,
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (_doc, ret) => {
         delete ret._id;
         delete ret.__v;
       },
     },
-  }
+  },
 );
 
 // Define indexes for the schema
@@ -45,5 +45,5 @@ factionsSchema.index({ corporation_id: 1 }, { sparse: true });
 export const Factions: Model<IFactionDocument> = model<IFactionDocument>(
   "factions",
   factionsSchema,
-  "factions" // Explicitly specifying the collection name
+  "factions", // Explicitly specifying the collection name
 );
