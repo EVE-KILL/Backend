@@ -3,7 +3,7 @@
   "scripts": {
     "build": "nitro build",
     "dev": "nitro dev",
-    "prepare": "husky",
+    "prepare": "nitro prepare",
     "husky": "husky install",
     "preview": "node .output/server/index.mjs",
     "lint": "biome check .",
