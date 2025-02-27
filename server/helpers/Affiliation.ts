@@ -1,8 +1,8 @@
+import { esiFetcher } from "../helpers/ESIFetcher";
+import { Characters } from "../models/Characters";
 import { queueUpdateAlliance } from "../queue/Alliance";
 import { queueUpdateCharacter } from "../queue/Character";
 import { queueUpdateCorporation } from "../queue/Corporation";
-import { esiFetcher } from "../helpers/ESIFetcher";
-import { Characters } from "../models/Characters";
 
 async function processChunk(characters: ICharacters[], attempt = 0): Promise<number> {
   let queuedCount = 0;
@@ -107,7 +107,6 @@ async function fetchAffiliations(characters: ICharacters[], attempts = 0) {
     // Merge the response with the affiliations
     affiliations = affiliations.concat(response);
   } catch (error) {
-    console.error("Error fetching affiliations for characters", character_ids, error);
     if (attempts > 3) {
       console.log("Failed to fetch affiliations for characters", character_ids);
       for (const character_id of character_ids) {

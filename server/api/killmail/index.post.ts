@@ -42,7 +42,6 @@ export default defineEventHandler(async (event) => {
   try {
     await km.save();
   } catch (error) {
-    console.error(`Error saving killmail: ${error}`);
     Killmails.updateOne({ killmail_id: killmail.killmail_id }, killmail);
   }
 

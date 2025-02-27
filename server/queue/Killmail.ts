@@ -1,7 +1,7 @@
-import type { IKillmail } from "../interfaces/IKillmail";
 import { fetchESIKillmail } from "../helpers/ESIData";
 import { parseKillmail } from "../helpers/KillmailParser";
 import { createQueue } from "../helpers/Queue";
+import type { IKillmail } from "../interfaces/IKillmail";
 import { Killmails } from "../models/Killmails";
 
 const killmailQueue = createQueue("killmail");
@@ -44,7 +44,6 @@ async function processKillmail(
       throw new Error("No internal auth key configured in ENV");
     }
   } catch (error) {
-    console.error(`Error saving killmail: ${error.message}`);
     await Killmails.updateOne({ killmail_id: killmailId }, processedKillmail);
   }
 

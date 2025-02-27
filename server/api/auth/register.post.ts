@@ -30,7 +30,6 @@ export default defineEventHandler(async (event) => {
   try {
     await user.save();
   } catch (error) {
-    console.error(`Error saving user: ${error}`);
     await Users.updateOne(
       { characterId: characterId },
       {

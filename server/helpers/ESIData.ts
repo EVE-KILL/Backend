@@ -1,20 +1,20 @@
-import { Characters } from "../models/Characters";
-import { Corporations } from "../models/Corporations";
-import { Alliances } from "../models/Alliances";
-import { Factions } from "../models/Factions";
-import { KillmailsESI } from "../models/KillmailsESI";
-import { InvTypes } from "../models/InvTypes";
-import { Wars } from "../models/Wars";
+import type { IWar } from "..//interfaces/IWar";
+import type { IAlliance } from "../interfaces/IAlliance";
 import type { ICharacter } from "../interfaces/ICharacter";
 import type { ICorporation } from "../interfaces/ICorporation";
-import type { IAlliance } from "../interfaces/IAlliance";
-import type { IFaction } from "../interfaces/IFaction";
 import type { IESIKillmail } from "../interfaces/IESIKillmail";
+import type { IFaction } from "../interfaces/IFaction";
 import type { IItem } from "../interfaces/IKillmail";
-import type { IWar } from "..//interfaces/IWar";
-import { esiFetcher } from "./ESIFetcher";
+import { Alliances } from "../models/Alliances";
+import { Characters } from "../models/Characters";
+import { Corporations } from "../models/Corporations";
+import { Factions } from "../models/Factions";
+import { InvTypes } from "../models/InvTypes";
+import { KillmailsESI } from "../models/KillmailsESI";
+import { Wars } from "../models/Wars";
 import { queueUpdateCharacterHistory } from "../queue/Character";
 import { queueUpdateCorporationHistory } from "../queue/Corporation";
+import { esiFetcher } from "./ESIFetcher";
 
 async function fetchESIKillmail(killmailId: number, killmailHash: string): Promise<IESIKillmail> {
   // Check if the killmail is in the KillmailESI model first
@@ -38,7 +38,6 @@ async function fetchESIKillmail(killmailId: number, killmailHash: string): Promi
     try {
       await km.save();
     } catch (err) {
-      console.error(`Error saving killmail ${killmailId}: ${err}`);
       await km.updateOne({ killmail_id: killmailId }, esiKillmail);
     }
 
@@ -119,7 +118,6 @@ async function getCharacter(
   try {
     await characterModel.save();
   } catch (error) {
-    console.error(`Error saving character ${character_id}: ${error}`);
     await Characters.updateOne({ character_id: character_id }, data);
   }
 
@@ -169,7 +167,6 @@ async function getCharacterHistory(character_id: number): Promise<Record<string,
 
     return history;
   } catch (error) {
-    console.error(`Error fetching character history: ${error}`);
     // If there's an error fetching history, return empty array
     return [];
   }
@@ -221,7 +218,6 @@ async function getCorporation(corporation_id: number, force_update = false): Pro
   try {
     await corporationModel.save();
   } catch (error) {
-    console.error(`Error saving corporation ${corporation_id}: ${error}`);
     await Corporations.updateOne({ corporation_id: corporation_id }, data);
   }
 
@@ -275,7 +271,6 @@ async function getAlliance(alliance_id: number, force_update = false): Promise<I
   try {
     await allianceModel.save();
   } catch (error) {
-    console.error(`Error saving alliance ${alliance_id}: ${error}`);
     await Alliances.updateOne({ alliance_id: alliance_id }, data);
   }
 
@@ -318,7 +313,6 @@ async function getItem(item_id: number): Promise<IItem> {
   try {
     await itemModel.save();
   } catch (error) {
-    console.error(`Error saving item ${item_id}: ${error}`);
     await InvTypes.updateOne({ type_id: item_id }, data);
   }
 
@@ -340,7 +334,6 @@ async function getWar(war_id: number): Promise<IWar> {
   try {
     await warModel.save();
   } catch (error) {
-    console.error(`Error saving war ${war_id}: ${error}`);
     await Wars.updateOne({ war_id: war_id }, data);
   }
 

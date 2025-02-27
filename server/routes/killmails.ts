@@ -62,7 +62,6 @@ export default defineWebSocketHandler({
       peer.send(JSON.stringify({ type: "subscribed", topics: topics }));
       addClient(peer, topics);
     } catch (error) {
-      console.error("Error parsing message:", error);
       peer.send(
         JSON.stringify({
           type: "error",

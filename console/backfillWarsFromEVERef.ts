@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import { glob } from "glob";
-import { Wars } from "../server/models/Wars";
 import { KillmailsESI } from "../server/models/KillmailsESI";
+import { Wars } from "../server/models/Wars";
 import { addKillmail } from "../server/queue/Killmail";
 
 export default {
@@ -30,7 +30,6 @@ export default {
         try {
           await war.save();
         } catch (err) {
-          console.error(`Error saving war ${warId}:`, err);
           await Wars.updateOne({ war_id: war.war_id }, wars);
         }
 

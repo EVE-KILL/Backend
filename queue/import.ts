@@ -1,8 +1,8 @@
 import type { Job } from "bullmq";
 import { createWorker } from "../server/helpers/Queue";
 import { Alliances } from "../server/models/Alliances";
-import { Corporations } from "../server/models/Corporations";
 import { Characters } from "../server/models/Characters";
+import { Corporations } from "../server/models/Corporations";
 
 export default {
   name: "import",
@@ -31,7 +31,6 @@ export default {
         try {
           await characterData.save();
         } catch (err) {
-          console.error(`Error saving character: ${err}`);
           await characterData.updateOne(
             { character_id: character.character_id },
             {
@@ -94,7 +93,6 @@ export default {
         try {
           await corporationData.save();
         } catch (err) {
-          console.error(`Error saving corporation: ${err}`);
           await corporationData.updateOne(
             { corporation_id: corporation.id },
             {
@@ -151,7 +149,6 @@ export default {
         try {
           await allianceData.save();
         } catch (err) {
-          console.error(`Error saving alliance: ${err}`);
           await allianceData.updateOne(
             { alliance_id: alliance.id },
             {

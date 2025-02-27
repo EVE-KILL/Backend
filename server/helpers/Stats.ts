@@ -5,6 +5,7 @@ async function calculateShortStats(type: string, id: number, days: number) {
   }
 
   if (days < 0) {
+    // biome-ignore lint:
     days = 90;
   }
 
@@ -102,6 +103,7 @@ async function calculateFullStats(type: string, id: number, days: number): Promi
   }
 
   if (days < 0) {
+    // biome-ignore lint:
     days = 90;
   }
 
