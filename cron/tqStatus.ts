@@ -7,9 +7,12 @@ export default {
   schedule: "* * * * *",
   run: async () => {
     cliLogger.info("Checking TQ status...");
-    const requestOptions: RequestInit = {};
-    requestOptions.headers["User-Agent"] =
-      "EVE-KILL Nitro/1.0 (michael@karbowiak.dk; +https://github.com/eve-kill/backend; @lilllamah; @Karbowiak)";
+    const requestOptions: RequestInit = {
+      headers: {
+        "User-Agent":
+          "EVE-KILL Nitro/1.0 (michael@karbowiak.dk; +https://github.com/eve-kill/backend; @lilllamah; @Karbowiak)",
+      },
+    };
 
     const request = await fetch(
       `${process.env.ESI_URL || "https://esi.evetech.net/"}/latest/status/?datasource=tranquility`,
