@@ -1,7 +1,7 @@
 import { cliLogger } from "../server/helpers/Logger";
 import { createQueue } from "../server/helpers/Queue";
-import { addKillmail } from "../server/queue/Killmail";
 import { KillmailsESI } from "../server/models/KillmailsESI";
+import { addKillmail } from "../server/queue/Killmail";
 
 export default {
   name: "processUnprocessedKillmails",
@@ -27,7 +27,7 @@ export default {
     const unprocessedKillmails = await KillmailsESI.aggregate([
       {
         $lookup: {
-          from: "Killmails",
+          from: "killmails",
           localField: "killmail_id",
           foreignField: "killmail_id",
           as: "matched",
