@@ -18,6 +18,7 @@ async function addKillmail(killmailId: number, killmailHash: string, warId = 0, 
         delay: 5000, // 5 seconds
       },
       removeOnComplete: true,
+      removeOnFail: true,
     },
   );
 }

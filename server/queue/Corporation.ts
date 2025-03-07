@@ -16,6 +16,7 @@ async function queueUpdateCorporation(corporationId: number, priority = 1) {
         delay: 5000, // 5 seconds
       },
       removeOnComplete: true,
+      removeOnFail: true,
     },
   );
 }

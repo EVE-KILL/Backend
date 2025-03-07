@@ -15,6 +15,7 @@ async function queueUpdateWar(warId: number, priority = 1) {
         delay: 5000, // 5 minutes
       },
       removeOnComplete: true,
+      removeOnFail: true,
     },
   );
 }

@@ -15,6 +15,7 @@ async function queueUpdateAlliance(allianceId: number, priority = 1) {
         delay: 5000, // 5 seconds
       },
       removeOnComplete: true,
+      removeOnFail: true,
     },
   );
 }
