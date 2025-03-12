@@ -1,20 +1,19 @@
-import { Config } from "../server/models/Config";
-import bz2 from "unbzip2-stream";
-import { promisify } from "node:util";
-import { pipeline, Readable } from "node:stream";
 import fs from "node:fs";
-import fetch from "node-fetch";
-import sqlite3 from "sqlite3";
+import { Readable, pipeline } from "node:stream";
+import { promisify } from "node:util";
 import { open } from "sqlite";
+import sqlite3 from "sqlite3";
+import bz2 from "unbzip2-stream";
 // Import Models
 import { Celestials } from "../server/models/Celestials";
-import { InvFlags } from "../server/models/InvFlags";
-import { InvTypes } from "../server/models/InvTypes";
-import { Factions } from "../server/models/Factions";
-import { InvGroups } from "../server/models/InvGroups";
-import { SolarSystems } from "../server/models/SolarSystems";
-import { Regions } from "../server/models/Regions";
+import { Config } from "../server/models/Config";
 import { Constellations } from "../server/models/Constellations";
+import { Factions } from "../server/models/Factions";
+import { InvFlags } from "../server/models/InvFlags";
+import { InvGroups } from "../server/models/InvGroups";
+import { InvTypes } from "../server/models/InvTypes";
+import { Regions } from "../server/models/Regions";
+import { SolarSystems } from "../server/models/SolarSystems";
 
 const pipe = promisify(pipeline);
 
