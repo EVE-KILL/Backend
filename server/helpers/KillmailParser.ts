@@ -338,7 +338,7 @@ async function processItems(items: IESIVictimItem[], killmail_date: Date): Promi
       const value = await getCachedPrice(Number(item.item_type_id), killmail_date);
       return {
         type_id: item.item_type_id || 0,
-        type_name: type?.name || { en: "" },
+        name: type?.name || { en: "" },
         group_id: type?.group_id || 0,
         group_name: group?.name || { en: "" },
         category_id: group?.category_id || 0,

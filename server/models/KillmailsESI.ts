@@ -86,6 +86,7 @@ killmailsESISchema.index({ killmail_id: 1, killmail_hash: 1 }, { unique: true })
 killmailsESISchema.index({ killmail_time: -1 }, { sparse: true });
 killmailsESISchema.index({ createdAt: 1 }, { sparse: true });
 killmailsESISchema.index({ updatedAt: 1 }, { sparse: true });
+killmailsESISchema.index({ processed: 1 }, { sparse: true });
 killmailsESISchema.index({ killmail_time: -1, processed: 1 }, { sparse: true });
 
 // Add indexes for attackers and victim (character_id, corporation_id and alliance_id)
