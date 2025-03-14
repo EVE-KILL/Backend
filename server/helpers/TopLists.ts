@@ -1,11 +1,11 @@
-import type { ICharacter } from "~/interfaces/ICharacter";
-import { Killmails } from "../models/Killmails";
-import type { ICorporation } from "~/interfaces/ICorporation";
 import type { IAlliance } from "~/interfaces/IAlliance";
-import type { ISolarSystem } from "~/interfaces/ISolarSystem";
+import type { ICharacter } from "~/interfaces/ICharacter";
+import type { IConstellation } from "~/interfaces/IConstellation";
+import type { ICorporation } from "~/interfaces/ICorporation";
 import type { IInvType } from "~/interfaces/IInvType";
 import type { IRegion } from "~/interfaces/IRegion";
-import type { IConstellation } from "~/interfaces/IConstellation";
+import type { ISolarSystem } from "~/interfaces/ISolarSystem";
+import { Killmails } from "../models/Killmails";
 
 // Earliest known killmail is from 2007-12-05
 const timeSinceEarlyDays: Date = new Date("2007-12-05T00:00:00Z");
@@ -382,7 +382,7 @@ async function topShips(
       const data: IInvType | null = await InvTypes.findOne({ type_id: ship.id });
       return {
         type_id: ship.id,
-        name: data?.type_name || "Unknown",
+        name: data?.name || "Unknown",
         count: ship.count,
       };
     }),

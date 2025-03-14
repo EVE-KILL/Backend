@@ -1,3 +1,4 @@
+import { cliLogger } from "../server/helpers/Logger";
 import { Meilisearch } from "../server/helpers/Meilisearch";
 import type { IAlliance } from "../server/interfaces/IAlliance";
 import type { ICharacter } from "../server/interfaces/ICharacter";
@@ -6,7 +7,6 @@ import type { IFaction } from "../server/interfaces/IFaction";
 import type { IInvType } from "../server/interfaces/IInvType";
 import type { IRegion } from "../server/interfaces/IRegion";
 import type { ISolarSystem } from "../server/interfaces/ISolarSystem";
-import { cliLogger } from "../server/helpers/Logger";
 import { Alliances } from "../server/models/Alliances";
 import { Characters } from "../server/models/Characters";
 import { Corporations } from "../server/models/Corporations";
@@ -198,14 +198,14 @@ async function getEntities(entityType: string, skip: number, limit: number) {
         { published: true },
         {
           type_id: 1,
-          type_name: 1,
+          name: 1,
         },
       )
         .skip(skip)
         .limit(limit);
       return items.map((item: IInvType) => ({
         id: item.type_id,
-        name: item.type_name,
+        name: item.name,
         type: "item",
         rank: 1,
       }));

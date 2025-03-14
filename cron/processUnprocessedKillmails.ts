@@ -20,15 +20,15 @@ export default {
       };
     }
 
-    // Limit it to 10k mails at a time
-    const limit = 10000;
+    // Limit it to 1 million mails at a time
+    const limit = 1000000;
 
     const unprocessedKillmails = await KillmailsESI.find(
       {
         processed: false,
       },
       { killmail_id: 1, killmail_hash: 1 },
-      { limit: limit },
+      { limit: limit, sort: { killmail_time: -1 }, hint: "killmail_time_-1_processed_1" },
     );
 
     await killmailQueue.addBulk(

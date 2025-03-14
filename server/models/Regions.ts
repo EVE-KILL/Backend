@@ -1,24 +1,22 @@
-import { Schema, model, type Document, type Model } from "mongoose";
+import { type Document, type Model, Schema, model } from "mongoose";
 import type { IRegion } from "../interfaces/IRegion"; // Adjust the path as necessary
 
 export interface IRegionDocument extends IRegion, Document {}
 
 const regionsSchema = new Schema<IRegionDocument>(
   {
-    region_id: { type: Number, unique: true },
-    region_name: { type: String },
-    x: { type: Number },
-    y: { type: Number },
-    z: { type: Number },
-    x_min: { type: Number },
-    x_max: { type: Number },
-    y_min: { type: Number },
-    y_max: { type: Number },
-    z_min: { type: Number },
-    z_max: { type: Number },
+    center: { type: Object, required: true },
+    description_id: { type: Number },
     faction_id: { type: Number },
-    nebula: { type: Number },
-    radius: { type: Number },
+    max: { type: Object, required: true },
+    min: { type: Object, required: true },
+    name_id: { type: Number },
+    region_id: { type: Number, unique: true },
+    wormhole_class_id: { type: Number },
+    nebula_id: { type: Number },
+    universe_id: { type: String, required: true },
+    description: { type: Object, required: true },
+    name: { type: Object, required: true },
     updatedAt: { type: Date },
     createdAt: { type: Date },
   },

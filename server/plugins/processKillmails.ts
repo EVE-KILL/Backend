@@ -15,18 +15,14 @@ export default defineNitroPlugin(() => {
   createWorker(
     "killmail",
     async (job: Job) => {
-      try {
-        if (job.data.killmailId && job.data.killmailHash) {
-          const killmail = await processKillmail(
-            job.data.killmailId,
-            job.data.killmailHash,
-            job.data.warId || 0,
-          );
-          const routingKeys = determineRoutingKeys(killmail);
-          broadcastKillmail(killmail, routingKeys);
-        }
-      } catch (error) {
-        console.log("ERROR: ", error.message);
+      if (job.data.killmailId && job.data.killmailHash) {
+        const killmail = await processKillmail(
+          job.data.killmailId,
+          job.data.killmailHash,
+          job.data.warId || 0,
+        );
+        const routingKeys = determineRoutingKeys(killmail);
+        broadcastKillmail(killmail, routingKeys);
       }
     },
     {
@@ -43,6 +39,6 @@ export default defineNitroPlugin(() => {
       );
     })
     .on("completed", (_job: Job) => {
-      //console.log('Killmail Parser:', job.id, '( KillID:', job.data.killmailId, ') | Completed');
+      //console.log('Killmail Parser:', _job.id, '( KillID:', _job.data.killmailId, ') | Completed');
     });
 });

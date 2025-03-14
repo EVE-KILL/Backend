@@ -1,8 +1,10 @@
+import type { ITranslation } from "./ITranslation";
+
 export interface IAttacker {
   ship_id: number;
-  ship_name: string;
+  ship_name: ITranslation;
   ship_group_id: number;
-  ship_group_name: string;
+  ship_group_name: ITranslation;
   character_id: number;
   character_name: string;
   corporation_id: number;
@@ -15,14 +17,14 @@ export interface IAttacker {
   damage_done: number;
   final_blow: boolean;
   weapon_type_id: number;
-  weapon_type_name: string;
+  weapon_type_name: ITranslation;
 }
 
 export interface IItem {
   type_id: number;
-  type_name: string;
+  name: ITranslation;
   group_id: number;
-  group_name: string;
+  group_name: ITranslation;
   category_id: number;
   flag: number;
   qty_dropped: number;
@@ -34,9 +36,9 @@ export interface IItem {
 
 export interface IVictim {
   ship_id: number;
-  ship_name: string;
+  ship_name: ITranslation;
   ship_group_id: number;
-  ship_group_name: string;
+  ship_group_name: ITranslation;
   damage_taken: number;
   character_id: number;
   character_name: string;
@@ -61,7 +63,7 @@ export interface IKillmail {
   kill_time_str: string;
   near: string;
   region_id: number;
-  region_name: string;
+  region_name: ITranslation;
   ship_value: number;
   system_id: number;
   system_name: string;

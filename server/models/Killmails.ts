@@ -1,16 +1,16 @@
 // models/Killmails.ts
 
-import { Schema, model, type Document, type Model } from "mongoose";
-import type { IKillmail, IAttacker, IItem, IVictim } from "../interfaces/IKillmail"; // Adjust the path as necessary
+import { type Document, type Model, Schema, model } from "mongoose";
+import type { IAttacker, IItem, IKillmail, IVictim } from "../interfaces/IKillmail"; // Adjust the path as necessary
 
 export interface IKillmailDocument extends IKillmail, Document {}
 
 const attackerSchema = new Schema<IAttacker>(
   {
     ship_id: { type: Number },
-    ship_name: { type: String },
+    ship_name: { type: Object },
     ship_group_id: { type: Number },
-    ship_group_name: { type: String },
+    ship_group_name: { type: Object },
     character_id: { type: Number },
     character_name: { type: String },
     corporation_id: { type: Number },
@@ -23,7 +23,7 @@ const attackerSchema = new Schema<IAttacker>(
     damage_done: { type: Number },
     final_blow: { type: Boolean },
     weapon_type_id: { type: Number },
-    weapon_type_name: { type: String },
+    weapon_type_name: { type: Object },
   },
   { _id: false },
 );
@@ -31,9 +31,9 @@ const attackerSchema = new Schema<IAttacker>(
 const itemSchema = new Schema<IItem>(
   {
     type_id: { type: Number },
-    type_name: { type: String },
+    name: { type: Object },
     group_id: { type: Number },
-    group_name: { type: String },
+    group_name: { type: Object },
     category_id: { type: Number },
     flag: { type: Number },
     qty_dropped: { type: Number },
@@ -50,9 +50,9 @@ itemSchema.add({
 const victimSchema = new Schema<IVictim>(
   {
     ship_id: { type: Number },
-    ship_name: { type: String },
+    ship_name: { type: Object },
     ship_group_id: { type: Number },
-    ship_group_name: { type: String },
+    ship_group_name: { type: Object },
     damage_taken: { type: Number },
     character_id: { type: Number },
     character_name: { type: String },
@@ -80,7 +80,7 @@ const killmailsSchema = new Schema<IKillmailDocument>(
     kill_time_str: { type: String },
     near: { type: String },
     region_id: { type: Number },
-    region_name: { type: String },
+    region_name: { type: Object },
     ship_value: { type: Number },
     system_id: { type: Number },
     system_name: { type: String },

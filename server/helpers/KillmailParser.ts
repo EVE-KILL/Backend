@@ -5,22 +5,23 @@ import type {
   IESIVictimItem,
 } from "../interfaces/IESIKillmail";
 import type { IAttacker, IItem, IKillmail, IVictim } from "../interfaces/IKillmail";
-import { Characters } from "../models/Characters";
+import type { ITranslation } from "../interfaces/ITranslation";
 import { Celestials } from "../models/Celestials";
+import { Characters } from "../models/Characters";
 
 import {
-  getCachedSolarSystem,
-  getCachedRegion,
-  getCachedConstellation,
-  getCachedItem,
-  getCachedInvGroup,
-  getCachedCharacter,
-  getCachedCorporation,
-  getCachedAlliance,
-  getCachedFaction,
-  getCachedPrice,
-  nearCache,
   cacheHits,
+  getCachedAlliance,
+  getCachedCharacter,
+  getCachedConstellation,
+  getCachedCorporation,
+  getCachedFaction,
+  getCachedInvGroup,
+  getCachedItem,
+  getCachedPrice,
+  getCachedRegion,
+  getCachedSolarSystem,
+  nearCache,
 } from "./RuntimeCache";
 
 async function parseKillmail(killmail: IESIKillmail, warId = 0): Promise<Partial<IKillmail>> {
@@ -104,7 +105,7 @@ async function getItemValue(
   const flag = item.flag;
 
   const id = await getCachedItem(typeId);
-  const itemName = id?.type_name || `Type ID ${typeId}`;
+  const itemName: ITranslation = id?.name || { en: `Type ID ${typeId}` };
 
   let price = 0;
 
@@ -114,7 +115,7 @@ async function getItemValue(
     price = await getCachedPrice(typeId, killTime);
   }
 
-  if (isCargo && itemName.includes("Blueprint")) {
+  if (isCargo && itemName.en.includes("Blueprint")) {
     item.singleton = 2;
   }
 
@@ -133,6 +134,7 @@ async function generateTop(killmail: IESIKillmail, warId = 0): Promise<Partial<I
     getCachedSolarSystem(killmail.solar_system_id),
     calculateKillValue(killmail),
   ]);
+
   let constellation = null;
   let region = null;
   if (solarSystem) {
@@ -154,7 +156,7 @@ async function generateTop(killmail: IESIKillmail, warId = 0): Promise<Partial<I
     constellation_id: solarSystem?.constellation_id || 0,
     constellation_name: constellation?.constellation_name || "",
     region_id: solarSystem?.region_id || 0,
-    region_name: region?.region_name || "",
+    region_name: region?.name || { en: "" },
     near: await getNear(Number(x), Number(y), Number(z), Number(killmail.solar_system_id)),
     x,
     y,
@@ -180,12 +182,12 @@ async function processVictim(victim: IESIVictim): Promise<IVictim> {
 
   return {
     ship_id: victim.ship_type_id || 0,
-    ship_name: ship?.type_name || "",
+    ship_name: ship?.name || { en: "" },
     ship_group_id: shipGroup?.group_id || 0,
-    ship_group_name: shipGroup?.group_name || "",
+    ship_group_name: shipGroup?.name || { en: "" },
     damage_taken: victim.damage_taken || 0,
     character_id: victim.character_id || 0,
-    character_name: character?.name || ship?.type_name || "",
+    character_name: character?.name || ship?.name.en || "",
     corporation_id: victim.corporation_id || 0,
     corporation_name: corporation.name || "",
     alliance_id: victim.alliance_id || 0,
@@ -306,11 +308,11 @@ async function processAttackers(attackers: IESIAttacker[]): Promise<IAttacker[]>
         : null;
       return {
         ship_id: attacker.ship_type_id || attacker.weapon_type_id || 0,
-        ship_name: ship?.type_name || weapon?.type_name || "",
+        ship_name: ship?.name || weapon?.name || { en: "" },
         ship_group_id: shipGroup?.group_id || 0,
-        ship_group_name: shipGroup?.group_name || "",
+        ship_group_name: shipGroup?.name || { en: "" },
         character_id: attacker.character_id || 0,
-        character_name: character?.name || ship?.type_name || weapon?.type_name || "",
+        character_name: character?.name || ship?.name.en || weapon?.name.en || "",
         corporation_id: attacker.corporation_id || 0,
         corporation_name: corporation?.name || "",
         alliance_id: attacker.alliance_id || 0,
@@ -321,7 +323,7 @@ async function processAttackers(attackers: IESIAttacker[]): Promise<IAttacker[]>
         damage_done: attacker.damage_done,
         final_blow: attacker.final_blow,
         weapon_type_id: attacker.weapon_type_id || 0,
-        weapon_type_name: weapon?.type_name || "",
+        weapon_type_name: weapon?.name || { en: "" },
       };
     }),
   );
@@ -336,9 +338,9 @@ async function processItems(items: IESIVictimItem[], killmail_date: Date): Promi
       const value = await getCachedPrice(Number(item.item_type_id), killmail_date);
       return {
         type_id: item.item_type_id || 0,
-        type_name: type?.type_name || "",
+        type_name: type?.name || { en: "" },
         group_id: type?.group_id || 0,
-        group_name: group?.group_name || "",
+        group_name: group?.name || { en: "" },
         category_id: group?.category_id || 0,
         flag: item.flag || 0,
         qty_dropped: Number(item.quantity_dropped || 0),

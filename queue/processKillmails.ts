@@ -1,7 +1,7 @@
 import type { Job } from "bullmq";
+import { cliLogger } from "../server/helpers/Logger";
 import { createWorker } from "../server/helpers/Queue";
 import { processKillmail } from "../server/queue/Killmail";
-import { cliLogger } from "../server/helpers/Logger";
 
 export default {
   name: "process:killmails",
@@ -16,6 +16,7 @@ export default {
           await processKillmail(job.data.killmailId, job.data.killmailHash, job.data.warId || 0);
         } catch (error) {
           cliLogger.error(`ERROR: ${error.message}`);
+          cliLogger.error(`Job ID: ${job.id} | Killmail ID: ${job.data.killmailId}`);
         }
       },
       {

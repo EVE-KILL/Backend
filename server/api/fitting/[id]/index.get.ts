@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
     {
       _id: 0,
       "items.type_id": 1,
-      "items.type_name": 1,
+      "items.name": 1,
       "items.group_id": 1,
       "items.group_name": 1,
       "items.flag": 1,

@@ -274,35 +274,10 @@ async function getFaction(faction_id: number): Promise<IFaction | null> {
 }
 
 async function getItem(item_id: number): Promise<IItem> {
-  const item: IItem | null = await InvTypes.findOne(
+  return await InvTypes.findOne(
     { type_id: item_id },
     { _id: 0, __v: 0, createdAt: 0, updatedAt: 0 },
   );
-
-  if (item) {
-    return item;
-  }
-
-  // Fetch item from external API if not found
-  const data = await esiFetcher(
-    `${process.env.ESI_URL || "https://esi.evetech.net/"}latest/universe/types/${item_id}/?datasource=tranquility`,
-  );
-
-  data.type_id = item_id;
-
-  // Rename name to type_name
-  data.type_name = data.name;
-
-  // Save item to database
-  const itemModel = new InvTypes(data);
-  try {
-    await itemModel.save();
-  } catch (error) {
-    await InvTypes.updateOne({ type_id: item_id }, data);
-  }
-
-  // Return item
-  return data;
 }
 
 async function getWar(war_id: number): Promise<IWar> {

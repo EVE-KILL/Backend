@@ -1,3 +1,4 @@
+import { exec } from "node:child_process";
 import fs from "node:fs";
 import { Readable, pipeline } from "node:stream";
 import { promisify } from "node:util";
@@ -25,6 +26,7 @@ export default {
     console.log("Updating SDE");
     const sqliteUrl = "https://www.fuzzwork.co.uk/dump/sqlite-latest.sqlite.bz2";
     const sqliteMd5Url = "https://www.fuzzwork.co.uk/dump/sqlite-latest.sqlite.bz2.md5";
+    const everefUrl = "https://data.everef.net/reference-data/reference-data-latest.tar.xz";
     const localDbPath = "/tmp/sqlite-latest.sqlite";
 
     // Fetch remote MD5
@@ -56,6 +58,34 @@ export default {
     // Use the pipeline to handle the stream
     await pipe(nodeStream, bz2(), writeStream);
 
+    // Download and extract the everef data
+    console.log("Downloading everef data...");
+    const everefResponse = await fetch(everefUrl);
+    if (!everefResponse.ok) {
+      throw new Error(`Failed to fetch ${everefUrl}`);
+    }
+    const everefWriteStream = fs.createWriteStream("/tmp/everef-latest.tar.xz");
+    const everefNodeStream = Readable.fromWeb(everefResponse.body);
+    await pipe(everefNodeStream, everefWriteStream);
+    console.log("Extracting everef data...");
+    await new Promise<void>((resolve, reject) => {
+      const tar = exec("tar -xf /tmp/everef-latest.tar.xz -C /tmp", (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error extracting everef data: ${error.message}`);
+          return reject(error);
+        }
+        if (stderr) {
+          console.error(`Error extracting everef data: ${stderr}`);
+          return reject(new Error(stderr));
+        }
+        console.log(`everef data extracted: ${stdout}`);
+      });
+      tar.on("close", () => {
+        console.log("everef data extraction complete");
+        resolve();
+      });
+    });
+
     await updateCelestials();
     await updateSolarSystems();
     await updateRegions();
@@ -74,36 +104,24 @@ export default {
 };
 
 async function invTypes() {
-  const db = await connectToDatabase();
-  const results = await db?.all(`
-        SELECT
-        invTypes.typeID AS type_id,
-        invTypes.groupID AS group_id,
-        invTypes.typeName AS type_name,
-        invTypes.description AS description,
-        invTypes.mass AS mass,
-        invTypes.volume AS volume,
-        invTypes.capacity AS capacity,
-        invTypes.portionSize AS portion_size,
-        invTypes.raceID AS race_id,
-        invTypes.basePrice AS base_price,
-        invTypes.published AS published,
-        invTypes.marketGroupID AS market_group_id,
-        invTypes.iconID AS icon_id,
-        invTypes.soundID AS sound_id,
-        invTypes.graphicID AS graphic_id
-        FROM invTypes
-    `);
+  // Use everef for invTypes
+  const filePath = "/tmp/types.json";
+  const fileContent = fs.readFileSync(filePath, "utf-8");
+  const parsed = JSON.parse(fileContent);
+  const types = Array.isArray(parsed) ? parsed : Object.values(parsed);
 
-  console.log(`Found ${results.length} invTypes`);
+  console.log(`Found ${types.length} invTypes`);
+  const bulkOps = [];
 
-  const bulkOps = results.map((result) => ({
-    updateOne: {
-      filter: { type_id: result.type_id },
-      update: { $set: result },
-      upsert: true,
-    },
-  }));
+  for (const result of types) {
+    bulkOps.push({
+      updateOne: {
+        filter: { type_id: result.type_id },
+        update: { $set: result },
+        upsert: true,
+      },
+    });
+  }
 
   if (bulkOps.length > 0) {
     const response = await InvTypes.bulkWrite(bulkOps);
@@ -179,30 +197,24 @@ async function invFlags() {
 }
 
 async function invGroups() {
-  const db = await connectToDatabase();
-  const results = await db?.all(`
-        SELECT
-        invGroups.groupID AS group_id,
-        invGroups.categoryID AS category_id,
-        invGroups.groupName AS group_name,
-        invGroups.iconID AS icon_id,
-        invGroups.useBasePrice AS use_base_price,
-        invGroups.anchored AS anchored,
-        invGroups.anchorable AS anchorable,
-        invGroups.fittableNonSingleton AS fittable_non_singleton,
-        invGroups.published AS published
-        FROM invGroups
-    `);
+  // Use everef for invTypes
+  const filePath = "/tmp/groups.json";
+  const fileContent = fs.readFileSync(filePath, "utf-8");
+  const parsed = JSON.parse(fileContent);
+  const groups = Array.isArray(parsed) ? parsed : Object.values(parsed);
 
-  console.log(`Found ${results.length} invGroups`);
+  console.log(`Found ${groups.length} invGroups`);
+  const bulkOps = [];
 
-  const bulkOps = results.map((result) => ({
-    updateOne: {
-      filter: { group_id: result.group_id },
-      update: { $set: result },
-      upsert: true,
-    },
-  }));
+  for (const result of groups) {
+    bulkOps.push({
+      updateOne: {
+        filter: { group_id: result.group_id },
+        update: { $set: result },
+        upsert: true,
+      },
+    });
+  }
 
   if (bulkOps.length > 0) {
     const response = await InvGroups.bulkWrite(bulkOps);
@@ -312,35 +324,24 @@ async function updateSolarSystems() {
 }
 
 async function updateRegions() {
-  const db = await connectToDatabase();
-  const results = await db?.all(`
-        SELECT
-        mapRegions.regionID AS region_id,
-        mapRegions.regionName AS region_name,
-        mapRegions.x AS x,
-        mapRegions.y AS y,
-        mapRegions.z AS z,
-        mapRegions.xMin AS x_min,
-        mapRegions.xMax AS x_max,
-        mapRegions.yMin AS y_min,
-        mapRegions.yMax AS y_max,
-        mapRegions.zMin AS z_min,
-        mapRegions.zMax AS z_max,
-        mapRegions.factionID AS faction_id,
-        mapRegions.nebula AS nebula,
-        mapRegions.radius AS radius
-        FROM mapRegions
-    `);
+  // Use everef for invTypes
+  const filePath = "/tmp/regions.json";
+  const fileContent = fs.readFileSync(filePath, "utf-8");
+  const parsed = JSON.parse(fileContent);
+  const regions = Array.isArray(parsed) ? parsed : Object.values(parsed);
 
-  console.log(`Found ${results.length} Regions`);
+  console.log(`Found ${regions.length} regions`);
+  const bulkOps = [];
 
-  const bulkOps = results.map((result) => ({
-    updateOne: {
-      filter: { region_id: result.region_id },
-      update: { $set: result },
-      upsert: true,
-    },
-  }));
+  for (const result of regions) {
+    bulkOps.push({
+      updateOne: {
+        filter: { region_id: result.region_id },
+        update: { $set: result },
+        upsert: true,
+      },
+    });
+  }
 
   if (bulkOps.length > 0) {
     const response = await Regions.bulkWrite(bulkOps);

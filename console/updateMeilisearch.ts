@@ -6,9 +6,9 @@ import type { IFaction } from "../server/interfaces/IFaction";
 import type { IInvType } from "../server/interfaces/IInvType";
 import type { IRegion } from "../server/interfaces/IRegion";
 import type { ISolarSystem } from "../server/interfaces/ISolarSystem";
+import { Alliances } from "../server/models/Alliances";
 import { Characters } from "../server/models/Characters";
 import { Corporations } from "../server/models/Corporations";
-import { Alliances } from "../server/models/Alliances";
 import { Factions } from "../server/models/Factions";
 import { InvTypes } from "../server/models/InvTypes";
 import { Regions } from "../server/models/Regions";
@@ -193,14 +193,14 @@ async function getEntities(entityType: string, skip: number, limit: number) {
         { published: true },
         {
           type_id: 1,
-          type_name: 1,
+          name: 1,
         },
       )
         .skip(skip)
         .limit(limit);
       return items.map((item: IInvType) => ({
         id: item.type_id,
-        name: item.type_name,
+        name: item.name,
         type: "item",
         rank: 1,
       }));

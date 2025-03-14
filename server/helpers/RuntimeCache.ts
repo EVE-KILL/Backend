@@ -1,25 +1,25 @@
-import { InvGroups } from "../models/InvGroups";
-import { InvTypes } from "../models/InvTypes";
-import { InvFlags } from "../models/InvFlags";
-import { Factions } from "../models/Factions";
-import { Regions } from "../models/Regions";
-import { Constellations } from "../models/Constellations";
-import { SolarSystems } from "../models/SolarSystems";
-import { CustomPrices } from "../models/CustomPrices";
 import { LRUCache } from "lru-cache";
-import { getCharacter, getCorporation, getAlliance } from "./ESIData";
-import { getPrice } from "./Prices";
-import type { ICustomPrice } from "~/interfaces/ICustomPrice";
-import type { ISolarSystem } from "~/interfaces/ISolarSystem";
+import type { IAlliance } from "~/interfaces/IAlliance";
+import type { ICharacter } from "~/interfaces/ICharacter";
 import type { IConstellation } from "~/interfaces/IConstellation";
-import type { IRegion } from "~/interfaces/IRegion";
+import type { ICorporation } from "~/interfaces/ICorporation";
+import type { ICustomPrice } from "~/interfaces/ICustomPrice";
 import type { IFaction } from "~/interfaces/IFaction";
-import type { IInvType } from "~/interfaces/IInvType";
 import type { IInvFlag } from "~/interfaces/IInvFlag";
 import type { IInvGroup } from "~/interfaces/IInvGroup";
-import type { ICharacter } from "~/interfaces/ICharacter";
-import type { ICorporation } from "~/interfaces/ICorporation";
-import type { IAlliance } from "~/interfaces/IAlliance";
+import type { IInvType } from "~/interfaces/IInvType";
+import type { IRegion } from "~/interfaces/IRegion";
+import type { ISolarSystem } from "~/interfaces/ISolarSystem";
+import { Constellations } from "../models/Constellations";
+import { CustomPrices } from "../models/CustomPrices";
+import { Factions } from "../models/Factions";
+import { InvFlags } from "../models/InvFlags";
+import { InvGroups } from "../models/InvGroups";
+import { InvTypes } from "../models/InvTypes";
+import { Regions } from "../models/Regions";
+import { SolarSystems } from "../models/SolarSystems";
+import { getAlliance, getCharacter, getCorporation } from "./ESIData";
+import { getPrice } from "./Prices";
 
 export const invGroupsCache = new Map<number, IInvGroup>();
 export const invTypesCache = new Map<number, IInvType>();
@@ -226,7 +226,7 @@ export async function getCachedSolarSystem(solarSystemId: number): Promise<ISola
     cacheHits.solarSystems++;
     return solarSystemsCache.get(solarSystemId) as ISolarSystem | null;
   }
-  const solarSystem = await SolarSystems.findOne({ solar_system_id: solarSystemId });
+  const solarSystem = await SolarSystems.findOne({ system_id: solarSystemId });
   if (solarSystem) solarSystemsCache.set(solarSystemId, solarSystem);
   return solarSystem;
 }
