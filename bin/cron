@@ -1,4 +1,4 @@
-#!/usr/bin/env bun --bun
+#!/usr/bin/env bun
 import path from "node:path";
 import fs from "node:fs/promises";
 import { CronExpressionParser } from "cron-parser";

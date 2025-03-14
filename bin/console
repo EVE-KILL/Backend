@@ -1,4 +1,4 @@
-#!/usr/bin/env bun --bun
+#!/usr/bin/env bun
 
 import { Command } from 'commander';
 import path from 'node:path';
