@@ -42,7 +42,7 @@ async function processKillmail(
   } catch (error) {
     await Killmails.updateOne({ killmail_id: killmailId }, processedKillmail);
   } finally {
-    KillmailsESI.updateOne(
+    await KillmailsESI.updateOne(
       { killmail_id: killmailId },
       { $set: { processed: true } },
       { upsert: true },
