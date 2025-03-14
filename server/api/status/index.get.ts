@@ -1,21 +1,21 @@
+import os from "node:os";
 import { createQueue } from "~/helpers/Queue";
 import {
-  solarSystemsCache,
-  regionsCache,
-  nearCache,
-  constellationsCache,
-  customPriceCache,
-  invGroupsCache,
-  invTypesCache,
-  invFlagsCache,
-  factionsCache,
-  priceCache,
-  characterCache,
-  corporationCache,
   allianceCache,
   cacheHits,
+  characterCache,
+  constellationsCache,
+  corporationCache,
+  customPriceCache,
+  factionsCache,
+  invFlagsCache,
+  invGroupsCache,
+  invTypesCache,
+  nearCache,
+  priceCache,
+  regionsCache,
+  solarSystemsCache,
 } from "~/helpers/RuntimeCache";
-import os from "node:os";
 
 const startTime = new Date();
 export default defineEventHandler(async () => {
@@ -122,6 +122,7 @@ export default defineEventHandler(async () => {
       invTypes: formatNumber(invTypeCount),
       killmails: formatNumber(killmailCount),
       esiKillmails: formatNumber(esiKillmailCount),
+      unprocessedCount: formatNumber(esiKillmailCount - killmailCount),
       prices: formatNumber(priceCount),
       regions: formatNumber(regionCount),
       solarSystems: formatNumber(solarSystemsCount),
