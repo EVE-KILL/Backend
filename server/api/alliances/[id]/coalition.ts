@@ -84,8 +84,8 @@ export default defineEventHandler(async (event) => {
   result.sort((a, b) => b.count - a.count);
   const topTen = result.slice(0, 10);
 
-  return {
-    killmailCount,
-    alliances: topTen,
-  };
+  return topTen.map(({ alliance_id, name }) => ({
+    alliance_id,
+    name: name,
+  }));
 });
