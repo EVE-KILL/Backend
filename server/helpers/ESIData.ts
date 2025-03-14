@@ -67,12 +67,6 @@ async function getCharacter(
   );
 
   if (character) {
-    if (force_update) {
-      await Characters.updateOne(
-        { character_id: character_id },
-        { $set: { updatedAt: new Date() } },
-      );
-    }
     return character;
   }
 
@@ -187,12 +181,6 @@ async function getCorporation(corporation_id: number, force_update = false): Pro
   );
 
   if (corporation) {
-    if (force_update) {
-      await Corporations.updateOne(
-        { corporation_id: corporation_id },
-        { $set: { updatedAt: new Date() } },
-      );
-    }
     return corporation;
   }
 
@@ -252,9 +240,6 @@ async function getAlliance(alliance_id: number, force_update = false): Promise<I
   );
 
   if (alliance) {
-    if (force_update) {
-      await Alliances.updateOne({ alliance_id: alliance_id }, { $set: { updatedAt: new Date() } });
-    }
     return alliance;
   }
 
