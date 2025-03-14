@@ -3,6 +3,7 @@ import { parseKillmail } from "../helpers/KillmailParser";
 import { createQueue } from "../helpers/Queue";
 import type { IKillmail } from "../interfaces/IKillmail";
 import { Killmails } from "../models/Killmails";
+import { KillmailsESI } from "../models/KillmailsESI";
 
 const killmailQueue = createQueue("killmail");
 
@@ -38,14 +39,14 @@ async function processKillmail(
   const model = new Killmails(processedKillmail);
   try {
     await model.save();
-
-    // Her laves nu et POST kald til internal endpoint
-    const internalAuthKey = process.env.INTERNAL_AUTH_KEY; // Sæt denne i .env
-    if (!internalAuthKey) {
-      throw new Error("No internal auth key configured in ENV");
-    }
   } catch (error) {
     await Killmails.updateOne({ killmail_id: killmailId }, processedKillmail);
+  } finally {
+    KillmailsESI.updateOne(
+      { killmail_id: killmailId },
+      { $set: { processed: true } },
+      { upsert: true },
+    );
   }
 
   return processedKillmail;

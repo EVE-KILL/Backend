@@ -1,9 +1,9 @@
-import { Schema, model, type Document, type Model } from "mongoose";
+import { type Document, type Model, Schema, model } from "mongoose";
 import type {
   IESIAttacker,
+  IESIKillmail,
   IESIVictim,
   IESIVictimItem,
-  IESIKillmail,
 } from "../interfaces/IESIKillmail";
 
 // Extend the IESIKillmail interface with Mongoose's Document interface
@@ -68,6 +68,7 @@ const killmailsESISchema = new Schema<IESIKillmailDocument>(
     solar_system_id: { type: Number },
     attackers: { type: [attackerSchema] },
     victim: { type: victimSchema },
+    processed: { type: Boolean, default: false },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields
@@ -85,6 +86,7 @@ killmailsESISchema.index({ killmail_id: 1, killmail_hash: 1 }, { unique: true })
 killmailsESISchema.index({ killmail_time: 1 }, { sparse: true });
 killmailsESISchema.index({ createdAt: 1 }, { sparse: true });
 killmailsESISchema.index({ updatedAt: 1 }, { sparse: true });
+killmailsESISchema.index({ processed: 1 }, { sparse: true });
 
 // Add indexes for attackers and victim (character_id, corporation_id and alliance_id)
 killmailsESISchema.index({ "attackers.character_id": 1 }, { sparse: true });

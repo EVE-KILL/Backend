@@ -47,4 +47,5 @@ export interface IESIKillmail {
   updatedAt?: Date;
   createdAt?: Date;
   error?: string;
+  processed?: boolean;
 }

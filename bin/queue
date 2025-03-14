@@ -1,8 +1,8 @@
-#!/usr/bin/env bun
+#!/usr/bin/env bun --bun
 
 import { Command } from 'commander';
-import path from 'path';
-import fs from 'fs/promises';
+import path from 'node:path';
+import fs from 'node:fs/promises';
 import { initMongooseConnection } from '../server/helpers/Mongoose';
 import * as Sentry from "@sentry/bun";
 
