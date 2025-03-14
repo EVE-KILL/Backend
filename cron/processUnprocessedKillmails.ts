@@ -45,8 +45,9 @@ export default {
             type: "fixed",
             delay: 5000, // 5 seconds
           },
-          removeOnComplete: true,
-          removeOnFail: true,
+          removeOnComplete: 1000,
+          removeOnFail: 5000,
+          enableOfflineQueue: false,
         },
       })),
     );

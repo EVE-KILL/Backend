@@ -7,6 +7,7 @@ function createWorker(queueName: string, jobProcessor: any, options?: any) {
       await jobProcessor(job);
     },
     {
+      enableOfflineQueue: true,
       connection: {
         host: process.env.REDIS_URI ? process.env.REDIS_URI : "192.168.10.10",
         port: process.env.REDIS_PORT ? Number.parseInt(process.env.REDIS_PORT) : 6379,
