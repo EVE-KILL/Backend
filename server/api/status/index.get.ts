@@ -408,6 +408,6 @@ export default defineEventHandler(async () => {
 });
 
 function formatNumber(num: number): number {
-  return Number(num.toLocaleString("da-DK")); // Lets be real, US using commas as decimal separator is just wrong.
+  return Number(num.toLocaleString("da-DK")) || 0; // Lets be real, US using commas as decimal separator is just wrong.
   // When are ya'll gonne give up and use metric? plebs..
 }
