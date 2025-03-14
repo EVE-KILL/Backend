@@ -7,7 +7,7 @@
     "husky": "husky install",
     "preview": "node .output/server/index.mjs",
     "lint": "biome check .",
-    "lint:fix": "biome check --apply ."
+    "lint:fix": "biome check --write ."
   },
   "dependencies": {
     "@sentry/bun": "^9.2.0",
