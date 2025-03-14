@@ -219,7 +219,7 @@ async function calculateFullStats(type: string, id: number, days: number): Promi
       for (const attacker of killmail.attackers) {
         if (attacker[type] === id) {
           entityShipId = attacker.ship_id || 0;
-          const shipName = attacker.ship_name || "Unknown";
+          const shipName = attacker.ship_name || { en: "" };
           stats.mostUsedShips[entityShipId] = stats.mostUsedShips[entityShipId] || {
             count: 0,
             name: shipName,
@@ -321,7 +321,7 @@ async function calculateFullStats(type: string, id: number, days: number): Promi
 
     // Track mostLostShips
     const lostShipId = lossmail?.victim?.ship_id || 0;
-    const lostShipName = lossmail?.victim?.ship_name || "Unknown";
+    const lostShipName = lossmail?.victim?.ship_name || { en: "" };
     stats.mostLostShips[lostShipId] = stats.mostLostShips[lostShipId] || {
       count: 0,
       name: lostShipName,
